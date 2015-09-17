@@ -27,3 +27,11 @@ src_managed/
 project/boot/
 project/plugins/project/
 
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
