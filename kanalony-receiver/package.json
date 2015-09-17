@@ -1,0 +1,17 @@
+{
+  "name": "kanalony-receiver",
+  "version": "1.0.0",
+  "description": "Receive and process the player events and other event based data",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Ofir Kerker",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "kafka-node": "^0.2.28",
+    "mkdirp": "^0.5.1",
+    "winston": "^1.0.1"
+  }
+}
