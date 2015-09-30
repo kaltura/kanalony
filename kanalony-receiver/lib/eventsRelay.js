@@ -1,13 +1,17 @@
 'use strict';
 
 var kafka    = require('kafka-node'),
+    fs       = require('fs'),
     url      = require('url'),
+    path     = require('path'),
     logger   = require('./logger')(module),
+    config   = require('./configurationUtil'),
     timeUtil = require('./timeUֹtil');
 
 var eventsRelay = function(zkConnectionString, topic){
     this.zkConnectionString = zkConnectionString;
-    this.topic    = topic;
+    this.topic = topic;
+    this.fallbackPath = config.getOrElse('kanalony.fallback.path','/tmp');
     this.connect();
 };
 
@@ -19,7 +23,7 @@ eventsRelay.prototype.connect = function() {
     });
 
     this.producer.on('error', function (err) {
-        logger.error("Producer Error:", err);
+        logger.warn("Producer Error:", err);
     });
 };
 
@@ -28,8 +32,19 @@ eventsRelay.prototype.isRequestValid = function(req) {
     return true;
 };
 
-eventsRelay.prototype.produceEvent = function(req, cb) {
-    this.producer.send(this.buildPayload(req), cb);
+eventsRelay.prototype.produceEvent = function(req) {
+    var payload = this.buildPayload(req);
+    var that = this;
+    this.producer.send(payload, function(err){
+        if(err) {
+            var filePath = path.join(that.fallbackPath, 'erroneous-events_' + timeUtil.currentDateTimeAsMinuteString() + '.log');
+            fs.appendFile(filePath, JSON.stringify(payload), function(err){
+                if(err) {
+                    logger.error("Unable to write event to fallback storage  " + filePath + ', ' + err + '\n' + JSON.stringify(payload));
+                }
+            });
+        }
+    });
 };
 
 eventsRelay.prototype.buildPayload = function(req) {

@@ -14,11 +14,7 @@ http.createServer(function (req, res) {
     if (relay.isRequestValid(req)){
         res.writeHead(200, {'Content-Type': 'text/plain'});
         res.end(timeUtil.currentDateTimeAsUTCString());
-        relay.produceEvent(req, function(err){
-            // TODO - Handle Kafka errors
-            if (err) { };
-
-        });
+        relay.produceEvent(req);
     }
     else {
         if (err) { logger.error(timeUtil.currentDateTimeAsUTCString(), err); }
