@@ -12,17 +12,19 @@ var http      = require('http'),
 
 http.createServer(function (req, res) {
     if (relay.isRequestValid(req)){
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end(timeUtil.currentDateTimeAsUTCString());
+        writeResponse(res, 200, timeUtil.currentDateTimeAsUTCString()); // Client doesn't need to wait for response from Kafka
         relay.produceEvent(req);
     }
     else {
-        if (err) { logger.error(timeUtil.currentDateTimeAsUTCString(), err); }
-        res.writeHead(400, {'Content-Type': 'text/plain'});
-        return res.end("Bad request");
+        writeResponse(res, 400, 'Bad request');
     }
 
 }).listen(port, host);
+
+function writeResponse(res, code, body) {
+    res.writeHead(code, {'Content-Type': 'text/plain'});
+    res.end(body);
+}
 
 logger.info('Server is running at http://' + host + ':' + port + '/');
 
