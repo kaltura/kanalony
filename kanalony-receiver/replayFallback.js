@@ -9,6 +9,20 @@ var fs         = require('fs'),
     logger     = kanalony.Logger(module),
     argv       = require('minimist')(process.argv.slice(2));
 
+/**
+ * A node script to replay events that were fallbacked because they were unable to be published to Kafka (for some reason).
+ * The script tries to replay the events from a file of the current minute, by default.
+ * If a --time argument is provided (YYYYmmddHHMM or ISO format) it will try to replay a file with a pattern of that time
+ *
+ * Usage Examples:
+ * ---------------
+ *
+ *  $ node replayFallback.js
+ *     # equivalent to:
+ *  $ node replayFallback.js --time now
+ *  $ node replayFallback.js --time 'Thu, 01 Oct 2015 14:46:50 GMT'
+ *  $ node replayFallback.js --time 201509011746
+ */
 var replayFallback = function(zkConnectionString){
     var that = this;
     this.fallbackPath = config.getOrElse('kanalony.receiver.fallback.path','/tmp/fallback');
