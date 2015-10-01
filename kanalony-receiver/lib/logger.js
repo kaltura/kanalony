@@ -7,7 +7,7 @@ winston.emitErrs = true;
 var path = require('path');
 var mkdirp = require('mkdirp');
 
-var logPath = config.getOrElse('kanalony.log_file_path','kanalony-receiver.log');
+var logPath = config.getOrElse('kanalony.receiver.log_file_path','kanalony-receiver.log');
 var logFullPath = path.resolve('.', logPath);
 
 mkdirp.sync(path.dirname(logFullPath));
@@ -30,18 +30,18 @@ var logger = function (callingModule) {
             new (winston.transports.File)({
                 name: 'info-file',
                 filename: logPath,
-                level: config.get('kanalony.log_level.file') || config.getOrElse('kanalony.log_level','info'),
+                level: config.get('kanalony.receiver.log_level.file') || config.getOrElse('kanalony.receiver.log_level','info'),
                 json: false,
                 colorize: false,
-                handleExceptions: true,
+                handleExceptions: false,
                 humanReadableUnhandledException: true,
                 label: getLabel(callingModule),
                 timestamp: loggerTimestamp,
                 formatter: loggerFormatter
             }),
             new winston.transports.Console({
-                level: config.get('kanalony.log_level.console') || config.getOrElse('kanalony.log_level','info'),
-                handleExceptions: true,
+                level: config.get('kanalony.receiver.log_level.console') || config.getOrElse('kanalony.receiver.log_level','info'),
+                handleExceptions: false,
                 json: false,
                 colorize: true,
                 label: getLabel(callingModule),

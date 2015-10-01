@@ -1,30 +1,17 @@
 'use strict';
 
-var kafka    = require('kafka-node'),
-    fs       = require('fs'),
-    url      = require('url'),
-    path     = require('path'),
-    logger   = require('./logger')(module),
-    config   = require('./configurationUtil'),
-    timeUtil = require('./timeUֹtil');
+var fs            = require('fs'),
+    url           = require('url'),
+    path          = require('path'),
+    logger        = require('./logger')(module),
+    config        = require('./configurationUtil'),
+    timeUtil      = require('./timeUֹtil'),
+    KafkaProducer = require('./kafkaProducer');
 
 var eventsRelay = function(zkConnectionString, topic){
-    this.zkConnectionString = zkConnectionString;
+    this.producer = new KafkaProducer(zkConnectionString);
     this.topic = topic;
-    this.fallbackPath = config.getOrElse('kanalony.fallback.path','/tmp');
-    this.connect();
-};
-
-eventsRelay.prototype.connect = function() {
-    this.client   = new kafka.Client(this.zkConnectionString);
-    this.producer = new kafka.Producer(this.client);
-    this.producer.on('ready', function () {
-        logger.info("Producer is ready!");
-    });
-
-    this.producer.on('error', function (err) {
-        logger.warn("Producer Error:", err);
-    });
+    this.fallbackPath = config.getOrElse('kanalony.receiver.fallback.path','/tmp');
 };
 
 eventsRelay.prototype.isRequestValid = function(req) {

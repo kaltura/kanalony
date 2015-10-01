@@ -6,9 +6,9 @@ var http      = require('http'),
     config    = kanalony.ConfigurationUtil,
     logger    = kanalony.Logger(module),
     relay     = new kanalony.EventsRelay(config.getOrElse('kanalony.zookeeper.connection_string','127.0.0.1:2181/'),
-                                         config.getOrElse('kanalony.zookeeper.topic','player-events')),
-    host      = config.getOrElse('kanalony.receiver.host','0.0.0.0'),
-    port      = config.getOrElse('kanalony.receiver.port','5555');
+                                         config.getOrElse('kanalony.receiver.kafka_topic','player-events')),
+    host      = config.getOrElse('kanalony.receiver.server_host','0.0.0.0'),
+    port      = config.getOrElse('kanalony.receiver.server_port','5555');
 
 http.createServer(function (req, res) {
     if (relay.isRequestValid(req)){
