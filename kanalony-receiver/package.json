@@ -10,7 +10,9 @@
   "author": "Ofir Kerker",
   "license": "AGPL-3.0",
   "dependencies": {
+    "JSONStream": "^1.0.6",
     "kafka-node": "^0.2.28",
+    "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "winston": "^1.0.1"
   }

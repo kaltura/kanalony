@@ -19,11 +19,20 @@ module.exports = {
     },
 
     /**
-     * Returns Date and time rounded by minutes
+     * Returns current date and time rounded by minutes
      * @returns {number}
      */
     currentDateTimeAsMinuteString: function() {
-        var d = new Date();
+        return this.dateTimeAsMinuteString(new Date());
+    },
+
+    /**
+     * Returns date and time rounded by minutes according to the provided value
+     * @param d
+     * @returns {string}
+     */
+    dateTimeAsMinuteString: function(d) {
+        if (isNaN(d)) { return d; }
         var minutesDateTime = d.getFullYear()*100000000 + d.getMonth()*1000000 + d.getDate()*10000 + d.getHours()*100 + d.getMinutes();
         return minutesDateTime.toString();
     }

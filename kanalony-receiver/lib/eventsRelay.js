@@ -11,7 +11,7 @@ var fs            = require('fs'),
 var eventsRelay = function(zkConnectionString, topic){
     this.producer = new KafkaProducer(zkConnectionString);
     this.topic = topic;
-    this.fallbackPath = config.getOrElse('kanalony.receiver.fallback.path','/tmp');
+    this.fallbackPath = config.getOrElse('kanalony.receiver.fallback.path','/tmp/fallback');
 };
 
 eventsRelay.prototype.isRequestValid = function(req) {
