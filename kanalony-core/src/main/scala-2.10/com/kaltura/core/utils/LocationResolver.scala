@@ -2,7 +2,7 @@ package com.kaltura.core.utils
 
 import java.io.Serializable
 
-import com.kaltura.core.utils.logging.{BaseLog, MetaLog}
+import com.kaltura.core.logging.{BaseLog, MetaLog}
 import com.kaltura.ip2location.{Ip2LocationRecord, SerializableIP2LocationReader}
 
 /**

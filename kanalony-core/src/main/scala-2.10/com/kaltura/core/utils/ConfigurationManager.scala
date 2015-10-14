@@ -3,7 +3,7 @@ package com.kaltura.core.utils
 import java.io.{FileInputStream, InputStream}
 import java.util.Properties
 
-import com.kaltura.core.utils.logging.{MetaLog, BaseLog}
+import com.kaltura.core.logging.{MetaLog, BaseLog}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.Map
