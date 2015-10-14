@@ -1,4 +1,4 @@
-package com.kaltura.core.utils.logging
+package com.kaltura.core.logging
 
 import org.slf4j.LoggerFactory
 
