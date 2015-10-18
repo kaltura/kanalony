@@ -42,11 +42,13 @@ eventsRelay.prototype.buildPayload = function(req) {
 
 eventsRelay.prototype.buildMessages = function(req) {
     var params = {};
+    var remoteIp = "";
     try {
         params = url.parse(req.url, true).query;
+        remoteIp = req.connection.remoteAddress;
     }
     catch(err){}
-    return [JSON.stringify({ eventTime: timeUtil.currentDateTimeAsISOString(), userAgent: req.headers["user-agent"], referrer: req.headers["referer"],  params: params })];
+    return [JSON.stringify({ eventTime: timeUtil.currentDateTimeAsISOString(), userAgent: req.headers["user-agent"], remoteIp: remoteIp, referrer: req.headers["referer"],  params: params })];
 };
 
 module.exports = eventsRelay;
