@@ -11,7 +11,7 @@ import com.kaltura.ip2location.{Ip2LocationRecord, SerializableIP2LocationReader
 class LocationResolver extends Serializable with MetaLog[BaseLog] {
   val reader = new SerializableIP2LocationReader(ConfigurationManager.get("kanalony.core.ip2location.data_filepath"))
 
-  def parse(ipCode: String): CountryCity = {
+  def parse(ipCode: String): Location = {
 
     try {
       val ipRecord: Ip2LocationRecord = reader.getAll(ipCode)
@@ -19,31 +19,24 @@ class LocationResolver extends Serializable with MetaLog[BaseLog] {
       if (ipRecord.getCountryLong.length > 35 || ipRecord.getCity.length > 35)
         logger.warn("ip: '" + ipCode + "' with Long Country: " + ipRecord.getCountryLong + " Long City: " + ipRecord.getCity)
 
-      new CountryCity(ipRecord.getCountryLong, ipRecord.getCity).repair()
+      new Location(repair(ipRecord.getCountryLong), repair(ipRecord.getCity))
     }
     catch {
       case e: Exception => {
         //println("Failed to parse IP " + ipCode) // maybe add exception description
         logger.warn("Failed to parse IP '" + ipCode + "' exp: " + e.printStackTrace()) // maybe add exception description
       }
-
-        new CountryCity()
+      new Location
     }
 
   }
 
+  private def repair(locationValue: String) = if (locationValue == "-") "N/A" else locationValue
+
   def close = reader.close()
 
 
-  class CountryCity(var country: String = "N/A", var city: String = "N/A") {
-    def repair(): CountryCity = {
-      if (country == "-")
-        country = "N/A"
-      if (city == "-")
-        city = "N/A"
-
-      this
-    }
+  case class Location(country: String = "N/A", city: String = "N/A") {
 
     override def toString(): String = {
       s"Country: $country, City: $city"
