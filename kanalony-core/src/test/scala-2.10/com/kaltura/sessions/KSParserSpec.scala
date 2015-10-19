@@ -51,10 +51,10 @@ class KSParserSpec extends FlatSpec with Matchers with BeforeAndAfterAll  {
   }
 
   "partial KS V2" should "be resolved to partial data" in {
-    val ks = "djJ8MTQwOTU2MnxpbnZhbGlkX2tz" // <== new String(Base64.getEncoder.encode("v2|1409562|invalid_ks".getBytes))
+    val ks = "djJ8MTA5MXxpbnZhbGlkX2tz" // <== new String(Base64.getEncoder.encode("v2|1091|invalid_ks".getBytes))
     val resolvedData = ksParser.parse(ks)
     resolvedData.isEmpty should be (false)
-    resolvedData.get.partnerId should be (1409562)
+    resolvedData.get.partnerId should be (1091)
     resolvedData.get.userId should be ("Unknown")
   }
 
