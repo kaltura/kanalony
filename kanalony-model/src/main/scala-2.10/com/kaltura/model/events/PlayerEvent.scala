@@ -1,5 +1,14 @@
 package com.kaltura.model.events
 
+import com.kaltura.core.ip2location.Location
+import com.kaltura.core.urls.UrlParts
+import com.kaltura.core.userAgent.UserAgent
 import org.joda.time.DateTime
 
-case class PlayerEvent(partnerId: String = "N/A", eventTime: DateTime, remoteIp: String = "", userAgent: String = "", referrer: String = "", params: Map[String,String])
+case class PlayerEvent (eventTime:  DateTime,
+                        partnerId:  Int,
+                        entryId:    String,
+                        userId:     String,
+                        location:   Location,
+                        userAgent:  UserAgent,
+                        urlParts:   UrlParts)

@@ -1,9 +1,13 @@
 package com.kaltura.enhancement
 
+import com.kaltura.core.ip2location.LocationResolver
 import com.kaltura.core.streaming.StreamManager
+import com.kaltura.core.urls.UrlParser
+import com.kaltura.core.userAgent.UserAgentResolver
 import com.kaltura.core.utils.ConfigurationManager
-import com.kaltura.model.events.PlayerEventParser
+import com.kaltura.model.events.{RawPlayerEvent, PlayerEventParser, PlayerEvent}
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.{SparkContext, SparkConf, Logging}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
@@ -32,7 +36,7 @@ object EventsEnhancer extends App with Logging {
       setMaster(ConfigurationManager.getOrElse("kanalony.events_enhancer.master","local[8]")).
       set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
     val sparkContext = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","30").toInt))
+    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","5").toInt))
     ssc.checkpoint(checkpointDirectory)
 
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
@@ -42,9 +46,36 @@ object EventsEnhancer extends App with Logging {
     val parsedEvents = stream.
                         map(_._2).
                         flatMap(PlayerEventParser.parsePlayerEvent)
-    parsedEvents.print
+
+
+
+    enhanceEvents(parsedEvents)
 
     ssc
+  }
+
+  def enhanceEvents(playerEvents:DStream[RawPlayerEvent]):Unit = {
+
+    playerEvents.foreachRDD( rdd => {
+      rdd.foreachPartition( eventsPart => {
+        val locationResolver = new LocationResolver
+        val KS
+        eventsPart.foreach(rawPlayerEvent => {
+          val playerEvent = PlayerEvent(
+            rawPlayerEvent.eventTime,
+            rawPlayerEvent.params.getOrElse("event:partnerId","-1").toInt,
+            rawPlayerEvent.params.getOrElse("event:entryId","-1"),
+            rawPlayerEvent.params.getOrElse("ks",""),
+            locationResolver.parse(rawPlayerEvent.remoteIp),
+            UserAgentResolver.resolve(rawPlayerEvent.userAgent),
+            UrlParser.getUrlParts(rawPlayerEvent.referrer)
+          )
+          println(playerEvent)
+        })
+        // produce events
+        locationResolver.close
+      })
+    })
   }
 
 

@@ -12,9 +12,9 @@ object PlayerEventParser extends Logging {
     override def dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
   } ++ org.json4s.ext.JodaTimeSerializers.all
 
-  def parsePlayerEvent(playerEvent: String): Option[PlayerEvent] = {
+  def parsePlayerEvent(playerEvent: String): Option[RawPlayerEvent] = {
     try {
-      Some(parse(playerEvent).extract[PlayerEvent])
+      Some(parse(playerEvent).extract[RawPlayerEvent])
     }
     catch {
       case e: Exception => {
@@ -23,7 +23,7 @@ object PlayerEventParser extends Logging {
     }
   }
 
-  def asJson(playerEvent: PlayerEvent): String = {
+  def asJson(playerEvent: RawPlayerEvent): String = {
     write(playerEvent)
   }
 
