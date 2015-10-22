@@ -5,7 +5,7 @@ import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 import com.kaltura.core.utils.CollectionOps._
-import com.kaltura.core.utils.UrlParser
+import com.kaltura.core.urls.UrlParser
 
 abstract class KSParserBase extends IPartnerSecretStore {
 
