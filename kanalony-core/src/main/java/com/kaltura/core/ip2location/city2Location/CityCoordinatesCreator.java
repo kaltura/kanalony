@@ -1,7 +1,7 @@
-package com.kaltura.ip2location.city2Location;
+package com.kaltura.core.ip2location.city2Location;
 
-import com.kaltura.ip2location.DbAttribtues;
-import com.kaltura.ip2location.Ip2LocationRecord;
+import com.kaltura.core.ip2location.DbAttribtues;
+import com.kaltura.core.ip2location.Ip2LocationRecord;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

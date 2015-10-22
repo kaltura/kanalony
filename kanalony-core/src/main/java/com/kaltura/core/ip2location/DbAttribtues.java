@@ -1,4 +1,4 @@
-package com.kaltura.ip2location;
+package com.kaltura.core.ip2location;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 

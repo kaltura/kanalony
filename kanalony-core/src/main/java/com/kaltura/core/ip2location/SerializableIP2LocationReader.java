@@ -1,4 +1,4 @@
-package com.kaltura.ip2location;
+package com.kaltura.core.ip2location;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

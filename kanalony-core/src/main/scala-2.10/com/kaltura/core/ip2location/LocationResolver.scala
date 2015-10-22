@@ -1,9 +1,9 @@
-package com.kaltura.core.utils
+package com.kaltura.core.ip2location
 
 import java.io.Serializable
 
 import com.kaltura.core.logging.{BaseLog, MetaLog}
-import com.kaltura.ip2location.{Ip2LocationRecord, SerializableIP2LocationReader}
+import com.kaltura.core.utils.ConfigurationManager
 
 /**
  * Created by ofirk on 06/10/2015.
@@ -35,12 +35,5 @@ class LocationResolver extends Serializable with MetaLog[BaseLog] {
 
   def close = reader.close()
 
-
-  case class Location(country: String = "N/A", city: String = "N/A") {
-
-    override def toString(): String = {
-      s"Country: $country, City: $city"
-    }
-  }
 
 }

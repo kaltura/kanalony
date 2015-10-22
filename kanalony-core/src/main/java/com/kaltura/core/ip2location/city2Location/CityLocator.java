@@ -1,6 +1,6 @@
-package com.kaltura.ip2location.city2Location;
+package com.kaltura.core.ip2location.city2Location;
 
-import com.kaltura.ip2location.Coordinate;
+import com.kaltura.core.ip2location.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
 package com.kaltura.ip2location
 
-import com.kaltura.core.utils.LocationResolver
+import com.kaltura.core.ip2location.LocationResolver
 import org.scalatest._
 
 class IP2LocationSpec extends FlatSpec with Matchers with BeforeAndAfterAll  {
