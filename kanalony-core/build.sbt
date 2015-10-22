@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(
   "org.slf4j"             % "slf4j-simple"                    % "1.7.12",
   "org.apache.spark"      % "spark-core_2.10"                 % sparkVersion,
   "org.apache.spark"      % "spark-streaming_2.10"            % sparkVersion,
-  "org.apache.spark"      % "spark-streaming-kafka_2.10"      % sparkVersion
+  "org.apache.spark"      % "spark-streaming-kafka_2.10"      % sparkVersion,
+  "eu.bitwalker"          % "UserAgentUtils"                  % "1.18"
 )
 
 
