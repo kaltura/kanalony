@@ -20,7 +20,7 @@ object ConfigurationManager extends Serializable with MetaLog[BaseLog]{
   loadConfiguration(configFilePath);
 
   protected def configFilePath: String = {
-    var confPath: String = "/opt/kaltura/lib"
+    var confPath: String = "/opt/kaltura/conf"
     if (System.getenv.containsKey("KALTURA_CONF_PATH")) {
       confPath = System.getenv("KALTURA_CONF_PATH")
     }

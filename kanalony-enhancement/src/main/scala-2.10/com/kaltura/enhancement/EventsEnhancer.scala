@@ -59,7 +59,6 @@ object EventsEnhancer extends App with Logging {
     playerEvents.foreachRDD( rdd => {
       rdd.foreachPartition( eventsPart => {
         val locationResolver = new LocationResolver
-        val KS
         eventsPart.foreach(rawPlayerEvent => {
           val playerEvent = PlayerEvent(
             rawPlayerEvent.eventTime,
