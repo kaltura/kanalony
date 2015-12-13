@@ -33,7 +33,7 @@ module.exports = {
      */
     dateTimeAsMinuteString: function(d) {
         if (isNaN(d)) { return d; }
-        var minutesDateTime = d.getFullYear()*100000000 + d.getMonth()*1000000 + d.getDate()*10000 + d.getHours()*100 + d.getMinutes();
+        var minutesDateTime = d.getFullYear()*100000000 + (d.getMonth()+1)*1000000 + d.getDate()*10000 + d.getHours()*100 + d.getMinutes();
         return minutesDateTime.toString();
     }
 };
