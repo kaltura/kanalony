@@ -3,6 +3,7 @@
 var fs         = require('fs'),
     path       = require('path'),
     JSONStream = require('JSONStream'),
+    mkdirp = require('mkdirp'),
     kanalony   = require('./kanalony'),
     timeUtil   = kanalony.TimeUtil,
     config     = kanalony.ConfigurationUtil,
@@ -27,9 +28,24 @@ var replayFallback = function(zkConnectionString){
     var that = this;
     this.fallbackPath = config.getOrElse('kanalony.receiver.fallback.path','/tmp/fallback');
     this.errorPath = config.getOrElse('kanalony.receiver.error.path','/tmp/errors');
-    this.producer = new kanalony.KafkaProducer(zkConnectionString, function(){
-        that.replayByArgs(argv);
-
+    mkdirp(this.fallbackPath, function(err){
+        if (err) {
+            logger.error('Unable to create fallback path:', that.fallbackPath);
+            process.exit(1);
+        }
+        else {
+            mkdirp(that.errorPath, function (err) {
+                if (err) {
+                    logger.error('Unable to create error path:', that.errorPath);
+                    process.exit(1);
+                }
+                else {
+                    that.producer = new kanalony.KafkaProducer(zkConnectionString, function () {
+                        that.replayByArgs(argv);
+                    });
+                }
+            });
+        }
     });
 };
 
