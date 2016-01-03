@@ -1,0 +1,46 @@
+###################################################################
+# Logstash configuration file for kAnalony events collection      #
+# Author: Ofir Kerker                                             #
+# Date:   December 23, 2015                                       #
+###################################################################
+
+input {
+  file {
+    path => ["/var/log/nginx/access.log*"]
+    exclude => "*.gz"
+    start_position => "beginning"
+    sincedb_path => "/var/log/kanalony/.sincedb_player"
+    sincedb_write_interval => 1
+  }
+}
+
+filter {
+  grok {
+    match => [ "message" , "%{COMBINEDAPACHELOG}"]
+    overwrite => [ "message" ]
+  }
+
+  date {
+    match => [ "timestamp" , "dd/MMM/YYYY:HH:mm:ss Z" ]
+    remove_field => [ "timestamp" ]
+    target => "eventTime"
+  }
+
+  mutate {
+    remove_field => [ "message", "path", "type", "ident", "auth", "verb", "httpversion", "response", "bytes", "referrer" ]
+    rename => { "clientip" => "remoteIp"}
+    rename => { "agent" => "userAgent"}
+  }
+}
+
+output {
+  kafka {
+    bootstrap_servers => "il-bigdata-1:9092,il-bigdata-2:9092,il-bigdata-3:9092"
+    topic_id => "player-events"
+    acks => "1"
+    batch_size => "2000"
+    # codec => rubydebug
+  }
+  # for debug:
+  # stdout { codec => rubydebug }
+}
