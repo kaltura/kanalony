@@ -6,8 +6,12 @@ import com.kaltura.core.urls.UrlParser
 import com.kaltura.core.userAgent.UserAgentResolver
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.{RawPlayerEvent, PlayerEventParser, PlayerEvent}
+import kafka.producer.KeyedMessage
+import kafka.producer.Producer
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.{SparkContext, SparkConf, Logging}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
@@ -41,40 +45,49 @@ object EventsEnhancer extends App with Logging {
 
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
     val topics = Set("player-events")
+
+    var offsetRanges = Array[OffsetRange]()
     val stream = StreamManager.createStream(ssc, kafkaBrokers, topics)
-
-    val parsedEvents = stream.
-                        map(_._2).
-                        flatMap(PlayerEventParser.parsePlayerEvent)
-
-
-
-    enhanceEvents(parsedEvents)
+    stream.transform { rdd =>
+      offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+      rdd
+    }.map(_._2).
+      flatMap(PlayerEventParser.parsePlayerEvent).
+      foreachRDD { rdd =>
+        enhanceEvents(rdd)
+        for (o <- offsetRanges) {
+          println(s"${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
+        }
+      }
 
     ssc
   }
 
-  def enhanceEvents(playerEvents:DStream[RawPlayerEvent]):Unit = {
 
-    playerEvents.foreachRDD( rdd => {
-      rdd.foreachPartition( eventsPart => {
+
+  def enhanceEvents(playerEvents:RDD[RawPlayerEvent]):Unit = {
+      playerEvents.foreachPartition( eventsPart => {
+        val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
+        val producer = StreamManager.createProducer(kafkaBrokers)
         val locationResolver = new LocationResolver
         eventsPart.foreach(rawPlayerEvent => {
           val playerEvent = PlayerEvent(
+            rawPlayerEvent.params.getOrElse("event:eventType","-1").toInt,
             rawPlayerEvent.eventTime,
             rawPlayerEvent.params.getOrElse("event:partnerId","-1").toInt,
             rawPlayerEvent.params.getOrElse("event:entryId","-1"),
             rawPlayerEvent.params.getOrElse("ks",""),
             locationResolver.parse(rawPlayerEvent.remoteIp),
             UserAgentResolver.resolve(rawPlayerEvent.userAgent),
-            UrlParser.getUrlParts(rawPlayerEvent.referrer)
+            UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("rawPlayerEvent.referrer","")),
+            rawPlayerEvent.params.getOrElse("kalsig","")
           )
-          println(playerEvent)
+          producer.send(new ProducerRecord[String,String]("enriched-player-events", null, playerEvent.toString))
+          logWarning(playerEvent.toString)
         })
-        // produce events
+        producer.close()
         locationResolver.close
       })
-    })
   }
 
 

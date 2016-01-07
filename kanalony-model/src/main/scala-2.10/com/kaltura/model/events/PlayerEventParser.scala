@@ -2,10 +2,12 @@ package com.kaltura.model.events
 
 import java.text.SimpleDateFormat
 
+import com.kaltura.core.urls.UrlParser
 import org.apache.spark.Logging
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
+import scala.collection.mutable
 
 object PlayerEventParser extends Logging {
   implicit val formats = new DefaultFormats {
@@ -14,10 +16,19 @@ object PlayerEventParser extends Logging {
 
   def parsePlayerEvent(playerEvent: String): Option[RawPlayerEvent] = {
     try {
-      Some(parse(playerEvent).extract[RawPlayerEvent])
+      val row:AccessLogRow = parse(playerEvent).extract[AccessLogRow]
+      val params = new mutable.ListMap[String,String]
+      UrlParser.parseUrl(row.request).foreach(pair =>
+        params(pair.key) = pair.value
+      )
+      Some(RawPlayerEvent(row.eventTime,
+                          row.remoteIp,
+                          row.userAgent,
+                          params.toMap))
     }
     catch {
       case e: Exception => {
+        logError(s"Unable to parse log row: $playerEvent, error: $e")
         None
       }
     }

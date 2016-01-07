@@ -5,10 +5,12 @@ import com.kaltura.core.urls.UrlParts
 import com.kaltura.core.userAgent.UserAgent
 import org.joda.time.DateTime
 
-case class PlayerEvent (eventTime:  DateTime,
+case class PlayerEvent (eventType: Int,
+                        eventTime:  DateTime,
                         partnerId:  Int,
                         entryId:    String,
                         userId:     String,
                         location:   Location,
                         userAgent:  UserAgent,
-                        urlParts:   UrlParts)
+                        urlParts:   UrlParts,
+                        kalsig:     String)

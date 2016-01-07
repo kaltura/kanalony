@@ -39,7 +39,7 @@ output {
     topic_id => "player-events"
     acks => "1"
     batch_size => "2000"
-    codec => rubydebug
+    # codec => rubydebug
   }
   # for debug:
   stdout { codec => rubydebug }

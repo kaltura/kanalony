@@ -1,4 +1,4 @@
-lazy val sparkVersion = "1.5.1"
+lazy val sparkVersion = "1.6.0"
 lazy val json4sVersion = "3.2.10"
 
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
@@ -18,7 +18,7 @@ settings(
     "org.json4s"            % "json4s-jackson_2.10"             % json4sVersion,
     "org.json4s"            % "json4s-native_2.10"              % json4sVersion,
     "org.json4s"            % "json4s-ext_2.10"                 % json4sVersion,
-    "com.datastax.spark"    % "spark-cassandra-connector_2.10"  % "1.5.0-M2",
+    "com.datastax.spark"    % "spark-cassandra-connector_2.10"  % "1.5.0-M3",
     "io.dropwizard.metrics" % "metrics-core"                    % "3.1.2",
     "joda-time"             % "joda-time"                       % "2.8.2",
     "com.google.guava"      % "guava"                           % "18.0",
