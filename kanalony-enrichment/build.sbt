@@ -4,9 +4,9 @@ lazy val json4sVersion = "3.2.10"
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-core` = RootProject(file("../kanalony-core"))
 
-lazy val `kanalony-enhancement` = (project in file(".")).
+lazy val `kanalony-enrichment` = (project in file(".")).
 settings(
-  name := "kanalony-enhancement",
+  name := "kanalony-enrichment",
   version := "1.0",
   scalaVersion := "2.10.6",
   libraryDependencies ++= Seq(
