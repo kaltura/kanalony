@@ -11,7 +11,7 @@ object UrlParser {
 
   def parseUrl(url: String) : Array[QueryStringKeyValuePair] = {
     url.split("\\?", 2) match {
-      case Array(_, qs: String) => parseQueryString(qs)
+      case Array(_, qs: String) => parseQueryString(decodeUrl(qs))
       case _ => null
     }
   }
@@ -31,5 +31,5 @@ object UrlParser {
     UrlParts(uri.getHost, uri.getAuthority + uri.getPath, url)
   }
 
-  def decodeUrl(implicit url: String) = java.net.URLDecoder.decode(url, "UTF-8")
+  def decodeUrl(url: String) = java.net.URLDecoder.decode(url, "UTF-8")
 }

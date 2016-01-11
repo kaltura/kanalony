@@ -5,7 +5,7 @@ import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.urls.UrlParser
 import com.kaltura.core.userAgent.UserAgentResolver
 import com.kaltura.core.utils.ConfigurationManager
-import com.kaltura.model.events.{RawPlayerEvent, PlayerEventParser, PlayerEvent}
+import com.kaltura.model.events.{RawPlayerEvent, PlayerEventParser, EnrichedPlayerEvent}
 import kafka.producer.KeyedMessage
 import kafka.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -71,15 +71,16 @@ object EventsEnhancer extends App with Logging {
         val producer = StreamManager.createProducer(kafkaBrokers)
         val locationResolver = new LocationResolver
         eventsPart.foreach(rawPlayerEvent => {
-          val playerEvent = PlayerEvent(
+          val playerEvent = EnrichedPlayerEvent(
             rawPlayerEvent.params.getOrElse("event:eventType","-1").toInt,
             rawPlayerEvent.eventTime,
             rawPlayerEvent.params.getOrElse("event:partnerId","-1").toInt,
-            rawPlayerEvent.params.getOrElse("event:entryId","-1"),
+            rawPlayerEvent.params.getOrElse("event:entryId",""),
+            rawPlayerEvent.params.getOrElse("event:flavourId",""),
             rawPlayerEvent.params.getOrElse("ks",""),
             locationResolver.parse(rawPlayerEvent.remoteIp),
             UserAgentResolver.resolve(rawPlayerEvent.userAgent),
-            UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("rawPlayerEvent.referrer","")),
+            UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("event:referrer","")),
             rawPlayerEvent.params.getOrElse("kalsig","")
           )
           producer.send(new ProducerRecord[String,String]("enriched-player-events", null, playerEvent.toString))
