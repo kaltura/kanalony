@@ -20,8 +20,3 @@ lazy val `kanalony-aggregations` = (project in file(".")).
     )
 
   ).dependsOn(`kanalony-model`, `kanalony-core`)
-
-
-
-
-

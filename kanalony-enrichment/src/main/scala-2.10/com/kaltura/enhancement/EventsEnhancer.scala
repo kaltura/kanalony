@@ -40,7 +40,7 @@ object EventsEnhancer extends App with Logging {
       setMaster(ConfigurationManager.getOrElse("kanalony.events_enhancer.master","local[8]")).
       set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
     val sparkContext = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","5").toInt))
+    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","1").toInt))
     ssc.checkpoint(checkpointDirectory)
 
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
@@ -83,7 +83,7 @@ object EventsEnhancer extends App with Logging {
             UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("event:referrer","")),
             rawPlayerEvent.params.getOrElse("kalsig","")
           )
-          producer.send(new ProducerRecord[String,String]("enriched-player-events", null, playerEvent.toString))
+          producer.send(new ProducerRecord[String,String]("enriched-player-events", null, PlayerEventParser.asJson(playerEvent)))
           logWarning(playerEvent.toString)
         })
         producer.close()

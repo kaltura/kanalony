@@ -48,10 +48,10 @@ object EntryEventsAggregation extends App with Logging {
       setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]")).
       set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
     val sparkContext = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.batch_duration", "20").toInt))
+    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.batch_duration", "1").toInt))
     ssc.checkpoint(checkpointDirectory)
 
-    val stateSpec = StateSpec.function(trackStateFunc _)
+    //val stateSpec = StateSpec.function(trackStateFunc _)
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_aggregations.kafka_brokers", "127.0.0.1:9092")
     val topics = Set("enriched-player-events")
     val stream = StreamManager.createStream(ssc, kafkaBrokers, topics)
@@ -60,24 +60,24 @@ object EntryEventsAggregation extends App with Logging {
       map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
 
-    val aggregatedBatchEvents = parsedEnrichedEvents.map(x => (EntryAggrKey(x.entryId, x.eventType, x.eventTime.minuteOfHour().roundFloorCopy()),1L)).reduceByKey(_ + _)
+    /*val aggregatedBatchEvents = parsedEnrichedEvents.map(x => (EntryAggrKey(x.entryId, x.eventType, x.eventTime.minuteOfHour().roundFloorCopy()),1L)).reduceByKey(_ + _)
     val aggregatedEvents = aggregatedBatchEvents.mapWithState(stateSpec)
     //aggregatedBatchEvents.print()
     //aggregatedEvents.print()
     aggregatedEvents.foreachRDD((rdd) => rdd.map {
       case (k,v) => EntryAggrResult(k.entryId, k.eventType, k.minute, v)
     }.saveToCassandra(ConfigurationManager.getOrElse("kanalony.events_aggregations.keyspace", "events_aggregations"), "entry_events_by_minute"))
-
-
+*/
+    EntryHourlyAggregation.aggregate(parsedEnrichedEvents)
     ssc
   }
 
-  def trackStateFunc(batchTime: Time, key: EntryAggrKey, value: Option[Long], state: State[Long]): Option[(EntryAggrKey, Long)] = {
+  /*def trackStateFunc(batchTime: Time, key: EntryAggrKey, value: Option[Long], state: State[Long]): Option[(EntryAggrKey, Long)] = {
     val sum = value.getOrElse(0L) + state.getOption.getOrElse(0L)
     val output = (key, sum)
     state.update(sum)
     Some(output)
-  }
+  }*/
 
   def setStreamingLogLevels {
     val log4jInitialized = Logger.getRootLogger.getAllAppenders.hasMoreElements
