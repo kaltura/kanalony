@@ -1,4 +1,4 @@
-lazy val sparkVersion = "1.5.1"
+lazy val sparkVersion = "1.6.0"
 lazy val `kanalony-core` = (project in file(".")).
   settings(
     name := "kanalony-core",

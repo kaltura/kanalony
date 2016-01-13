@@ -34,8 +34,24 @@ object PlayerEventParser extends Logging {
     }
   }
 
+  def parseEnhancedPlayerEvent(playerEvent: String): Option[EnrichedPlayerEvent] = {
+    try {
+      Some(parse(playerEvent).extract[EnrichedPlayerEvent])
+    }
+    catch {
+      case e: Exception => {
+        None
+      }
+    }
+  }
+
+
   def asJson(playerEvent: RawPlayerEvent): String = {
     write(playerEvent)
+  }
+
+  def asJson(enrichedPlayerEvent: EnrichedPlayerEvent) : String = {
+    write(enrichedPlayerEvent);
   }
 
 }
