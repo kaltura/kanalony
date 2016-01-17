@@ -60,6 +60,10 @@ object EntryEventsAggregation extends App with Logging {
       map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
 
+    // filter events by time and remove old events
+    val parsedEnrichedEventsByMinute = parsedEnrichedEvents.filter(event => event.eventTime.plusMinutes(5).isAfterNow)
+    val parsedEnrichedEventsByHour = parsedEnrichedEvents.filter(event => event.eventTime.plusHours(1).plusMinutes(5).isAfterNow)
+    //val hourlyParsedEnrichedEvents = parsedEnrichedEvents.filter(x => x.eventTime.d)
     /*val aggregatedBatchEvents = parsedEnrichedEvents.map(x => (EntryAggrKey(x.entryId, x.eventType, x.eventTime.minuteOfHour().roundFloorCopy()),1L)).reduceByKey(_ + _)
     val aggregatedEvents = aggregatedBatchEvents.mapWithState(stateSpec)
     //aggregatedBatchEvents.print()
@@ -68,7 +72,8 @@ object EntryEventsAggregation extends App with Logging {
       case (k,v) => EntryAggrResult(k.entryId, k.eventType, k.minute, v)
     }.saveToCassandra(ConfigurationManager.getOrElse("kanalony.events_aggregations.keyspace", "events_aggregations"), "entry_events_by_minute"))
 */
-    EntryHourlyAggregation.aggregate(parsedEnrichedEvents)
+    EntryByHourAggr.aggregate(parsedEnrichedEventsByHour)
+    EntryByMinuteAggr.aggregate(parsedEnrichedEventsByMinute)
     ssc
   }
 
