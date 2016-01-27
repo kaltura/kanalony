@@ -5,12 +5,12 @@ lazy val `kanalony-model` = (project in file(".")).
   settings(
     name := "kanalony-model",
     version := "1.0",
-    scalaVersion := "2.10.6",
+    scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
-        "org.apache.spark"      % "spark-core_2.10"                 % sparkVersion,
-        "org.json4s"            % "json4s-jackson_2.10"             % json4sVersion,
-        "org.json4s"            % "json4s-native_2.10"              % json4sVersion,
-        "org.json4s"            % "json4s-ext_2.10"                 % json4sVersion,
+        "org.apache.spark"      % "spark-core_2.11"                 % sparkVersion,
+        "org.json4s"            % "json4s-jackson_2.11"             % json4sVersion,
+        "org.json4s"            % "json4s-native_2.11"              % json4sVersion,
+        "org.json4s"            % "json4s-ext_2.11"                 % json4sVersion,
         "joda-time"             % "joda-time"                       % "2.8.1"
     )
 ).dependsOn(`kanalony-core`)

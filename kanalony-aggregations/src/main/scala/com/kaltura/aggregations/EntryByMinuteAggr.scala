@@ -5,7 +5,13 @@ import org.apache.spark.streaming.{State, Time}
 import org.apache.spark.streaming.dstream.{MapWithStateDStream, DStream}
 import org.joda.time.DateTime
 
-case class EntryResult (entryKey: EntryKey, hour: DateTime, value: Long)
+
+
+import com.datastax.spark.connector._
+import com.datastax.spark.connector.SomeColumns
+
+
+
 
 object EntryByMinuteAggr extends BaseEventsAggregation[EntryKey, Long, Long, (EntryKey, Long), EntryResult] {
 
@@ -19,9 +25,13 @@ object EntryByMinuteAggr extends BaseEventsAggregation[EntryKey, Long, Long, (En
   }
 
   override def prepareForSave(aggregatedEvents: MapWithStateDStream[EntryKey, Long, Long, (EntryKey, Long)]): DStream[EntryResult] = {
-    aggregatedEvents.map({ case (k,v) => EntryResult(EntryKey(k.entryId, k.eventType, k.time), k.time.monthOfYear().roundFloorCopy(),v)})
+    aggregatedEvents.map({ case (k,v) => EntryResult(k.entryId, k.eventType, k.time, k.time.year().roundFloorCopy(),v)})
   }
 
   override def tableName(): String = "entry_events_by_minute"
 
+  override def stam: String = tableName()
+
+  override def someColumns(): SomeColumns = SomeColumns("entry_id" as "entryId", "event_type" as "eventType",
+   "minute" as "time", "year" as "year", "count" as "value")
 }
