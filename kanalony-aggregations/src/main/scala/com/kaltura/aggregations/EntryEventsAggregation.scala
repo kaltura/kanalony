@@ -12,8 +12,14 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{StateSpec, Seconds, StreamingContext, Time, State}
 import com.datastax.spark.connector._
 import org.apache.log4j.{Level, Logger}
+import org.clapper.classutil.ClassFinder
+
 
 import org.joda.time.DateTime
+
+import scala.reflect.ClassTag
+import java.io.File
+import scala.reflect.runtime.universe._
 
 /**
  * Created by orlylampert on 1/11/16.
@@ -27,12 +33,15 @@ object EntryEventsAggregation extends App with Logging {
   override def main(args: Array[String]) {
 
     setStreamingLogLevels
+    val aggregators = getAggregators()
     val applicationName = ConfigurationManager.get("kanalony.events_aggregation.application_name")
     val checkpointDirectory = s"/tmp/checkpoint/$applicationName"
     // Get StreamingContext from checkpoint data or create a new one
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
-        createSparkStreamingContext(checkpointDirectory)
+        createSparkStreamingContext(checkpointDirectory, aggregators)
+        //createSparkStreamingContext(checkpointDirectory)
+
       })
 
     // Start the computation
@@ -41,9 +50,9 @@ object EntryEventsAggregation extends App with Logging {
 
   }
 
-  def createSparkStreamingContext(checkpointDirectory: String): StreamingContext = {
+  def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[String]): StreamingContext = {
 
-    val sparkConf = new SparkConf().
+      val sparkConf = new SparkConf().
       setAppName(ConfigurationManager.get("kanalony.events_aggregation.application_name")).
       setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]")).
       set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
@@ -51,7 +60,6 @@ object EntryEventsAggregation extends App with Logging {
     val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.batch_duration", "1").toInt))
     ssc.checkpoint(checkpointDirectory)
 
-    //val stateSpec = StateSpec.function(trackStateFunc _)
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_aggregations.kafka_brokers", "127.0.0.1:9092")
     val topics = Set("enriched-player-events")
     val stream = StreamManager.createStream(ssc, kafkaBrokers, topics)
@@ -60,24 +68,19 @@ object EntryEventsAggregation extends App with Logging {
       map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
 
-    /*val aggregatedBatchEvents = parsedEnrichedEvents.map(x => (EntryAggrKey(x.entryId, x.eventType, x.eventTime.minuteOfHour().roundFloorCopy()),1L)).reduceByKey(_ + _)
-    val aggregatedEvents = aggregatedBatchEvents.mapWithState(stateSpec)
-    //aggregatedBatchEvents.print()
-    //aggregatedEvents.print()
-    aggregatedEvents.foreachRDD((rdd) => rdd.map {
-      case (k,v) => EntryAggrResult(k.entryId, k.eventType, k.minute, v)
-    }.saveToCassandra(ConfigurationManager.getOrElse("kanalony.events_aggregations.keyspace", "events_aggregations"), "entry_events_by_minute"))
-*/
-    EntryHourlyAggregation.aggregate(parsedEnrichedEvents)
+    // filter events by time and remove old events
+    val parsedEnrichedEventsByMinute = parsedEnrichedEvents.filter(
+      event => event.eventTime.plusMinutes(ConfigurationManager.getOrElse("kanalony.events_aggregations.minutes_to_save", "5").toInt).isAfterNow)
+
+    val parsedEnrichedEventsByHour = parsedEnrichedEvents.filter(
+      event => event.eventTime.plusHours(ConfigurationManager.getOrElse("kanalony.events_aggregations.hours_to_save", "1").toInt)
+        .plusMinutes(ConfigurationManager.getOrElse("kanalony.events_aggregations.minutes_to_save", "5").toInt).isAfterNow)
+
+    aggregators.foreach(aggregate(_, parsedEnrichedEvents))
+    //EntryByHourAggr.aggregate(parsedEnrichedEventsByHour)
+    //EntryByMinuteAggr.aggregate(parsedEnrichedEventsByMinute)
     ssc
   }
-
-  /*def trackStateFunc(batchTime: Time, key: EntryAggrKey, value: Option[Long], state: State[Long]): Option[(EntryAggrKey, Long)] = {
-    val sum = value.getOrElse(0L) + state.getOption.getOrElse(0L)
-    val output = (key, sum)
-    state.update(sum)
-    Some(output)
-  }*/
 
   def setStreamingLogLevels {
     val log4jInitialized = Logger.getRootLogger.getAllAppenders.hasMoreElements
@@ -88,6 +91,27 @@ object EntryEventsAggregation extends App with Logging {
         " To override add a custom log4j.properties to the classpath.")
       Logger.getRootLogger.setLevel(Level.WARN)
     }
+  }
+
+  def getAggregators() : List[String] = {
+    val path = Seq("/Users/orlylampert/projects/kanalony/kanalony-aggregations/").map(new File(_));
+    val finder = ClassFinder(path)
+    val classes = finder.getClasses
+    //val classMap = ClassFinder.classInfoMap(classes)
+
+    val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
+
+    aggregators.map(cls => cls.name).toList
+
+  }
+
+  def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
+    val mirror = runtimeMirror(getClass.getClassLoader)
+    val module = mirror.staticModule(className)
+    val cls = mirror.reflectModule(module).instance.asInstanceOf[IAggregate]
+    val im =mirror.reflect(cls)
+    val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
+    im.reflectMethod(method)(events)
   }
 
 }
