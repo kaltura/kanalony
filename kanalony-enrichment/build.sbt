@@ -8,22 +8,22 @@ lazy val `kanalony-enrichment` = (project in file(".")).
 settings(
   name := "kanalony-enrichment",
   version := "1.0",
-  scalaVersion := "2.10.6",
+  scalaVersion := "2.11.7",
   libraryDependencies ++= Seq(
 
-    "org.apache.spark"      % "spark-core_2.10"                 % sparkVersion,
-    "org.apache.spark"      % "spark-streaming_2.10"            % sparkVersion,
-    "org.apache.spark"      % "spark-streaming-kafka_2.10"      % sparkVersion,
-    "org.apache.spark"      % "spark-sql_2.10"                  % sparkVersion,
-    "com.datastax.spark"    % "spark-cassandra-connector_2.10"  % "1.4.1",
-    "org.json4s"            % "json4s-jackson_2.10"             % json4sVersion,
-    "org.json4s"            % "json4s-native_2.10"              % json4sVersion,
-    "org.json4s"            % "json4s-ext_2.10"                 % json4sVersion,
-    "io.dropwizard.metrics" % "metrics-core"                    % "3.1.2",
-    "joda-time"             % "joda-time"                       % "2.9.1",
-    "com.google.guava"      % "guava"                           % "18.0",
+    "org.apache.spark"      %% "spark-core"                 % sparkVersion,
+    "org.apache.spark"      %% "spark-streaming"            % sparkVersion,
+    "org.apache.spark"      %% "spark-streaming-kafka"      % sparkVersion,
+    "org.apache.spark"      %% "spark-sql"                  % sparkVersion,
+    "com.datastax.spark"    %% "spark-cassandra-connector"  % "1.4.1",
+    "org.json4s"            %% "json4s-jackson"             % json4sVersion,
+    "org.json4s"            %% "json4s-native"              % json4sVersion,
+    "org.json4s"            %% "json4s-ext"                 % json4sVersion,
+    "io.dropwizard.metrics" % "metrics-core"                % "3.1.2",
+    "joda-time"             % "joda-time"                   % "2.9.1",
+    "com.google.guava"      % "guava"                       % "18.0",
     // Test
-    "org.scalatest"         % "scalatest_2.10"                  % "2.2.4"    % "test"
+    "org.scalatest"         %% "scalatest"                  % "2.2.4"    % "test"
   )
 
 ).dependsOn(`kanalony-model`, `kanalony-core`)
