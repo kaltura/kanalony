@@ -1,5 +1,8 @@
 package com.kaltura.core.userAgent
 
+import com.kaltura.core.userAgent.enums.{Device, OperatingSystem, Browser}
+
+
 /**
  * Resolves browser and operating system from user agent string
  */
@@ -16,10 +19,10 @@ object UserAgentResolver {
    */
   private def parse(ua:String): UserAgent = {
     val userAgent = eu.bitwalker.useragentutils.UserAgent.parseUserAgentString(ua)
-    val browserVersion = userAgent.getBrowserVersion
-    UserAgent(userAgent.getBrowser.getId,
-              if (browserVersion == null) "N/A" else browserVersion.getVersion,
-              userAgent.getOperatingSystem.getId)
+    val operatingSystem = userAgent.getOperatingSystem
+    UserAgent(Browser.withName(userAgent.getBrowser.getName),
+              OperatingSystem.withName(operatingSystem.getName),
+              Device.withName(operatingSystem.getDeviceType.getName))
   }
 
 }
