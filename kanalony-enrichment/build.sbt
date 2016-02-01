@@ -15,6 +15,7 @@ settings(
     "org.apache.spark"      % "spark-streaming_2.10"            % sparkVersion,
     "org.apache.spark"      % "spark-streaming-kafka_2.10"      % sparkVersion,
     "org.apache.spark"      % "spark-sql_2.10"                  % sparkVersion,
+    "com.datastax.spark"    % "spark-cassandra-connector_2.10"  % "1.4.1",
     "org.json4s"            % "json4s-jackson_2.10"             % json4sVersion,
     "org.json4s"            % "json4s-native_2.10"              % json4sVersion,
     "org.json4s"            % "json4s-ext_2.10"                 % json4sVersion,

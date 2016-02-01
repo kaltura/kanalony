@@ -7,7 +7,7 @@ import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 import com.kaltura.core.utils.CollectionOps._
 import com.kaltura.core.urls.UrlParser
 
-abstract class KSParserBase extends IPartnerSecretStore {
+trait KSParserBase extends IPartnerSecretStore {
 
   case class KSData(partnerId: Int, userId:String = "Unknown")
 

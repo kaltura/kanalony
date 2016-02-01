@@ -5,6 +5,7 @@ import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.urls.UrlParser
 import com.kaltura.core.userAgent.UserAgentResolver
 import com.kaltura.core.utils.ConfigurationManager
+import com.kaltura.model.entities.Partner
 import com.kaltura.model.events.{RawPlayerEvent, PlayerEventParser, EnrichedPlayerEvent}
 import kafka.producer.KeyedMessage
 import kafka.producer.Producer
@@ -14,6 +15,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.{SparkContext, SparkConf, Logging}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+
 
 object EventsEnhancer extends App with Logging {
 
@@ -66,7 +68,7 @@ object EventsEnhancer extends App with Logging {
 
 
   def enhanceEvents(playerEvents:RDD[RawPlayerEvent]):Unit = {
-      playerEvents.foreachPartition( eventsPart => {
+    KSParser.parseKS(playerEvents).foreachPartition( eventsPart => {
         val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
         val producer = StreamManager.createProducer(kafkaBrokers)
         val locationResolver = new LocationResolver
@@ -77,7 +79,7 @@ object EventsEnhancer extends App with Logging {
             rawPlayerEvent.params.getOrElse("event:partnerId","-1").toInt,
             rawPlayerEvent.params.getOrElse("event:entryId",""),
             rawPlayerEvent.params.getOrElse("event:flavourId",""),
-            rawPlayerEvent.params.getOrElse("ks",""),
+            rawPlayerEvent.params.getOrElse("userId","Unknown"),
             locationResolver.parse(rawPlayerEvent.remoteIp),
             UserAgentResolver.resolve(rawPlayerEvent.userAgent),
             UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("event:referrer","")),
