@@ -16,7 +16,7 @@ input {
 
 filter {
   grok {
-    match => [ "message" , "%{COMBINEDAPACHELOG}"]
+    match => [ "message" , "%{COMBINEDAPACHELOG} %{NOTSPACE:proxyRemoteAddr}"]
     overwrite => [ "message" ]
   }
 
@@ -28,7 +28,7 @@ filter {
 
   mutate {
     remove_field => [ "message", "path", "type", "ident", "auth", "verb", "httpversion", "response", "bytes", "referrer" ]
-    rename => { "clientip" => "remoteIp"}
+    rename => { "clientip" => "remoteAddr"}
     rename => { "agent" => "userAgent"}
   }
 }

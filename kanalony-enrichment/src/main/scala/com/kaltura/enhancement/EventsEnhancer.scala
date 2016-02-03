@@ -1,20 +1,17 @@
 package com.kaltura.enhancement
 
-import com.kaltura.core.ip2location.LocationResolver
+import com.kaltura.core.ip2location.{Location, LocationResolver}
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.urls.UrlParser
 import com.kaltura.core.userAgent.UserAgentResolver
 import com.kaltura.core.utils.ConfigurationManager
-import com.kaltura.model.entities.Partner
-import com.kaltura.model.events.{RawPlayerEvent, PlayerEventParser, EnrichedPlayerEvent}
-import kafka.producer.KeyedMessage
-import kafka.producer.Producer
+import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser, RawPlayerEvent}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
-import org.apache.spark.{SparkContext, SparkConf, Logging}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.{Logging, SparkConf, SparkContext}
 
 
 object EventsEnhancer extends App with Logging {
@@ -80,7 +77,7 @@ object EventsEnhancer extends App with Logging {
             rawPlayerEvent.params.getOrElse("event:entryId",""),
             rawPlayerEvent.params.getOrElse("event:flavourId",""),
             rawPlayerEvent.params.getOrElse("userId","Unknown"),
-            locationResolver.parse(rawPlayerEvent.remoteIp),
+            locationResolver.parseWithProxy(rawPlayerEvent.remoteAddr, rawPlayerEvent.proxyRemoteAddr),
             UserAgentResolver.resolve(rawPlayerEvent.userAgent),
             UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("event:referrer","")),
             rawPlayerEvent.params.getOrElse("kalsig","")
@@ -92,7 +89,6 @@ object EventsEnhancer extends App with Logging {
         locationResolver.close
       })
   }
-
 
   def setStreamingLogLevels {
     val log4jInitialized = Logger.getRootLogger.getAllAppenders.hasMoreElements

@@ -6,6 +6,7 @@ case class AccessLogRow(
                         host:String,
                         request:String,
                         eventTime:DateTime,
-                        remoteIp:String,
+                        remoteAddr:String,
+                        proxyRemoteAddr:String,
                         userAgent:String
                         )

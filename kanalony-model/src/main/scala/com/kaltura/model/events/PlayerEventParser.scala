@@ -22,7 +22,8 @@ object PlayerEventParser extends Logging {
         params(pair.key) = pair.value
       )
       Some(RawPlayerEvent(row.eventTime,
-                          row.remoteIp,
+                          row.remoteAddr,
+                          row.proxyRemoteAddr,
                           row.userAgent,
                           params.toMap))
     }
