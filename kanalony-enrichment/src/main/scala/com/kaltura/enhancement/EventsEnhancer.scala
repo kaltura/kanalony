@@ -83,7 +83,7 @@ object EventsEnhancer extends App with Logging {
             rawPlayerEvent.params.getOrElse("kalsig","")
           )
           producer.send(new ProducerRecord[String,String]("enriched-player-events", null, PlayerEventParser.asJson(playerEvent)))
-          logWarning(playerEvent.toString)
+          //logWarning(playerEvent.toString)
         })
         producer.close()
         locationResolver.close
