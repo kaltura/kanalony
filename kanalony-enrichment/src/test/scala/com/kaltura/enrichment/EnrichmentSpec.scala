@@ -79,7 +79,7 @@ class EnrichmentSpec extends SparkFunSuite
 
     val playerEventsTopic = Set("player-events")
     val enrichedPlayerEventsTopic = Set("enriched-player-events")
-    val data = Array.fill(1300)(playerEvent)
+    val data = Array.fill(50)(playerEvent)
     val allReceived = new ArrayBuffer[EnrichedPlayerEvent] with mutable.SynchronizedBuffer[EnrichedPlayerEvent]
 
     kafkaTestUtils.createTopic(enrichedPlayerEventsTopic.last)
@@ -107,19 +107,18 @@ class EnrichmentSpec extends SparkFunSuite
       flatMap(PlayerEventParser.parsePlayerEvent).
       foreachRDD { rdd =>
         EventsEnhancer.enhanceEvents(rdd)
-        kafkaTestUtils.sendMessages("player-events", data)
       }
 
-//    enrichedStream.map(_._2).
-//      flatMap(PlayerEventParser.parseEnhancedPlayerEvent).foreachRDD(rdd => allReceived ++= rdd.collect())
+    enrichedStream.map(_._2).
+      flatMap(PlayerEventParser.parseEnhancedPlayerEvent).foreachRDD(rdd => allReceived ++= rdd.collect())
 
     ssc.start()
-//    eventually(timeout(20.seconds), interval(200.milliseconds)) {
-//      assert(allReceived.size === data.size,
-//        "didn't get expected number of messages, messages:\n" + allReceived.mkString("\n"))
-//    }
-    ssc.awaitTerminationOrTimeout(100000)
-    //ssc.stop()
+    eventually(timeout(20.seconds), interval(200.milliseconds)) {
+      assert(allReceived.size === data.length,
+        "didn't get expected number of messages, messages:\n" + allReceived.mkString("\n"))
+    }
+    //ssc.awaitTerminationOrTimeout(100000)
+    ssc.stop()
 
   }
 
