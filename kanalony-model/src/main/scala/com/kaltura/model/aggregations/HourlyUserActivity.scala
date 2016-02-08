@@ -3,8 +3,7 @@ package com.kaltura.model.aggregations
 import org.joda.time.DateTime
 import com.kaltura.core.userAgent.enums.{Browser, OperatingSystem, Device}
 
-case class HourlyPartnerUserActivity(partnerId: Int, eventType: Int, year: Int, hour: DateTime, count: Long)
-case class HourlyPartnerEntry(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, count: Long)
+case class HourlyPartner(partnerId: Int, eventType: Int, year: Int, hour: DateTime, count: Long)
 case class HourlyPartnerCountry(partnerId: Int, eventType: Int, year: Int, hour: DateTime, country: String, count: Long)
 case class HourlyPartnerCountryCity(partnerId: Int, eventType: Int, year: Int, hour: DateTime, country: String, city: String, count: Long)
 case class HourlyPartnerDomain(partnerId: Int, eventType: Int, year: Int, hour: DateTime, domain: String, count: Long)
@@ -19,3 +18,18 @@ case class HourlyPartnerApplication(partnerId: Int, eventType: Int, year: Int, h
 case class HourlyPartnerPlaybackContext(partnerId: Int, eventType: Int, year: Int, hour: DateTime, playbackContext: Int)
 case class HourlyPartnerApplicationPlaybackContext(partnerId: Int, eventType: Int, year: Int, hour: DateTime, application: String, playbackContext: Int)
 case class HourlyPartnerCountryOperatingSystemBrowser(partnerId: Int, eventType: Int, year: Int, hour: DateTime, country: String, os: OperatingSystem.Value, browser: Browser.Value)
+
+case class HourlyEntry(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, count: Long)
+case class HourlyEntryCountry(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, country: String, count: Long)
+case class HourlyEntryCountryCity(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, country: String, city: String, count: Long)
+case class HourlyEntryDomain(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, domain: String, count: Long)
+case class HourlyEntryDomainReferrer(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, referrer: String, count: Long)
+case class HourlyEntryReferrer(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, domain: String, referrer: String, count: Long)
+case class HourlyEntryDevice(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, device: Device.Value, count: Long)
+case class HourlyEntryOperatingSystem(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, os: OperatingSystem.Value, count: Long)
+case class HourlyEntryBrowser(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, browser: Browser.Value, count: Long)
+case class HourlyEntryDeviceOperatingSystem(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, device: Device.Value, os: OperatingSystem.Value, count: Long)
+case class HourlyEntryOperationSystemBrowser(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, os: OperatingSystem.Value, browser: Browser.Value)
+case class HourlyEntryApplication(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, application: String)
+case class HourlyEntryPlaybackContext(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, playbackContext: Int)
+case class HourlyEntryApplicationPlaybackContext(partnerId: Int, entryId: String, eventType: Int, year: Int, hour: DateTime, application: String, playbackContext: Int)
