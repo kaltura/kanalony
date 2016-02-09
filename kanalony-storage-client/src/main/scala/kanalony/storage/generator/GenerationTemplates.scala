@@ -62,6 +62,12 @@ object GenerationTemplates {
     val rangeValuePlaceholder = "%RANGE_COLNAME%"
   }
 
+  case object greaterThanOrEqualConditionTemplate {
+    val content = "_.%COLNAME% gte %RANGE_COLNAME%"
+    val columnNamePlaceholder = "%COLNAME%"
+    val rangeValuePlaceholder = "%RANGE_COLNAME%"
+  }
+
   case object lessThanConditionTemplate {
     val content = "_.%COLNAME% lt %RANGE_COLNAME%"
     val columnNamePlaceholder = "%COLNAME%"

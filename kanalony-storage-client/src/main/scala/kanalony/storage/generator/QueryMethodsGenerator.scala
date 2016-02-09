@@ -47,7 +47,7 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
   private def generateRangeCondition(x: IColumnQueryDefinition) = {
     val andClauseTemplate = GenerationTemplates.andClauseTemplate
 
-    val gtConditionTemplate = GenerationTemplates.greaterThanConditionTemplate
+    val gtConditionTemplate = GenerationTemplates.greaterThanOrEqualConditionTemplate
     var gtCondition = gtConditionTemplate.content.replace(gtConditionTemplate.columnNamePlaceholder, x.name)
     gtCondition = gtCondition.replace(gtConditionTemplate.rangeValuePlaceholder, getRangeParamNames(x)._1)
     val gtAndClauseTemplate = andClauseTemplate.content.replace(andClauseTemplate.conditionPlaceholder, gtCondition)
