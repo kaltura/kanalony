@@ -41,6 +41,43 @@ object GenerationTemplates {
     val propNamePlaceholder = "%PROPNAME%"
   }
 
+  case object whereClauseTemplate {
+    val content = ".where(%COND%)"
+    val conditionPlaceholder = "%COND%"
+  }
+
+  case object andClauseTemplate {
+    val content = ".and(%COND%)"
+    val conditionPlaceholder = "%COND%"
+  }
+
+  case object equalityConditionTemplate {
+    val content = "_.%COLNAME% eqs %COLNAME%"
+    val columnNamePlaceholder = "%COLNAME%"
+  }
+
+  case object greaterThanConditionTemplate {
+    val content = "_.%COLNAME% gt %RANGE_COLNAME%"
+    val columnNamePlaceholder = "%COLNAME%"
+    val rangeValuePlaceholder = "%RANGE_COLNAME%"
+  }
+
+  case object lessThanConditionTemplate {
+    val content = "_.%COLNAME% lt %RANGE_COLNAME%"
+    val columnNamePlaceholder = "%COLNAME%"
+    val rangeValuePlaceholder = "%RANGE_COLNAME%"
+  }
+
+  case object queryDefinitionTemplate {
+    val content = """def query(%PARAM_DEFS%) : Future[List[%ENTITY_CLASS%]] = {
+                    |    select%FILTERS%
+                    |      .fetch()
+                    |  }"""
+    val paramDefsPlaceholder = "%PARAM_DEFS%"
+    val entityClassNamePlaceholder = "%ENTITY_CLASS%"
+    val filterClausesPlaceholder = "%FILTERS%"
+  }
+
   case object tableAccessorTemplate {
     val classNamePlaceholder = "%CLASSNAME%"
     val entityClassNamePlaceholder = "%ENTITY_CLASS%"
@@ -48,6 +85,7 @@ object GenerationTemplates {
     val rowDecompositionPlaceholder = "%ROW_DECOMPOSITION%"
     val tableColDefsPlaceholder = "%TABLE_COL_DEFS%"
     val tableNamePlaceholder = "%TABLE_NAME%"
+    val queryMethodsPlaceholder = "%QUERY_METHODS%"
 
     val content = """import com.websudos.phantom.dsl._
                     |import scala.concurrent.Future
@@ -66,9 +104,11 @@ object GenerationTemplates {
                     |
                     |  def store(entity: %ENTITY_CLASS%): Future[ResultSet] = {
                     |    insert%VALUE_POPULATION%
-                    |      //.consistencyLevel_=(ConsistencyLevel.Any)
                     |      .future()
                     |  }
+                    |
+                    |  %QUERY_METHODS%
+                    |
                     |}"""
   }
 }

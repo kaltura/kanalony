@@ -14,6 +14,8 @@ object OrderBy extends Enumeration {
 
 class ColumnDefinition(val name : String, val typeName : ColumnType.Value) extends IColumnDefinition
 
+class ColumnQueryDefinition(override val name : String, override val typeName : ColumnType.Value, val queryKind: ColumnQueryKind.Value) extends ColumnDefinition(name, typeName) with IColumnQueryDefinition
+
 object ColumnDefinition {
   def apply(name:String, typeName : ColumnType.Value) = {
     new ColumnDefinition(name, typeName)

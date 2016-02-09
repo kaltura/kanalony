@@ -71,8 +71,21 @@ class TableAccessorGenerator(val tm : TableMetadata) {
     }
     case x::xs => {
       GenerationTemplates.propertyDecompositionTemplate.content.replace(GenerationTemplates.propertyDecompositionTemplate.propNamePlaceholder, x.name) +
-      ", \n" + generateRowDecomposition(xs)
+        ", \n" + generateRowDecomposition(xs)
     }
+  }
+
+  def generateQueryMethods() : String = {
+    val methodGenerator = new QueryMethodsGenerator(tm)
+    val partitionKeyQueryColumnDefs = tm.primaryKey.pk.columns.map(x => new ColumnQueryDefinition(x.name, x.typeName, ColumnQueryKind.Equality))
+    var generatedQueries = methodGenerator.generateQueryMethod(partitionKeyQueryColumnDefs);
+
+    val clusteringQueryColumnDefs = tm.primaryKey.ck.columns.map(x => new ColumnQueryDefinition(x.name, x.typeName, ColumnQueryKind.Range))
+    for( i <- 1 to clusteringQueryColumnDefs.length) {
+      generatedQueries = generatedQueries + "\n " + methodGenerator.generateQueryMethod(partitionKeyQueryColumnDefs ::: clusteringQueryColumnDefs.take(i));
+    }
+
+    generatedQueries
   }
 
   def generate() = {
@@ -86,6 +99,7 @@ class TableAccessorGenerator(val tm : TableMetadata) {
     generatedContent = generatedContent.replace(tableAccessorTemplate.rowDecompositionPlaceholder, generateRowDecomposition())
     generatedContent = generatedContent.replace(tableAccessorTemplate.tableColDefsPlaceholder, generateTableColDefs())
     generatedContent = generatedContent.replace(tableAccessorTemplate.tableNamePlaceholder, generateTableName())
+    generatedContent = generatedContent.replace(tableAccessorTemplate.queryMethodsPlaceholder, generateQueryMethods())
 
     generatedContent
   }

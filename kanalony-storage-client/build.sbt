@@ -1,4 +1,5 @@
 name := "kanalony-storage-clients"
+
 version := "1.0.0"
 
 resolvers ++= Seq(

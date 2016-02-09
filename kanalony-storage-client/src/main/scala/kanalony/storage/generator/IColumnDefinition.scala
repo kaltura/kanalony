@@ -8,6 +8,14 @@ trait IColumnDefinition {
   val typeName : ColumnType.Value
 }
 
+object ColumnQueryKind extends Enumeration {
+  val Equality, Range, List = Value
+}
+
+trait IColumnQueryDefinition extends IColumnDefinition{
+    val queryKind : ColumnQueryKind.Value
+}
+
 trait IClusteringColumnDefinition extends IColumnDefinition {
   val orderBy : OrderBy.Value
 }
