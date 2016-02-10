@@ -12,9 +12,14 @@ object StreamManager {
 
   def createStream(ssc: StreamingContext, kafkaBrokers: String, topics: Set[String]): InputDStream[(String, String)] = {
     val kafkaParams = Map[String, String]("metadata.broker.list" -> kafkaBrokers)
+    createStream(ssc, topics, kafkaParams)
+  }
+
+  def createStream(ssc: StreamingContext, topics: Set[String], kafkaParams: Map[String, String]): InputDStream[(String, String)] = {
     KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
       ssc, kafkaParams, topics)
   }
+
 
   def createProducer(kafkaBrokers:String): Producer[String, String] = {
     val props = new util.HashMap[String, Object]()

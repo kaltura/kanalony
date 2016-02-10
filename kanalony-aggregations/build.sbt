@@ -1,8 +1,6 @@
 lazy val sparkVersion = "1.6.0"
-
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-core` = RootProject(file("../kanalony-core"))
-
 lazy val `kanalony-aggregations` = (project in file(".")).
   settings(
     name := "kanalony-aggregations",
@@ -10,7 +8,6 @@ lazy val `kanalony-aggregations` = (project in file(".")).
     scalaVersion := "2.11.7",
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-
       "org.clapper"           %% "classutil"                  % "1.0.6",
       "org.apache.spark"      %% "spark-core"                 % sparkVersion,
       "org.apache.spark"      %% "spark-streaming"            % sparkVersion,
@@ -20,7 +17,6 @@ lazy val `kanalony-aggregations` = (project in file(".")).
       // Test
       "org.scalatest"         %% "scalatest"                  % "2.2.4"    % "test"
     )
-
   ).dependsOn(`kanalony-model`, `kanalony-core`)
 
 
