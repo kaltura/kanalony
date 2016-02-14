@@ -9,7 +9,7 @@ import scala.concurrent.Future
  * Created by elad.benedict on 2/11/2016.
  */
 
-class HourlyUserActivityPrtnEntryClstCountry extends QueryBase[HourlyUserActivityPrtnEntryClstCountryParams] with HourlyUserAccessQuery {
+class HourlyUserActivityPrtnEntryClstCountry extends QueryBase[HourlyUserActivityPrtnEntryClstCountryParams] with HourlyUserActivityQuery {
   protected override def typifyParams(params: Map[String, Any]): HourlyUserActivityPrtnEntryClstCountryParams = {
     val typedParams = QueryParamsValidator.validate[DateTime,DateTime,Int,String,Int](("start","end","partnerId","entryId","metric"), params)
     HourlyUserActivityPrtnEntryClstCountryParams(typedParams._1, typedParams._2, typedParams._3, typedParams._4, typedParams._5)

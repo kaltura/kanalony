@@ -1,6 +1,6 @@
-import kanalony.storage.logic.{MinutelyQuery, UserAccessQuery}
+import kanalony.storage.logic.{UserActivityQuery, MinutelyQuery}
 
 /**
  * Created by elad.benedict on 2/10/2016.
  */
-trait MinutelyUserAccessQuery extends UserAccessQuery with MinutelyQuery
+trait MinutelyUserAccessQuery extends UserActivityQuery with MinutelyQuery
