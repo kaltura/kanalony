@@ -19,7 +19,7 @@ package org.apache.spark
 
 // scalastyle:off
 
-import com.kaltura.enhancement.EventsEnhancer._
+import com.kaltura.enrichment.EventsEnrichment._
 import org.apache.log4j.{Level, Logger}
 import org.scalatest.{FunSuite, Outcome}
 
@@ -56,8 +56,8 @@ abstract class SparkFunSuite extends FunSuite with Logging {
       // logging level.
       logInfo("Setting log level to [WARN] for streaming example." +
         " To override add a custom log4j.properties to the classpath.")
-      Logger.getRootLogger.setLevel(Level.WARN)
     }
+    Logger.getRootLogger.setLevel(Level.WARN)
   }
 
 }

@@ -1,14 +1,30 @@
 package com.kaltura.model.dao
 
-import com.datastax.driver.core.Row
+import com.kaltura.client.KalturaClient
+import com.kaltura.client.types.KalturaCategoryEntryFilter
 import com.kaltura.model.entities.Entry
+
+import scala.collection.JavaConversions._
 
 /**
  * Created by ofirk on 27/01/2016.
  */
 object EntryDAO extends DAOBase[Entry, String] {
-  override val tableName = "dim_entries"
-  override val idFieldName = "entryId"
-  override def fromRow(row: Row) = if (row != null) Some(Entry(row.getString(idFieldName), row.getString("media_type"), Some(row.getString("categories")))) else None
+  def getById(partnerId: Int, entryId:String): Option[Entry] = {
+    withPartnerImpersonation(partnerId) { kalturaAPI =>
+      val categoriesSet = getEntryCategories(entryId)
+      Some(Entry(entryId, Some(categoriesSet.mkString(","))))
+    }
+  }
+
+  def getEntryCategories(entryId: String): Set[String] = {
+    val categoriesSet = scala.collection.mutable.Set[String]()
+    val categoryEntryFilter = new KalturaCategoryEntryFilter()
+    categoryEntryFilter.entryIdEqual = entryId
+    val kCategories = kalturaAPI.getCategoryEntryService.list(categoryEntryFilter)
+    kCategories.objects.foreach { kce => categoriesSet ++= kce.categoryFullIds.split(">") }
+    categoriesSet.toSet
+  }
+
 }
 

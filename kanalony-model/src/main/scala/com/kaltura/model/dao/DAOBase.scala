@@ -1,33 +1,26 @@
 package com.kaltura.model.dao
 
-import com.datastax.driver.core.querybuilder.QueryBuilder
-import com.kaltura.core.cassandra.ClusterManager
-import com.datastax.driver.core.{Statement, Row}
-import QueryBuilder.{eq => eql}
-import com.kaltura.model.entities.Partner
-import scalikejdbc._
+import com.kaltura.client.{KalturaApiException, KalturaClient}
+import com.kaltura.core.utils.KalturaAPI
 
 trait DAOBase[T, IDType]{
+  val kalturaAPI = KalturaAPI.client
 
-  def cassandraSession = ClusterManager.getSession
-  val keySpace = "schema_tests"
-  val tableName: String
-  val idFieldName: String
-
-  Class.forName("com.mysql.jdbc.Driver")
-  ConnectionPool.singleton("jdbc:mysql://localhost:3306/test", "", "")
-  implicit val mysqlSession = AutoSession
-
-  def findById(id:IDType): Option[T] = {
-    val s:Statement = QueryBuilder
-      .select()
-      .all()
-      .from(keySpace, tableName)
-      .where(eql(idFieldName,id))
-      .limit(1)
-    fromRow(cassandraSession.execute(s).one)
+  def withPartnerImpersonation[A](partnerId:Int)(execution: KalturaClient => A): A = {
+    try {
+      kalturaAPI.setPartnerId(partnerId)
+      execution(kalturaAPI)
+    } catch {
+      case kae: KalturaApiException => {
+        if (kae.code == "INVALID_KS") {
+          KalturaAPI.setKS
+          execution(kalturaAPI)
+        }
+        else throw kae
+      }
+    } finally {
+      kalturaAPI.resetRequest
+    }
   }
-
-  def fromRow(row: Row): Option[T]
 
 }

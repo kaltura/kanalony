@@ -1,4 +1,4 @@
-package com.kaltura.enhancement
+package com.kaltura.enrichment
 
 import com.kaltura.core.ip2location.{Location, LocationResolver}
 import com.kaltura.core.streaming.StreamManager
@@ -12,9 +12,10 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
+//import com.kaltura.enrichment.Enrich._
 
 
-object EventsEnhancer extends App with Logging {
+object EventsEnrichment extends App with Logging {
 
   override def main(args: Array[String]) {
 
@@ -53,7 +54,7 @@ object EventsEnhancer extends App with Logging {
     }.map(_._2).
       flatMap(PlayerEventParser.parsePlayerEvent).
       foreachRDD { rdd =>
-        enhanceEvents(rdd)
+        enrichEvents(rdd)
         for (o <- offsetRanges) {
           println(s"${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
         }
@@ -62,10 +63,13 @@ object EventsEnhancer extends App with Logging {
     ssc
   }
 
+  def enrichByEntities(playerEvents:RDD[RawPlayerEvent]): RDD[RawPlayerEvent] = {
+    EnrichByEntry.enrich(EnrichByPartner.enrich(playerEvents))
+  }
 
-
-  def enhanceEvents(playerEvents:RDD[RawPlayerEvent]):Unit = {
-    KSParser.parseKS(playerEvents).foreachPartition( eventsPart => {
+  def enrichEvents(playerEvents:RDD[RawPlayerEvent]):Unit = {
+    enrichByEntities(playerEvents).
+      foreachPartition( eventsPart => {
         val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
         val producer = StreamManager.createProducer(kafkaBrokers)
         val locationResolver = new LocationResolver
@@ -80,13 +84,17 @@ object EventsEnhancer extends App with Logging {
             locationResolver.parseWithProxy(rawPlayerEvent.remoteAddr, rawPlayerEvent.proxyRemoteAddr),
             UserAgentResolver.resolve(rawPlayerEvent.userAgent),
             UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("event:referrer","")),
-            rawPlayerEvent.params.getOrElse("kalsig","")
+            rawPlayerEvent.params.getOrElse("kalsig",""),
+            rawPlayerEvent.params.getOrElse("categories",""),
+            rawPlayerEvent.params.getOrElse("application",""),
+            rawPlayerEvent.params.getOrElse("playbackContext",""),
+            rawPlayerEvent.params.getOrElse("playbackType","")
           )
           producer.send(new ProducerRecord[String,String]("enriched-player-events", null, PlayerEventParser.asJson(playerEvent)))
-          //logWarning(playerEvent.toString)
+          logError(playerEvent.toString)
         })
         producer.close()
-        locationResolver.close
+        locationResolver.close()
       })
   }
 

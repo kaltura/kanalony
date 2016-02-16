@@ -1,25 +1,25 @@
-package com.kaltura.enhancement
+package com.kaltura.enrichment
 
-import com.kaltura.core.sessions.{KSParserBase}
-import com.kaltura.model.dao.PartnerDAO
-import com.kaltura.model.entities.Partner
-import com.kaltura.model.events.RawPlayerEvent
-import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
-import com.datastax.spark.connector._
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.convert.decorateAsScala._
 
+import com.datastax.spark.connector._
+import com.kaltura.core.sessions.KSParserBase
+import com.kaltura.model.cache.PartnerCache
+import com.kaltura.model.entities.{Entry, Partner}
+import com.kaltura.model.events.RawPlayerEvent
+import org.apache.spark.rdd.RDD
+import scala.collection.convert.decorateAsScala._
 
 /**
  * Created by ofirk on 31/01/2016.
  */
-object KSParser extends KSParserBase{
+object EnrichByPartner extends IEnrich with KSParserBase {
+  type IDType = Int
+  type EnrichType = Partner
+  override def createLocalCache = new ConcurrentHashMap[Int, Partner]().asScala
+  localCache.put(-1, Partner(-1))
 
-  var localCache: scala.collection.concurrent.Map[Int, Partner] = new ConcurrentHashMap[Int, Partner]().asScala
-  localCache.putIfAbsent(-1, Partner(-1, None))
-
-  def parseKS(playerEvents:RDD[RawPlayerEvent]):RDD[RawPlayerEvent] = {
+  def enrich(playerEvents:RDD[RawPlayerEvent]):RDD[RawPlayerEvent] = {
     val partnersCache = playerEvents.sparkContext.cassandraTable[Partner]("schema_tests","dim_partners").map(partner => (partner.id,partner))
     playerEvents.map(rawPlayerEvent => (rawPlayerEvent.params.getOrElse("event:partnerId","-1").toInt,rawPlayerEvent)).leftOuterJoin(partnersCache)
       .map(joinedEventPartner => {
@@ -28,8 +28,7 @@ object KSParser extends KSParserBase{
         val ks = currentRow.params.getOrElse("ks","")
         if(!localCache.contains(partnerId)) {
           localCache.putIfAbsent(partnerId,{
-            println("Cache miss!")
-            joinedEventPartner._2._2.getOrElse(PartnerDAO.getById(partnerId).getOrElse(Partner(partnerId)))
+            joinedEventPartner._2._2.getOrElse(PartnerCache.getById(partnerId))
           })
         }
         val ksData = parse(ks).getOrElse(KSData(partnerId))

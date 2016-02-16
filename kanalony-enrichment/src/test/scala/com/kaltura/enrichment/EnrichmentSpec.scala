@@ -4,11 +4,9 @@ import java.io.File
 
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
-import com.kaltura.enhancement.EventsEnhancer
-import com.kaltura.model.events.{RawPlayerEvent, EnrichedPlayerEvent, PlayerEventParser}
-import kafka.serializer.StringDecoder
-import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaTestingUtils, KafkaUtils, OffsetRange}
-import org.apache.spark.streaming.{Seconds, Milliseconds, StreamingContext}
+import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
+import org.apache.spark.streaming.kafka.KafkaTestingUtils
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.util.SparkUtils
 import org.apache.spark.{Logging, SparkConf, SparkContext, SparkFunSuite}
 import org.scalatest.concurrent.Eventually
@@ -32,6 +30,7 @@ class EnrichmentSpec extends SparkFunSuite
     .setMaster("local[12]")
     .setAppName(this.getClass.getSimpleName)
     .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
+    .set("spark.cassandra.connection.keep_alive_ms","30000")
 
   private var sc: SparkContext = _
   private var ssc: StreamingContext = _
@@ -70,7 +69,7 @@ class EnrichmentSpec extends SparkFunSuite
       "@version":"1",
       "@timestamp":"2016-02-03T17:13:46.390Z",
       "host":"Ofirs-MacBook-Pro.local",
-      "request":"/api_v3/index.php?service=stats&action=collect&kalsig=1ebb5aea0c5f253fd8c578febe6a752f&clientTag=kdp%3Av3%2E9%2E2&event%3AobjectType=KalturaStatsEvent&event%3AsessionId=C90BFCFC%2D2EBF%2D5893%2D892D%2D2121162F414A&apiVersion=3%2E1%2E5&event%3AisFirstInSession=false&event%3Aduration=194&ignoreNull=1&event%3AeventType=13&event%3Aseek=false&event%3Areferrer=http%253A%2F%2Fabc%2Ego%2Ecom%2Fshows%2Fthe%2Dbachelorette%2Fvideo%2Fmost%2Drecent%2FVDKA0%5Flawz79v7&event%3AentryId=0%5Fn5nbuy6i&ks=djJ8MTA5MXwjFUzIifsgEbq-qlc8DhLFAVhV-xecSlzm_smRiTZabayc9bKahRKZhSjuPhDTFc-mHKD1uUd6PhcowDdW6TtDw1ozzDuqD2GlWH-Y4XiQTQ%3D%3D&event%3AeventTimestamp=1435075182567&event%3AuiconfId=23521211&event%3ApartnerId=1091&event%3AcurrentPoint=18&event%3AclientVer=3%2E0%3Av3%2E9%2E2-13",
+      "request":"/api_v3/index.php?service=stats&action=collect&kalsig=1ebb5aea0c5f253fd8c578febe6a752f&clientTag=kdp%3Av3%2E9%2E2&event%3AobjectType=KalturaStatsEvent&event%3AsessionId=C90BFCFC%2D2EBF%2D5893%2D892D%2D2121162F414A&apiVersion=3%2E1%2E5&event%3AisFirstInSession=false&event%3Aduration=194&ignoreNull=1&event%3AeventType=13&event%3Aseek=false&event%3Areferrer=http%253A%2F%2Fabc%2Ego%2Ecom%2Fshows%2Fthe%2Dbachelorette%2Fvideo%2Fmost%2Drecent%2FVDKA0%5Flawz79v7&event%3AentryId=1%5Frkxi9ngj&ks=djJ8MTg4MzUwMXx82V0BnDzlkrA9ppCMT_cD8qk2x_k_4z1E8v0bSuTGVGqBq6JPsBM9ipdalUsWdZntxSypKVgyXjk36bpQqWHA6VW_phuqy0snZPNdvZ11U5FUWAUKtX7aYxc7yXL6MK9bcXgnFrhUineEjgVvZ-UH&event%3AeventTimestamp=1435075182567&event%3AuiconfId=23521211&event%3ApartnerId=1883501&event%3AcurrentPoint=18&event%3AclientVer=3%2E0%3Av3%2E9%2E2-13",
       "proxyRemoteAddr":"8.8.8.8",
       "eventTime":"2016-02-03T17:13:46.000Z",
       "remoteAddr":"127.0.0.1",
@@ -79,7 +78,7 @@ class EnrichmentSpec extends SparkFunSuite
 
     val playerEventsTopic = Set("player-events")
     val enrichedPlayerEventsTopic = Set("enriched-player-events")
-    val data = Array.fill(50)(playerEvent)
+    val data = Array.fill(1)(playerEvent)
     val allReceived = new ArrayBuffer[EnrichedPlayerEvent] with mutable.SynchronizedBuffer[EnrichedPlayerEvent]
 
     kafkaTestUtils.createTopic(enrichedPlayerEventsTopic.last)
@@ -106,14 +105,14 @@ class EnrichmentSpec extends SparkFunSuite
     stream.map(_._2).
       flatMap(PlayerEventParser.parsePlayerEvent).
       foreachRDD { rdd =>
-        EventsEnhancer.enhanceEvents(rdd)
+        EventsEnrichment.enrichEvents(rdd)
       }
 
     enrichedStream.map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent).foreachRDD(rdd => allReceived ++= rdd.collect())
 
     ssc.start()
-    eventually(timeout(20.seconds), interval(200.milliseconds)) {
+    eventually(timeout(30.seconds), interval(200.milliseconds)) {
       assert(allReceived.size === data.length,
         "didn't get expected number of messages, messages:\n" + allReceived.mkString("\n"))
     }
