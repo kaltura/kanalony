@@ -5,7 +5,7 @@ import kanalony.storage.logic.queries.model.QueryConstraint
 /**
  * Created by elad.benedict on 2/16/2016.
  */
-object QueryTableLocator {
+object QueryLocator {
 
   def tableAndQueryEqualityConstraintsMatch(tq: IQuery, queryParams: QueryParams) : Boolean = {
     val tableEqualityConstrainedDefs = tq.dimensionInformation.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension).toSet
