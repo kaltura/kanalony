@@ -2,12 +2,12 @@ package com.kaltura.enrichment
 
 import java.util.concurrent.ConcurrentHashMap
 
-import com.datastax.spark.connector._
 import com.kaltura.core.sessions.KSParserBase
 import com.kaltura.model.cache.PartnerCache
-import com.kaltura.model.entities.{Entry, Partner}
+import com.kaltura.model.entities.Partner
 import com.kaltura.model.events.RawPlayerEvent
 import org.apache.spark.rdd.RDD
+
 import scala.collection.convert.decorateAsScala._
 
 /**
@@ -20,20 +20,20 @@ object EnrichByPartner extends IEnrich with KSParserBase {
   localCache.put(-1, Partner(-1))
 
   def enrich(playerEvents:RDD[RawPlayerEvent]):RDD[RawPlayerEvent] = {
-    val partnersCache = playerEvents.sparkContext.cassandraTable[Partner]("schema_tests","dim_partners").map(partner => (partner.id,partner))
-    playerEvents.map(rawPlayerEvent => (rawPlayerEvent.params.getOrElse("event:partnerId","-1").toInt,rawPlayerEvent)).leftOuterJoin(partnersCache)
-      .map(joinedEventPartner => {
-        val currentRow: RawPlayerEvent = joinedEventPartner._2._1
+    playerEvents.mapPartitionsWithIndex { (index,eventsPart) =>
+      eventsPart.map { currentRow: RawPlayerEvent =>
         val partnerId = currentRow.params.getOrElse("event:partnerId","-1").toInt
         val ks = currentRow.params.getOrElse("ks","")
         if(!localCache.contains(partnerId)) {
           localCache.putIfAbsent(partnerId,{
-            joinedEventPartner._2._2.getOrElse(PartnerCache.getById(partnerId))
+            println(s"Local cache miss, partition $index")
+            PartnerCache.getById(partnerId)
           })
         }
         val ksData = parse(ks).getOrElse(KSData(partnerId))
         currentRow.copy(params = currentRow.params + ("userId" -> ksData.userId))
-      })
+      }
+    }
   }
 
   override def getPartnerSecret(partnerId:Int) = localCache.getOrElse(partnerId,Partner(partnerId)).secret.getOrElse("")

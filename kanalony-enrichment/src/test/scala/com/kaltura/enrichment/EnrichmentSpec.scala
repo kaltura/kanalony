@@ -27,7 +27,7 @@ class EnrichmentSpec extends SparkFunSuite
                       with Logging {
 
   val sparkConf = new SparkConf()
-    .setMaster("local[12]")
+    .setMaster("local[24]")
     .setAppName(this.getClass.getSimpleName)
     .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
     .set("spark.cassandra.connection.keep_alive_ms","30000")
@@ -78,12 +78,12 @@ class EnrichmentSpec extends SparkFunSuite
 
     val playerEventsTopic = Set("player-events")
     val enrichedPlayerEventsTopic = Set("enriched-player-events")
-    val data = Array.fill(1000)(playerEvent)
+    val data = Array.fill(8000)(playerEvent)
     val allReceived = new ArrayBuffer[EnrichedPlayerEvent] with mutable.SynchronizedBuffer[EnrichedPlayerEvent]
 
     kafkaTestUtils.createTopic(enrichedPlayerEventsTopic.last)
     playerEventsTopic.foreach(t => {
-      kafkaTestUtils.createTopic(t, 10)
+      kafkaTestUtils.createTopic(t, 20)
       kafkaTestUtils.sendMessages(t, data)
     })
 
@@ -105,21 +105,20 @@ class EnrichmentSpec extends SparkFunSuite
     stream.map(_._2).
       flatMap(PlayerEventParser.parsePlayerEvent).
       foreachRDD { rdd =>
-        EventsEnrichment.enrichEvents(rdd)
         kafkaTestUtils.sendMessages(playerEventsTopic.last, data)
+        EventsEnrichment.enrichEvents(rdd)
       }
 
-    enrichedStream.map(_._2).
-      flatMap(PlayerEventParser.parseEnhancedPlayerEvent).foreachRDD(rdd => allReceived ++= rdd.collect())
+    /*enrichedStream.map(_._2).
+      flatMap(PlayerEventParser.parseEnhancedPlayerEvent).foreachRDD(rdd => allReceived ++= rdd.collect())*/
 
     ssc.start()
     /*eventually(timeout(30000 seconds), interval(1 seconds)) {
       assert(allReceived.size === data.length,
         "didn't get expected number of messages, messages:\n" + allReceived.mkString("\n"))
     }*/
-    ssc.awaitTerminationOrTimeout(100000)
+    ssc.awaitTerminationOrTimeout(1000000)
     ssc.stop()
-
   }
 
 

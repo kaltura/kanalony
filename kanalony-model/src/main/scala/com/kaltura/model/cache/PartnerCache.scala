@@ -18,6 +18,7 @@ sealed class PartnerCache extends CacheBase[Partner, Int]{
 
   def getById(id: Int) : Partner = {
     findById(id).getOrElse {
+      println("Global cache miss")
       val partner = PartnerDAO.getById(id).getOrElse(Partner(id))
       cassandraSession.execute(QueryBuilder
         .insertInto(keySpace, tableName)

@@ -19,20 +19,18 @@ object EnrichByEntry extends IEnrich {
   localCache.put("-1", Entry("-1"))
 
   override def enrich(playerEvents: RDD[RawPlayerEvent]): RDD[RawPlayerEvent] = {
-    val entriesCache = playerEvents.sparkContext.cassandraTable[Entry]("schema_tests","dim_entries").map(entry => (entry.id,entry))
-    playerEvents.map(rawPlayerEvent => (rawPlayerEvent.params.getOrElse("event:entryId",""),rawPlayerEvent)).leftOuterJoin(entriesCache)
-      .map(joinedEventEntry => {
-        val currentRow: RawPlayerEvent = joinedEventEntry._2._1
-        val partnerId = currentRow.params.getOrElse("event:partnerId","-1").toInt
-        val entryId = currentRow.params.getOrElse("event:entryId","")
-        if(!localCache.contains(entryId)) {
-          localCache.putIfAbsent(entryId,{
-            joinedEventEntry._2._2.getOrElse(EntryCache.getById(partnerId, entryId))
+    playerEvents.mapPartitions { eventsPart =>
+      eventsPart.map { currentRow: RawPlayerEvent =>
+        val partnerId = currentRow.params.getOrElse("event:partnerId", "-1").toInt
+        val entryId = currentRow.params.getOrElse("event:entryId", "")
+        if (!localCache.contains(entryId)) {
+          localCache.putIfAbsent(entryId, {
+            EntryCache.getById(partnerId, entryId)
           })
         }
-        val categories = localCache.getOrElse(entryId,Entry(entryId)).categories.getOrElse("")
+        val categories = localCache.getOrElse(entryId, Entry(entryId)).categories.getOrElse("")
         currentRow.copy(params = currentRow.params + ("categories" -> categories))
-      })
+      }
+    }
   }
-
 }
