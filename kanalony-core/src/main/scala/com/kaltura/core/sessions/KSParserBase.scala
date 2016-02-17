@@ -115,7 +115,7 @@ trait KSParserBase extends IPartnerSecretStore {
 
   private def getPartnerId(ksStr: String): Option[Int] = {
     val ksSections = ksStr.split('|')
-    if (ksSections.length == 3) Some(ksSections(1).toInt) else None
+    if (ksSections.length >= 3) Some(ksSections(1).toInt) else None
   }
 
   private def aesDecrypt(key:SecretKeySpec, message:Array[Byte]): Array[Byte] = {

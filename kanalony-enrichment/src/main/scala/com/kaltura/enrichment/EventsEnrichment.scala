@@ -1,6 +1,6 @@
 package com.kaltura.enrichment
 
-import com.kaltura.core.ip2location.{Location, LocationResolver}
+import com.kaltura.core.ip2location.LocationResolver
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.urls.UrlParser
 import com.kaltura.core.userAgent.UserAgentResolver
@@ -12,7 +12,6 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
-//import com.kaltura.enrichment.Enrich._
 
 
 object EventsEnrichment extends App with Logging {
@@ -91,7 +90,7 @@ object EventsEnrichment extends App with Logging {
             rawPlayerEvent.params.getOrElse("playbackType","")
           )
           producer.send(new ProducerRecord[String,String]("enriched-player-events", null, PlayerEventParser.asJson(playerEvent)))
-          logError(playerEvent.toString)
+          //logError(playerEvent.toString)
         })
         producer.close()
         locationResolver.close()

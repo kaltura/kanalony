@@ -1,9 +1,8 @@
 package com.kaltura.core.utils
 
 import com.kaltura.client.enums.KalturaSessionType
-import com.kaltura.client.{KalturaApiException, KalturaConfiguration, KalturaClient}
+import com.kaltura.client.{KalturaClient, KalturaConfiguration}
 import com.kaltura.core.logging.{BaseLog, MetaLog}
-
 import scala.util.control.NonFatal
 
 
@@ -25,7 +24,7 @@ object KalturaAPI extends MetaLog[BaseLog] {
   def setKS = {
     logger.info("Creating Kaltura Session...")
     try {
-      val ks = client.getSessionService.start("c2d5c06481e0a444ea8c3f7f0dab16bd", "batchUser", KalturaSessionType.ADMIN, -1, 86400, "disableentitlement")
+      val ks = client.getSessionService.start(ConfigurationManager.getOrElse("kanalony.events_enrichment.admin_partner_secret",""), "batchUser", KalturaSessionType.ADMIN, -1, 86400, "disableentitlement")
       client.setKs(ks)
       logger.info("KS was updated on API client")
     } catch {
