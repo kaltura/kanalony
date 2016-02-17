@@ -10,8 +10,3 @@ lazy val `kanalony-storage-logic` = (project in file(".")).
       "joda-time"     %  "joda-time"                     % "2.8.1"
     )
   ).dependsOn(`kanalony-storage-api`)
-
-version := "1.0"
-
-scalaVersion := "2.11.7"
-    

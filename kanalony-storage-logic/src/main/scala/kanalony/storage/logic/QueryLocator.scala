@@ -20,22 +20,14 @@ object QueryLocator {
   }
 
   def calcTableCompatibilityDistance(table: IQuery, queryParams : QueryParams) : Int = {
-    var distance = Int.MaxValue
-    if (!(table.supportedMetrics contains queryParams.metric)){
-      return distance
+    if (!(table.supportedMetrics contains queryParams.metric) ||
+        !(tableAndQueryEqualityConstraintsMatch(table, queryParams)) ||
+        !(tableSupportsAllQueryDimensions(table, queryParams))) {
+      Int.MaxValue
     }
-    if (!(tableAndQueryEqualityConstraintsMatch(table, queryParams)))
-    {
-      return distance
+    else {
+      table.dimensionInformation.length - queryParams.dimensionDefinitions.size
     }
-
-    if (!(tableSupportsAllQueryDimensions(table, queryParams)))
-    {
-      return distance
-    }
-
-    distance = table.dimensionInformation.length - queryParams.dimensionDefinitions.size
-    distance
   }
 
   def locate(queryParams: QueryParams) : Option[IQuery]  = {

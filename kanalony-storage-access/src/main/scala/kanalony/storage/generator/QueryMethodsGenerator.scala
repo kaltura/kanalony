@@ -14,13 +14,8 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
     colDef.name + "_list"
   }
 
-  private def generateColDefs(cols : List[IColumnQueryDefinition]) : String = cols match {
-    case x::Nil => {
-      genParamDefinition(x)
-    }
-    case x::xs => {
-      genParamDefinition(x) + ", " + generateColDefs(xs)
-    }
+  private def generateColDefs(cols : List[IColumnQueryDefinition]) = {
+    cols.map(genParamDefinition).mkString(", ")
   }
 
   private def genParamDefinition(cqd : IColumnQueryDefinition) = {

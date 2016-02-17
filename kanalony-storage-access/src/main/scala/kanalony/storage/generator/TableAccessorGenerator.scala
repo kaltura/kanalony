@@ -7,15 +7,15 @@ import kanalony.storage.generator.GenerationTemplates.{partitionKeyColumnDefinit
  */
 class TableAccessorGenerator(val tm : TableMetadata) {
 
-  def generateClassName(): String = {
+  private def generateClassName(): String = {
     return TableAccessorGenerator.generateClassName(tm)
   }
 
-  def generateEntityClassName(): String = {
+  private def generateEntityClassName(): String = {
     EntityClassGenerator.getEntityName(tm)
   }
 
-  def generateValuePopulation(): String = {
+  private def generateValuePopulation(): String = {
     var res = "";
     val columns = tm.columns
     for (c <- columns){
@@ -26,11 +26,9 @@ class TableAccessorGenerator(val tm : TableMetadata) {
     res
   }
 
-  def generateTableName(): String = {
-    tm.tableName
-  }
+  private def generateTableName() = tm.tableName
 
-  def generateColumnDefs[T <: IColumnDefinition](colDefs : List[T], templateCreator : T => IColumnDefinitionTemplate) : String = {
+  private def generateColumnDefs[T <: IColumnDefinition](colDefs : List[T], templateCreator : T => IColumnDefinitionTemplate) : String = {
     var res = "";
     for (colDef <- colDefs){
       val colDefTemplate = templateCreator(colDef)
@@ -41,41 +39,34 @@ class TableAccessorGenerator(val tm : TableMetadata) {
     res
   }
 
-  def generatePartitionKeyDefs(colDefs : List[IColumnDefinition]) : String = {
+  private def generatePartitionKeyDefs(colDefs : List[IColumnDefinition]) : String = {
     generateColumnDefs[IColumnDefinition](colDefs, c => new partitionKeyColumnDefinitionTemplate())
   }
 
-  def generateAdditionalColumnsDefs(colDefs : List[IColumnDefinition]) : String = {
+  private def generateAdditionalColumnsDefs(colDefs : List[IColumnDefinition]) : String = {
     generateColumnDefs[IColumnDefinition](colDefs, c => new GenerationTemplates.columnDefinitionTemplate())
   }
 
-  def generateClusteringKeyDefs(colDefs : List[IClusteringColumnDefinition]) : String = {
+  private def generateClusteringKeyDefs(colDefs : List[IClusteringColumnDefinition]) : String = {
     generateColumnDefs[IClusteringColumnDefinition](colDefs, c => new GenerationTemplates.clusteringKeyColumnDefinitionTemplate(c.orderBy))
   }
 
-  def generateTableColDefs(): String = {
+  private def generateTableColDefs(): String = {
     var generatedContent = ""
-    generatedContent = generatedContent + generatePartitionKeyDefs(tm.primaryKey.pk.columns);
-    generatedContent = generatedContent + generateClusteringKeyDefs(tm.primaryKey.ck.columns);
-    generatedContent = generatedContent + generateAdditionalColumnsDefs(tm.additionalColumns);
+    generatedContent = generatedContent + generatePartitionKeyDefs(tm.primaryKey.pk.columns)
+    generatedContent = generatedContent + generateClusteringKeyDefs(tm.primaryKey.ck.columns)
+    generatedContent = generatedContent + generateAdditionalColumnsDefs(tm.additionalColumns)
     generatedContent
   }
 
-  def generateRowDecomposition(): String = {
-    generateRowDecomposition(tm.columns)
+  private def generateRowDecomposition() : String = generateRowDecomposition(tm.columns)
+
+  private def generateRowDecomposition(cols : List[IColumnDefinition]) = {
+    cols.map(x => GenerationTemplates.propertyDecompositionTemplate.content.replace(GenerationTemplates.propertyDecompositionTemplate.propNamePlaceholder, x.name))
+        .mkString(", \n")
   }
 
-  def generateRowDecomposition(cols : List[IColumnDefinition]): String = cols match{
-    case x::Nil => {
-      GenerationTemplates.propertyDecompositionTemplate.content.replace(GenerationTemplates.propertyDecompositionTemplate.propNamePlaceholder, x.name)
-    }
-    case x::xs => {
-      GenerationTemplates.propertyDecompositionTemplate.content.replace(GenerationTemplates.propertyDecompositionTemplate.propNamePlaceholder, x.name) +
-        ", \n" + generateRowDecomposition(xs)
-    }
-  }
-
-  def generateQueryMethods(pkSingleValueEquality : Boolean) : String = {
+  private def generateQueryMethods(pkSingleValueEquality : Boolean) : String = {
     val pkColumnQueryKind = if (pkSingleValueEquality) ColumnQueryKind.Equality else ColumnQueryKind.List
     val methodGenerator = new QueryMethodsGenerator(tm)
     val partitionKeyQueryColumnDefs = tm.primaryKey.pk.columns.map(x => new ColumnQueryDefinition(x.name, x.typeName, pkColumnQueryKind))

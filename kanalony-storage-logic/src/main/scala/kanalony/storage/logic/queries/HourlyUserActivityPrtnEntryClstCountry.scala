@@ -13,10 +13,8 @@ import scala.concurrent.Future
 
 class HourlyUserActivityPrtnEntryClstCountryQuery extends QueryBase[HourlyUserActivityPrtnEntryClstCountryParams, hourly_user_activity_prtn_entry_clst_countryRow] with UserActivityQuery {
   protected override def extractParams(params: QueryParams): HourlyUserActivityPrtnEntryClstCountryParams = {
-
     val (partnerIds, entryIds) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner, Dimensions.entry), params)
-    val typedParams = HourlyUserActivityPrtnEntryClstCountryParams(params.start, params.end, partnerIds, entryIds, List(params.metric.id))
-    return typedParams
+    HourlyUserActivityPrtnEntryClstCountryParams(params.start, params.end, partnerIds, entryIds, List(params.metric.id))
   }
 
   private[logic] override def executeQuery(params: HourlyUserActivityPrtnEntryClstCountryParams): Future[List[hourly_user_activity_prtn_entry_clst_countryRow]] = {
