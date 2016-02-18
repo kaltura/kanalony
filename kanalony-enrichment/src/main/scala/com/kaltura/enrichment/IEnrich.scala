@@ -1,5 +1,8 @@
 package com.kaltura.enrichment
 
+import java.util.concurrent.TimeUnit
+
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache, Cache}
 import com.kaltura.model.events.RawPlayerEvent
 import org.apache.spark.rdd.RDD
 
@@ -7,13 +10,23 @@ import org.apache.spark.rdd.RDD
 /**
  * Created by ofirk on 16/02/2016.
  */
-trait IEnrich {
-  type IDType
-  type EnrichType
+trait IEnrich[IDType <: Object,EnrichType <: Object] {
 
-  var localCache = createLocalCache
+  val maxCacheSize = 10000
+  val expireAfterWrite: (Long, TimeUnit) = Tuple2(24L, TimeUnit.HOURS)
+  val localCache = buildLocalCache
 
-  def createLocalCache: scala.collection.concurrent.Map[IDType, EnrichType]
+  def buildLocalCache: LoadingCache[IDType, EnrichType] = {
+    CacheBuilder.newBuilder()
+      .maximumSize(maxCacheSize)
+      .expireAfterWrite(expireAfterWrite._1, expireAfterWrite._2)
+      .build(
+        new CacheLoader[IDType ,EnrichType]() {
+          override def load(id: IDType) : EnrichType = loadEntity(id)
+        }
+      )
+  }
+  def loadEntity(id: IDType) : EnrichType
   def enrich(playerEvents:RDD[RawPlayerEvent]):RDD[RawPlayerEvent]
 }
 

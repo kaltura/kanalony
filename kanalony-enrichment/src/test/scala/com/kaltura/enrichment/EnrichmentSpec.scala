@@ -14,7 +14,6 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 /**
@@ -78,7 +77,7 @@ class EnrichmentSpec extends SparkFunSuite
 
     val playerEventsTopic = Set("player-events")
     val enrichedPlayerEventsTopic = Set("enriched-player-events")
-    val data = Array.fill(8000)(playerEvent)
+    val data = Array.fill(9000)(playerEvent)
     val allReceived = new ArrayBuffer[EnrichedPlayerEvent] with mutable.SynchronizedBuffer[EnrichedPlayerEvent]
 
     kafkaTestUtils.createTopic(enrichedPlayerEventsTopic.last)

@@ -90,7 +90,7 @@ object EventsEnrichment extends App with Logging {
             rawPlayerEvent.params.getOrElse("playbackType","")
           )
           producer.send(new ProducerRecord[String,String]("enriched-player-events", null, PlayerEventParser.asJson(playerEvent)))
-          //logError(playerEvent.toString)
+          logError(playerEvent.toString)
         })
         producer.close()
         locationResolver.close()

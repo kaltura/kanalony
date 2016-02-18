@@ -1,35 +1,31 @@
 package com.kaltura.enrichment
 
 
-import com.datastax.spark.connector._
+import java.util.concurrent.TimeUnit
+
+import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.kaltura.model.cache.EntryCache
 import com.kaltura.model.entities.Entry
 import com.kaltura.model.events.RawPlayerEvent
 import org.apache.spark.rdd.RDD
-import scala.collection.convert.decorateAsScala._
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by ofirk on 16/02/2016.
  */
-object EnrichByEntry extends IEnrich {
-  override type IDType = String
-  override type EnrichType = Entry
-  override def createLocalCache = new ConcurrentHashMap[String, Entry]().asScala
-  localCache.put("-1", Entry("-1"))
+object EnrichByEntry extends IEnrich[(Int,String),Entry] {
+
+  override def loadEntity(entryPartnerId: (Int, String)) : Entry = EntryCache.getById(entryPartnerId._1, entryPartnerId._2)
 
   override def enrich(playerEvents: RDD[RawPlayerEvent]): RDD[RawPlayerEvent] = {
     playerEvents.mapPartitions { eventsPart =>
       eventsPart.map { currentRow: RawPlayerEvent =>
-        val partnerId = currentRow.params.getOrElse("event:partnerId", "-1").toInt
-        val entryId = currentRow.params.getOrElse("event:entryId", "")
-        if (!localCache.contains(entryId)) {
-          localCache.putIfAbsent(entryId, {
-            EntryCache.getById(partnerId, entryId)
-          })
+        val partnerId = currentRow.params.getOrElse("event:partnerId","0").toInt // TODO: Potential NumberFormatException
+        if (partnerId > 0) {
+          val entryId = currentRow.params.getOrElse("event:entryId", "")
+          val categories = localCache.get((partnerId, entryId)).categories.getOrElse("")
+          currentRow.copy(params = currentRow.params + ("categories" -> categories))
         }
-        val categories = localCache.getOrElse(entryId, Entry(entryId)).categories.getOrElse("")
-        currentRow.copy(params = currentRow.params + ("categories" -> categories))
+        else currentRow
       }
     }
   }

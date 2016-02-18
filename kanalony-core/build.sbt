@@ -15,7 +15,8 @@ lazy val `kanalony-core` = (project in file(".")).
       "com.datastax.cassandra"  %   "cassandra-driver-core"       % "2.1.9",
       "com.datastax.spark"      %%  "spark-cassandra-connector"   % "1.4.1",
       "commons-validator"       % "commons-validator"             % "1.5.0",
-      "com.kaltura"             % "kalturaClient"                 % "3.2.1"
+      "com.kaltura"             % "kalturaClient"                 % "3.2.1",
+      "com.google.guava"        % "guava"                         % "18.0"
     )
   )
 
