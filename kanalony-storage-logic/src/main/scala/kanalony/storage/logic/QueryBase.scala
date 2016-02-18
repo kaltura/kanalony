@@ -13,23 +13,66 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
   val dbApi = DbClientFactory
 
-  protected def extractParams(queryParams : QueryParams) : TReq
+  val metricValueHeaderName = "count"
+
+  private[logic] def extractParams(queryParams : QueryParams) : TReq
 
   private[logic] def executeQuery(params : TReq) : Future[List[TQueryRow]]
 
-  protected def getResultHeaders() : List[String]
+  private[logic] def getResultHeaders() : List[String]
 
   protected def getResultRow(row: TQueryRow) : List[String]
+
+  def metricValueLocationIndex : Int
+
+  def getGroupByKey(headerDimensionIndexes : List[Int]): (List[String]) => String = {
+    row => {
+      var groupValues :List[String] = List()
+      headerDimensionIndexes.foreach(i => groupValues = groupValues :+ row(i))
+      groupValues.mkString(":")
+    }
+  }
+
+  def getGroupAggregatedValue(v: List[List[String]]) : Double = {
+    v.map(row => row(metricValueLocationIndex).toDouble).sum
+  }
+
+  def groupAndAggregate(values: List[Dimensions.Value]): QueryResult => QueryResult = {
+
+    def getGroupDimensionIndexes(queryResult : QueryResult) = {
+      val indexedResultDimensions = queryResult.headers.zipWithIndex
+      values.map(value =>  {
+        indexedResultDimensions.find(_._1 eq value.toString).map(_._2).get
+      })
+    }
+
+    queryResult => {
+      val headerDimensionIndexes = getGroupDimensionIndexes(queryResult)
+      val resultHeaders = values.map(_.toString) :+ metricValueHeaderName
+      val groupedData = queryResult.rows.groupBy(getGroupByKey(headerDimensionIndexes))
+
+      val resultRows = groupedData.toList.map((group : (String,List[List[String]])) => {
+        var rowData = if (group._1.isEmpty) { List() } else { group._1.split(':').toList }
+        val groupAggregatedValue = getGroupAggregatedValue(group._2).toString
+        rowData = rowData :+ groupAggregatedValue
+        rowData
+      })
+
+      QueryResult(resultHeaders, resultRows)
+    }
+  }
 
   def query(params : QueryParams): Future[IQueryResult] = {
     val inputParams = extractParams(params)
     val retrievedRowsFuture = executeQuery(inputParams)
-    val result = retrievedRowsFuture.map {
+    val rawData = retrievedRowsFuture.map {
       retrievedRows => {
         val processedRows = retrievedRows.map(row => getResultRow(row))
         new QueryResult(getResultHeaders(), processedRows)
       }
     }
-    result
+
+    val groupedData = rawData map groupAndAggregate(params.dimensionDefinitions.filter(_.includeInResult).map(_.dimension))
+    groupedData
   }
 }

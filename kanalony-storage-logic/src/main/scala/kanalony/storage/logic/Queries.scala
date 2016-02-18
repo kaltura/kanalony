@@ -9,9 +9,11 @@ object Queries {
   object HourlyUserActivityPrtnEntryClstCountry extends HourlyUserActivityPrtnEntryClstCountryQuery
   object HourlyUserActivityPrtnEntryQuery extends HourlyUserActivityPrtnEntryQuery
   object HourlyUserActivityClstEntryQuery extends HourlyUserActivityClstEntryQuery
+  object DailyUserActivityPrtnEntryQuery extends DailyUserActivityPrtnEntryQuery
   val queries : List[IQuery] = List(
     HourlyUserActivityPrtnEntryClstCountry,
     HourlyUserActivityPrtnEntryQuery,
-    HourlyUserActivityClstEntryQuery
+    HourlyUserActivityClstEntryQuery,
+    DailyUserActivityPrtnEntryQuery
   )
 }

@@ -12,7 +12,7 @@ import scala.concurrent.Future
  */
 
 class HourlyUserActivityClstEntryQuery extends QueryBase[HourlyUserActivityClstEntryParams, hourly_user_activity_clst_entryRow] with UserActivityQuery {
-  override protected def extractParams(queryParams: QueryParams): HourlyUserActivityClstEntryParams = {
+  override private[logic] def extractParams(queryParams: QueryParams): HourlyUserActivityClstEntryParams = {
     val partnerIds = QueryParamsValidator.extractEqualityConstraintParams(Dimensions.partner, queryParams)
     HourlyUserActivityClstEntryParams(queryParams.start, queryParams.end, partnerIds, List(queryParams.metric.id))
   }
@@ -25,8 +25,8 @@ class HourlyUserActivityClstEntryQuery extends QueryBase[HourlyUserActivityClstE
     rawQueryResult
   }
 
-  override protected def getResultHeaders(): List[String] =  {
-    List(Dimensions.partner.toString, Dimensions.entry.toString, "metric", Dimensions.hour.toString, "count")
+  override private[logic] def getResultHeaders(): List[String] =  {
+    List(Dimensions.partner.toString, Dimensions.entry.toString, Dimensions.metric.toString, Dimensions.hour.toString, metricValueHeaderName)
   }
 
   override protected def getResultRow(row: hourly_user_activity_clst_entryRow) : List[String] = {
@@ -41,6 +41,8 @@ class HourlyUserActivityClstEntryQuery extends QueryBase[HourlyUserActivityClstE
   }
 
   override val tableName: String = dbApi.H_UA_Partner_Entry_StorageClient.tableName
+
+  override def metricValueLocationIndex(): Int = 4
 }
 
 case class HourlyUserActivityClstEntryParams(startTime : DateTime, endTime : DateTime, partnerIds : List[Int], metrics : List[Int])
