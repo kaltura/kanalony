@@ -9,12 +9,12 @@ object QueryLocator {
 
   def tableAndQueryEqualityConstraintsMatch(tq: IQuery, queryParams: QueryParams) : Boolean = {
     val tableEqualityConstrainedDefs = tq.dimensionInformation.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension).toSet
-    val queryEqualityConstraintDefs = queryParams.dimensionDefinitions.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension)
+    val queryEqualityConstraintDefs = queryParams.dimensionDefinitions.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension).toSet
     queryEqualityConstraintDefs == tableEqualityConstrainedDefs
   }
 
   def tableSupportsAllQueryDimensions(tq: IQuery, queryParams: QueryParams) = {
-    val queryDimnesions = queryParams.dimensionDefinitions.map(_.dimension)
+    val queryDimnesions = queryParams.dimensionDefinitions.map(_.dimension).toSet
     val tableDimensions = tq.dimensionInformation.map(_.dimension).toSet
     queryDimnesions subsetOf tableDimensions
   }
