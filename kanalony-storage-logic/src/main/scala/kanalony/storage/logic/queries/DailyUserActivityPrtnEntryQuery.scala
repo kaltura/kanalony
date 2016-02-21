@@ -13,9 +13,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class DailyUserActivityPrtnEntryQuery extends QueryBase[HourlyUserActivityPrtnEntryParams, dailyUserActivityPrtnEntryRow] with UserActivityQuery {
 
-  val hourlyUserActicityPrtnEntryQuery = Queries.HourlyUserActivityPrtnEntryQuery
+  val hourlyUserActivityPrtnEntryQuery = Queries.HourlyUserActivityPrtnEntryQuery
 
-  override private[logic] def extractParams(queryParams: QueryParams): HourlyUserActivityPrtnEntryParams = hourlyUserActicityPrtnEntryQuery.extractParams(queryParams)
+  override private[logic] def extractParams(queryParams: QueryParams): HourlyUserActivityPrtnEntryParams = hourlyUserActivityPrtnEntryQuery.extractParams(queryParams)
 
   override protected def getResultRow(row: dailyUserActivityPrtnEntryRow): List[String] = {
     List(row.partner_id.toString, row.entry_id, row.event_type.toString, row.day.toString, row.count.toString)
@@ -36,7 +36,7 @@ class DailyUserActivityPrtnEntryQuery extends QueryBase[HourlyUserActivityPrtnEn
   }
 
   override private[logic] def executeQuery(params: HourlyUserActivityPrtnEntryParams): Future[List[dailyUserActivityPrtnEntryRow]] = {
-    val hourlyDataFuture = hourlyUserActicityPrtnEntryQuery.executeQuery(params)
+    val hourlyDataFuture = hourlyUserActivityPrtnEntryQuery.executeQuery(params)
     hourlyDataFuture map {
       hourlyRows => {
         val groups = hourlyRows groupBy(row => List(row.partner_id, row.entry_id, row.event_type).mkString(":"))
@@ -46,14 +46,14 @@ class DailyUserActivityPrtnEntryQuery extends QueryBase[HourlyUserActivityPrtnEn
     }
   }
 
-  override val metricValueLocationIndex: Int = hourlyUserActicityPrtnEntryQuery.metricValueLocationIndex()
+  override val metricValueLocationIndex: Int = hourlyUserActivityPrtnEntryQuery.metricValueLocationIndex()
 
   override val dimensionInformation: List[DimensionDefinition] = {
-    lazy val result = hourlyUserActicityPrtnEntryQuery.dimensionInformation
+    lazy val result = hourlyUserActivityPrtnEntryQuery.dimensionInformation
       .filterNot(_.dimension eq Dimensions.hour) :+ new DimensionDefinition(Dimensions.day, new DimensionConstraintDeclaration(QueryConstraint.Range))
     result
   }
-  override val tableName: String = hourlyUserActicityPrtnEntryQuery.tableName
+  override val tableName: String = hourlyUserActivityPrtnEntryQuery.tableName
 }
 
 case class dailyUserActivityPrtnEntryRow(partner_id:Int,

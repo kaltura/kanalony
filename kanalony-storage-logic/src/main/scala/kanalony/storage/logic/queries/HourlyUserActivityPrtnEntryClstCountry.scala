@@ -18,9 +18,8 @@ class HourlyUserActivityPrtnEntryClstCountryQuery extends QueryBase[HourlyUserAc
   }
 
   private[logic] override def executeQuery(params: HourlyUserActivityPrtnEntryClstCountryParams): Future[List[hourly_user_activity_prtn_entry_clst_countryRow]] = {
-    val year = List(params.startTime.getYear)
     val rawQueryResult = dbApi.H_UA_PartnerEntry_Country_StorageClient.query(params.partnerId,
-                              params.entryId,params.metric,year,params.startTime,params.endTime)
+                              params.entryId,params.metric,params.years,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
   }
@@ -46,4 +45,4 @@ class HourlyUserActivityPrtnEntryClstCountryQuery extends QueryBase[HourlyUserAc
   override def metricValueLocationIndex(): Int = 5
 }
 
-case class HourlyUserActivityPrtnEntryClstCountryParams(startTime : DateTime, endTime : DateTime, partnerId : List[Int], entryId : List[String], metric : List[Int])
+case class HourlyUserActivityPrtnEntryClstCountryParams(startTime : DateTime, endTime : DateTime, partnerId : List[Int], entryId : List[String], metric : List[Int]) extends IYearlyPartitionedQueryParams

@@ -1,7 +1,6 @@
 package kanalony.storage.logic
 
 import kanalony.storage.api.DbClientFactory
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -37,18 +36,20 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     v.map(row => row(metricValueLocationIndex).toDouble).sum
   }
 
-  def groupAndAggregate(values: List[Dimensions.Value]): QueryResult => QueryResult = {
+  def groupAndAggregate(params : QueryParams): QueryResult => QueryResult = {
+
+    val resultDimensions = params.dimensionDefinitions.filter(_.includeInResult).map(_.dimension)
 
     def getGroupDimensionIndexes(queryResult : QueryResult) = {
       val indexedResultDimensions = queryResult.headers.zipWithIndex
-      values.map(value =>  {
+      resultDimensions.map(value =>  {
         indexedResultDimensions.find(_._1 eq value.toString).map(_._2).get
       })
     }
 
     queryResult => {
       val headerDimensionIndexes = getGroupDimensionIndexes(queryResult)
-      val resultHeaders = values.map(_.toString) :+ metricValueHeaderName
+      val resultHeaders = resultDimensions.map(_.toString) :+ params.metric.toString
       val groupedData = queryResult.rows.groupBy(getGroupByKey(headerDimensionIndexes))
 
       val resultRows = groupedData.toList.map((group : (String,List[List[String]])) => {
@@ -72,7 +73,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
       }
     }
 
-    val groupedData = rawData map groupAndAggregate(params.dimensionDefinitions.filter(_.includeInResult).map(_.dimension))
+    val groupedData = rawData map groupAndAggregate(params)
     groupedData
   }
 }
