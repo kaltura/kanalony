@@ -12,7 +12,7 @@ import com.kaltura.model.entities.Entry
 sealed class EntryCache extends CacheBase[Entry,String]{
   override val tableName = "dim_entries"
   override val idFieldName = "id"
-  override def fromRow(row: Row) = if (row != null) Some(Entry(row.getString(idFieldName), Some(row.getString("categories")))) else None
+  override def fromRow(row: Row) = if (row != null) Some(Entry(row.getString(idFieldName), Option(row.getString("categories")))) else None
 
   val ttl = 1 day
 
@@ -22,7 +22,7 @@ sealed class EntryCache extends CacheBase[Entry,String]{
       cassandraSession.execute(QueryBuilder
         .insertInto(keySpace, tableName)
         .value("id", entry.id)
-        .value("categories", entry.categories.getOrElse(""))
+        .value("categories", entry.categories.orNull)
         .using(QueryBuilder.ttl(ttl))
       )
       entry
