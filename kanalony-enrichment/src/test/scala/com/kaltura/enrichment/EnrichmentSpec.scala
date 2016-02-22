@@ -77,7 +77,7 @@ class EnrichmentSpec extends SparkFunSuite
 
     val playerEventsTopic = Set("player-events")
     val enrichedPlayerEventsTopic = Set("enriched-player-events")
-    val data = Array.fill(9000)(playerEvent)
+    val data = Array.fill(10)(playerEvent)
     val allReceived = new ArrayBuffer[EnrichedPlayerEvent] with mutable.SynchronizedBuffer[EnrichedPlayerEvent]
 
     kafkaTestUtils.createTopic(enrichedPlayerEventsTopic.last)
