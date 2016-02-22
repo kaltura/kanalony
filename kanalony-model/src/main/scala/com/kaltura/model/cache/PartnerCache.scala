@@ -23,7 +23,9 @@ sealed class PartnerCache extends CacheBase[Partner, Int]{
       cassandraSession.execute(QueryBuilder
         .insertInto(keySpace, tableName)
         .value("id", partner.id)
-        .value("secret", partner.secret.getOrElse("")).using(QueryBuilder.ttl(ttl))
+        .value("secret", partner.secret)
+        .value("crm_id", partner.crmId)
+        .using(QueryBuilder.ttl(ttl))
       )
       partner
     }
