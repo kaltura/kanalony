@@ -25,16 +25,16 @@ abstract class DailyQueryBase[Q <: QueryBase[TReq, TInternalQueryRow], TReq, TIn
     hourlyDataFuture map {
       hourlyRows => {
         val groups = hourlyRows groupBy(getDailyGroupByKey)
-        val dailyGroups = groups.map({group : (String, List[TInternalQueryRow]) => createDailyGroups(group)})
+        val dailyGroups = groups.map(createDailyGroups)
         dailyGroups.flatMap(_._2).values.toList
       }
     }
   }
 
   def createDailyGroups(group: (String, List[TInternalQueryRow])): (String, Map[String, TQueryRow]) = {
-    val dailyGroups = group._2.groupBy(row => group._1 + ":" + hourFieldExtractor(row).toLocalDate.toString) // Map[day, list of hourly rows]
+    val dailyGroups = group._2.groupBy(row => group._1 + ":" + hourFieldExtractor(row).toLocalDate.toString) // Map[allOtherFields:day, list of hourly rows]
     val aggregatedDailyGroups = dailyGroups.mapValues(g => {
-        val element = g.head
+        val element = g.head // Take a group representative - all fields within the group are the same
         val aggregatedValue =  g.foldLeft(0L)(_ + countFieldExtractor(_))
         createQueryRow(element, aggregatedValue)
       })
