@@ -1,6 +1,5 @@
 package com.kaltura.model.dao
 
-import com.kaltura.client.KalturaClient
 import com.kaltura.client.types.KalturaCategoryEntryFilter
 import com.kaltura.model.entities.Entry
 
@@ -11,7 +10,7 @@ import scala.collection.JavaConversions._
  */
 object EntryDAO extends DAOBase[Entry, String] {
   def getById(partnerId: Int, entryId:String): Option[Entry] = {
-    withPartnerImpersonation(partnerId) {
+    withPartnerImpersonation(partnerId) { () =>
       val categoriesSet = getEntryCategories(entryId)
       Some(Entry(entryId, Some(categoriesSet.mkString(","))))
     }
