@@ -31,7 +31,11 @@ class Application extends Controller {
       val queryResponseData =  queryExecutionResult map { data => AnalyticsResponse(data.headers, data.rows) }
 
       queryResponseData map {
-        data => Ok(data.asJson.toString)
+        data => {
+          val responseFormatter = ResponseFormatterFactory.get(request)
+          val formattedResponse = responseFormatter.format(data)
+          Ok(formattedResponse.data).as(formattedResponse.mime)
+        }
       } recover {
         case e : Exception => BadRequest(e.getMessage)
       }
