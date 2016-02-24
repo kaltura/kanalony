@@ -17,16 +17,19 @@ class Application extends Controller {
 
   def doQuery(request : Request[AnyContent]) : Future[Result] = {
     try {
-      val analyticsRequestOption = for {
-        input <- request.body.asJson
-        req <- input.toString.decodeOption[AnalyticsRequest]
-      } yield req
+
+      val analyticsRequestOption = request.body.asJson map { input => Parse.decodeEither[AnalyticsRequest](input.toString) }
 
       if (analyticsRequestOption.isEmpty) {
         return wrapWithPromise(BadRequest("Invalid input - ensure proper JSON is supplied with the mandatory fields supplied and that the supplied MIME type is application/json"))
       }
 
-      val queryParams = requestToQueryParams(analyticsRequestOption.get)
+      val analyticsRequest = analyticsRequestOption.get.toEither
+      if (analyticsRequest.isLeft) {
+        return wrapWithPromise(BadRequest(s"Invalid input - ${analyticsRequest.left.get}"))
+      }
+
+      val queryParams = requestToQueryParams(analyticsRequest.right.get)
       val queryExecutionResult = execute(queryParams)
       val queryResponseData =  queryExecutionResult map { data => AnalyticsResponse(data.headers, data.rows) }
 
