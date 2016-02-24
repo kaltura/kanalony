@@ -12,15 +12,17 @@ object OrderBy extends Enumeration {
   val Ascending, Descending = Value
 }
 
+
 class ColumnDefinition(val name : String, val typeName : ColumnType.Value) extends IColumnDefinition
 
-class ColumnQueryDefinition(override val name : String, override val typeName : ColumnType.Value, val queryKind: ColumnQueryKind.Value) extends ColumnDefinition(name, typeName) with IColumnQueryDefinition
-
 object ColumnDefinition {
+
   def apply(name:String, typeName : ColumnType.Value) = {
     new ColumnDefinition(name, typeName)
   }
 }
+
+class ColumnQueryDefinition(override val name : String, override val typeName : ColumnType.Value, val queryKind: ColumnQueryKind.Value) extends ColumnDefinition(name, typeName) with IColumnQueryDefinition
 
 class ClusteringColumnDefinition(colName : String, colType : ColumnType.Value, val orderBy : OrderBy.Value) extends ColumnDefinition(colName, colType) with IClusteringColumnDefinition
 
