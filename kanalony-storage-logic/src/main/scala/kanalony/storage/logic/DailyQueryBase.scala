@@ -10,13 +10,12 @@ import scala.concurrent.Future
  * Created by elad.benedict on 2/18/2016.
  */
 
-abstract class DailyQueryBase[Q <: QueryBase[TReq, TInternalQueryRow], TReq, TInternalQueryRow, TQueryRow] extends QueryBase[TReq, TQueryRow] with UserActivityQuery {
+abstract class DailyQueryBase[Q <: QueryBase[TReq, TInternalQueryRow], TReq, TInternalQueryRow, TQueryRow, TDailyGroupByKey] extends QueryBase[TReq, TQueryRow] with UserActivityQuery {
 
   def internalQuery : Q
-  def getDailyGroupByKey(row: TInternalQueryRow) : String
-  def hourFieldExtractor(row: TInternalQueryRow) : DateTime
+  def getDailyGroupByKey(row: TInternalQueryRow) : TDailyGroupByKey
   def countFieldExtractor(row: TInternalQueryRow) : Long
-  def createQueryRow(row: TInternalQueryRow, aggregatedValue : Long) : TQueryRow
+  def queryRowCreator(tuple: (TDailyGroupByKey, Long)): TQueryRow
 
   override private[logic] def extractParams(queryParams: QueryParams): TReq = internalQuery.extractParams(queryParams)
 
@@ -24,21 +23,11 @@ abstract class DailyQueryBase[Q <: QueryBase[TReq, TInternalQueryRow], TReq, TIn
     val hourlyDataFuture = internalQuery.executeQuery(params)
     hourlyDataFuture map {
       hourlyRows => {
-        val groups = hourlyRows groupBy(getDailyGroupByKey)
-        val dailyGroups = groups.map(createDailyGroups)
-        dailyGroups.flatMap(_._2).values.toList
+        val groups = hourlyRows groupBy(getDailyGroupByKey) // => Map[TDailyGroupByKey,List[TInternalQueryRow]]
+        val aggregatedGroups = groups.mapValues(_.foldLeft(0L)(_ + countFieldExtractor(_))) // => Map[TDailyGroupByKey , Long]
+        aggregatedGroups.map(queryRowCreator(_)).toList // => List[TQueryRow]
       }
     }
-  }
-
-  def createDailyGroups(group: (String, List[TInternalQueryRow])): (String, Map[String, TQueryRow]) = {
-    val dailyGroups = group._2.groupBy(row => group._1 + ":" + hourFieldExtractor(row).toLocalDate.toString) // Map[allOtherFields:day, list of hourly rows]
-    val aggregatedDailyGroups = dailyGroups.mapValues(g => {
-        val element = g.head // Take a group representative - all fields within the group are the same
-        val aggregatedValue =  g.foldLeft(0L)(_ + countFieldExtractor(_))
-        createQueryRow(element, aggregatedValue)
-      })
-    (group._1, aggregatedDailyGroups)
   }
 
   override private[logic] def getResultHeaders(): List[String] = {
@@ -52,6 +41,7 @@ abstract class DailyQueryBase[Q <: QueryBase[TReq, TInternalQueryRow], TReq, TIn
   override def metricValueLocationIndex: Int = internalQuery.metricValueLocationIndex
 
   override def tableName: String = { internalQuery.tableName }
+
   override val dimensionInformation: List[DimensionDefinition] = {
     internalQuery.dimensionInformation.map {
       case DimensionDefinition(Dimensions.hour, constraint) => DimensionDefinition(Dimensions.day, constraint)
