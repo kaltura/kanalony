@@ -48,7 +48,6 @@ class Application extends Controller {
         return wrapWithPromise(BadRequest(e.getMessage))
       }
       case e: Exception => {
-        println(e.getClass.getTypeName)
         return wrapWithPromise(InternalServerError(e.getMessage))
       }
     }
@@ -78,12 +77,11 @@ class Application extends Controller {
   }
 
   def extractMetrics(metrics : List[String]): List[Metrics.Value] = {
-    extractValues(metrics, Metrics.withName(_), s => new InvalidMetricsException("Metric " + s + " not supported"))
+    extractValues(metrics, Metrics.withName(_), metric => new InvalidMetricsException(s"Metric $metric not supported"))
   }
 
   def extractDimension(dimension : String): Dimensions.Value = {
-    val results = extractValues(List(dimension), Dimensions.withName(_), s => new InvalidDimensionException(s))
-    results(0)
+    extractValues(List(dimension), Dimensions.withName(_), s => new InvalidDimensionException(s)).head
   }
 
   def extractDimensions(dimensions : List[String]): List[Dimensions.Value] = {
@@ -98,7 +96,7 @@ class Application extends Controller {
       }
     }
     catch {
-      case e : NumberFormatException => { throw new IllegalArgumentException("Dimension " + dimension + " supplied invalid values")}
+      case e : NumberFormatException => { throw new IllegalArgumentException(s"Dimension $dimension supplied invalid values")}
     }
   }
 
