@@ -50,7 +50,7 @@ object EntryEventsAggregation extends App with Logging {
 
   }
 
-  def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[String]): StreamingContext = {
+  def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String, String)]): StreamingContext = {
 
       val sparkConf = new SparkConf().
       setAppName(ConfigurationManager.get("kanalony.events_aggregation.application_name")).
@@ -68,6 +68,7 @@ object EntryEventsAggregation extends App with Logging {
       map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
 
+    parsedEnrichedEvents.print()
     // filter events by time and remove old events
     val parsedEnrichedEventsByMinute = parsedEnrichedEvents.filter(
       event => event.eventTime.plusMinutes(ConfigurationManager.getOrElse("kanalony.events_aggregations.minutes_to_save", "5").toInt).isAfterNow)
@@ -76,9 +77,33 @@ object EntryEventsAggregation extends App with Logging {
       event => event.eventTime.plusHours(ConfigurationManager.getOrElse("kanalony.events_aggregations.hours_to_save", "1").toInt)
         .plusMinutes(ConfigurationManager.getOrElse("kanalony.events_aggregations.minutes_to_save", "5").toInt).isAfterNow)
 
-    aggregators.foreach(aggregate(_, parsedEnrichedEvents))
-    //EntryByHourAggr.aggregate(parsedEnrichedEventsByHour)
-    //EntryByMinuteAggr.aggregate(parsedEnrichedEventsByMinute)
+    /*
+    aggregators.foreach(x => x match {
+      case (a, "Hourly") => aggregate(a, parsedEnrichedEventsByHour)
+      case (a, "Minutely") => aggregate(a, parsedEnrichedEventsByMinute)
+    })
+    */
+
+    HourlyUserActivityByBrowser.aggregate(parsedEnrichedEventsByHour)
+
+    /*
+    HourlyUserActivityByEntry.aggregate(parsedEnrichedEventsByHour)
+    MinutelyUserActivityByEntry.aggregate(parsedEnrichedEventsByMinute)
+    MinutelyUserActivity.aggregate(parsedEnrichedEventsByMinute)
+    HourlyUserActivityPeakAudience.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivity.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByBrowser.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByCountry.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByCountryCity.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByDevice.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByDeviceOperatingSystem.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByDomain.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByDomainReferrer.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByOperatingSystem.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEventsByHour)
+    **/
+
     ssc
   }
 
@@ -89,25 +114,26 @@ object EntryEventsAggregation extends App with Logging {
       // logging level.
       logInfo("Setting log level to [WARN] for streaming example." +
         " To override add a custom log4j.properties to the classpath.")
-      Logger.getRootLogger.setLevel(Level.WARN)
     }
+    Logger.getRootLogger.setLevel(Level.WARN)
   }
 
-  def getAggregators() : List[String] = {
-    val path = Seq("/Users/orlylampert/projects/kanalony/kanalony-aggregations/").map(new File(_));
+  def getAggregators() : List[(String, String)] = {
+    val path = Seq("../").map(new File(_));
     val finder = ClassFinder(path)
     val classes = finder.getClasses
-    //val classMap = ClassFinder.classInfoMap(classes)
 
     val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
 
-    aggregators.map(cls => cls.name).toList
+    aggregators.map(cls => if (cls.implements("com.kaltura.aggregations.IAggregateHourly")) (cls.name, "Hourly") else (cls.name, "Minutely")).toList
+
 
   }
 
   def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
     val mirror = runtimeMirror(getClass.getClassLoader)
     val module = mirror.staticModule(className)
+
     val cls = mirror.reflectModule(module).instance.asInstanceOf[IAggregate]
     val im =mirror.reflect(cls)
     val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
