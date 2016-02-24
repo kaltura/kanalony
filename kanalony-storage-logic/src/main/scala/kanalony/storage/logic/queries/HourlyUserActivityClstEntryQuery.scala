@@ -29,7 +29,7 @@ class HourlyUserActivityClstEntryQuery extends QueryBase[HourlyUserActivityClstE
   }
 
   override protected def getResultRow(row: hourly_user_activity_clst_entryRow) : List[String] = {
-    List(row.partner_id.toString, row.entry_id, row.event_type.toString, row.hour.getHourOfDay.toString, row.count.toString)
+    List(row.partner_id.toString, row.entry_id, row.metric.toString, row.hour.getHourOfDay.toString, row.count.toString)
   }
 
   override val dimensionInformation: List[DimensionDefinition] = {
