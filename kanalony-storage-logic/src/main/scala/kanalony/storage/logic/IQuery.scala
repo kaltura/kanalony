@@ -1,5 +1,6 @@
 package kanalony.storage.logic
 
+import com.kaltura.model.entities.Metrics
 import kanalony.storage.logic.queries.model.DimensionDefinition
 
 import scala.concurrent.Future

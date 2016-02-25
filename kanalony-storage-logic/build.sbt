@@ -1,3 +1,4 @@
+lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-storage-api` = RootProject(file("../kanalony-storage-api"))
 lazy val `kanalony-storage-logic` = (project in file(".")).
   settings(
@@ -9,4 +10,4 @@ lazy val `kanalony-storage-logic` = (project in file(".")).
       "com.websudos"  %% "phantom-testkit"               % "1.12.2",
       "joda-time"     %  "joda-time"                     % "2.8.1"
     )
-  ).dependsOn(`kanalony-storage-api`)
+  ).dependsOn(`kanalony-storage-api`,`kanalony-model`)
