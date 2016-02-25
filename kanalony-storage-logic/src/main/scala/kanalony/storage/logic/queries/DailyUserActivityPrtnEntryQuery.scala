@@ -4,17 +4,17 @@ import kanalony.storage.generated._
 import kanalony.storage.logic._
 import org.joda.time.{DateTime, LocalDate}
 
-class DailyUserActivityPrtnEntryQuery extends DailyQueryBase[HourlyUserActivityPrtnEntryQuery, HourlyUserActivityPrtnEntryParams, hourly_user_activity_prtn_entryRow, dailyUserActivityPrtnEntryRow, dailyUserActivityPrtnEntryRowAggregationKey] with UserActivityQuery {
+class DailyUserActivityPrtnEntryQuery extends DailyQueryBase[HourlyUserActivityPrtnEntryQuery, HourlyUserActivityPrtnEntryParams, hourly_ua_prtn_entryRow, dailyUserActivityPrtnEntryRow, dailyUserActivityPrtnEntryRowAggregationKey] with UserActivityQuery {
 
   override def internalQuery: HourlyUserActivityPrtnEntryQuery = Queries.HourlyUserActivityPrtnEntryQuery
 
-  override def countFieldExtractor(row : hourly_user_activity_prtn_entryRow): Long = { row.count }
+  override def countFieldExtractor(row : hourly_ua_prtn_entryRow): Long = { row.value }
 
   override protected def getResultRow(row: dailyUserActivityPrtnEntryRow): List[String] = {
     List(row.partner_id.toString, row.entry_id, row.event_type.toString, row.day.toString, row.count.toString)
   }
 
-  override def getDailyGroupByKey(row: hourly_user_activity_prtn_entryRow): dailyUserActivityPrtnEntryRowAggregationKey = {
+  override def getDailyGroupByKey(row: hourly_ua_prtn_entryRow): dailyUserActivityPrtnEntryRowAggregationKey = {
     dailyUserActivityPrtnEntryRowAggregationKey(row.partner_id, row.entry_id, row.metric, row.year, row.hour.toLocalDate)
   }
 
