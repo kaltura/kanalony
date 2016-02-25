@@ -12,7 +12,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
   val dbApi = DbClientFactory
 
-  val metricValueHeaderName = "count"
+  val metricValueHeaderName = "value"
 
   private[logic] def extractParams(queryParams : QueryParams) : TReq
 

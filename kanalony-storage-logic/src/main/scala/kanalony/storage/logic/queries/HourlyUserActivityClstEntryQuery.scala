@@ -11,13 +11,13 @@ import scala.concurrent.Future
  * Created by elad.benedict on 2/16/2016.
  */
 
-class HourlyUserActivityClstEntryQuery extends QueryBase[HourlyUserActivityClstEntryParams, hourly_user_activity_clst_entryRow] with UserActivityQuery {
+class HourlyUserActivityClstEntryQuery extends QueryBase[HourlyUserActivityClstEntryParams, hourly_ua_clst_entryRow] with UserActivityQuery {
   override private[logic] def extractParams(queryParams: QueryParams): HourlyUserActivityClstEntryParams = {
     val partnerIds = QueryParamsValidator.extractEqualityConstraintParams(Dimensions.partner, queryParams)
     HourlyUserActivityClstEntryParams(queryParams.start, queryParams.end, partnerIds, List(queryParams.metric.id))
   }
 
-  override private[logic] def executeQuery(params: HourlyUserActivityClstEntryParams): Future[List[hourly_user_activity_clst_entryRow]] = {
+  override private[logic] def executeQuery(params: HourlyUserActivityClstEntryParams): Future[List[hourly_ua_clst_entryRow]] = {
     val rawQueryResult = dbApi.H_UA_Partner_Entry_StorageClient.query(params.partnerIds,
       params.metrics,params.years,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
@@ -28,8 +28,8 @@ class HourlyUserActivityClstEntryQuery extends QueryBase[HourlyUserActivityClstE
     List(Dimensions.partner.toString, Dimensions.entry.toString, Dimensions.metric.toString, Dimensions.hour.toString, metricValueHeaderName)
   }
 
-  override protected def getResultRow(row: hourly_user_activity_clst_entryRow) : List[String] = {
-    List(row.partner_id.toString, row.entry_id, row.metric.toString, row.hour.getHourOfDay.toString, row.count.toString)
+  override protected def getResultRow(row: hourly_ua_clst_entryRow) : List[String] = {
+    List(row.partner_id.toString, row.entry_id, row.metric.toString, row.hour.getHourOfDay.toString, row.value.toString)
   }
 
   override val dimensionInformation: List[DimensionDefinition] = {
