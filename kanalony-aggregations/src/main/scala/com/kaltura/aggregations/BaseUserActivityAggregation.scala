@@ -39,25 +39,19 @@ abstract class BaseUserActivityAggregation[AggKey:ClassTag, AggRes:TypeTag :Clas
   val stateSpec = StateSpec.function(trackStateFunc _).timeout(Seconds(ttl))
 
   def save(aggregatedEvents: DStream[AggRes]) : Unit = {
-    try {
-      tableMetadata.foreach {
-        case (tableName, columns) => aggregatedEvents.foreachRDD(rdd => if (rdd.count() > 0) rdd.saveToCassandra(keyspace, tableName, columns))
-      }
-    } catch {
-      case ex: IllegalArgumentException => println("Failed to ")
+    tableMetadata.foreach {
+      case (tableName, columns) => aggregatedEvents.foreachRDD({ rdd =>
+        println(s"writing to $keyspace.$tableName:")
+        rdd.foreach(println)
+        rdd.saveToCassandra(keyspace, tableName, columns)
+      })
     }
   }
 
-
   def aggregate(enrichedEvents: DStream[EnrichedPlayerEvent]) : Unit = {
-    try {
-      val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
-      val aggregatedEvents = aggregatedBatchEvents.mapWithState[Long,(AggKey, Long)](stateSpec)
-      save(prepareForSave(aggregatedEvents));
-
-    } catch {
-      case e: IllegalArgumentException => println("Failed to update state");
-    }
+    val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
+    val aggregatedEvents = aggregatedBatchEvents.mapWithState[Long,(AggKey, Long)](stateSpec)
+    save(prepareForSave(aggregatedEvents))
   }
 
 }
