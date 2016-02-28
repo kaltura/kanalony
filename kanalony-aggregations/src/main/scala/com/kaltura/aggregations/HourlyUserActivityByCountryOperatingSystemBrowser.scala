@@ -22,6 +22,6 @@ object HourlyUserActivityByCountryOperatingSystemBrowser extends BaseUserActivit
     "year" as "year",
     "value" as "value")
 
-  override def aggKey(e: EnrichedPlayerEvent): UserActivityCountryOperatingSystemBrowserKey = UserActivityCountryOperatingSystemBrowserKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.location.country, e.userAgent.operatingSystem, e.userAgent.browser)
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityCountryOperatingSystemBrowserKey = UserActivityCountryOperatingSystemBrowserKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.location.country, e.userAgent.operatingSystem.id, e.userAgent.browser.id)
   override def toRow(pair: (UserActivityCountryOperatingSystemBrowserKey, Long)): HourlyPartnerCountryOperatingSystemBrowser = HourlyPartnerCountryOperatingSystemBrowser(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.country, pair._1.operatingSystem, pair._1.browser, pair._2)
 }

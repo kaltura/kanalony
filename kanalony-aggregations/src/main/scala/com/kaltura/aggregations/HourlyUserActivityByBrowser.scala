@@ -21,7 +21,7 @@ object HourlyUserActivityByBrowser extends BaseUserActivityAggregation[UserActiv
     "year" as "year",
     "value" as "value")
 
-  override def aggKey(e: EnrichedPlayerEvent): UserActivityBrowserKey = UserActivityBrowserKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.browser)
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityBrowserKey = UserActivityBrowserKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.browser.id)
   override def toRow(pair: (UserActivityBrowserKey, Long)): HourlyPartnerBrowser = HourlyPartnerBrowser(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.browser, pair._2)
 
 

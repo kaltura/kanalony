@@ -20,6 +20,6 @@ object HourlyUserActivityByOperatingSystem extends BaseUserActivityAggregation[U
     "year" as "year",
     "value" as "value")
 
-  override def aggKey(e: EnrichedPlayerEvent): UserActivityOperatingSystemKey = UserActivityOperatingSystemKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.operatingSystem)
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityOperatingSystemKey = UserActivityOperatingSystemKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.operatingSystem.id)
   override def toRow(pair: (UserActivityOperatingSystemKey, Long)): HourlyPartnerOperatingSystem = HourlyPartnerOperatingSystem(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.operatingSystem, pair._2)
 }

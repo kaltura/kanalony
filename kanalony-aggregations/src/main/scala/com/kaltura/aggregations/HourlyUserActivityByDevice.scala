@@ -20,6 +20,6 @@ object HourlyUserActivityByDevice extends BaseUserActivityAggregation[UserActivi
     "year" as "year",
     "value" as "value")
 
-  override def aggKey(e: EnrichedPlayerEvent): UserActivityDeviceKey = UserActivityDeviceKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.device)
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityDeviceKey = UserActivityDeviceKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.device.id)
   override def toRow(pair: (UserActivityDeviceKey, Long)): HourlyPartnerDevice = HourlyPartnerDevice(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.device, pair._2)
 }
