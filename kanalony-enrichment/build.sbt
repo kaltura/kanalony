@@ -6,7 +6,7 @@ lazy val `kanalony-enrichment` = (project in file(".")).
   settings(
     name := "kanalony-enrichment",
     version := "1.0",
-    scalaVersion := "2.10.6",
+    scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
       "org.apache.spark"      %% "spark-core"                 % sparkVersion,
       "org.apache.spark"      %% "spark-streaming"            % sparkVersion,

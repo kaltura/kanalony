@@ -1,6 +1,8 @@
 package com.kaltura.aggregations
 
 
+import java.nio.file.Path
+
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.PlayerEventParser
@@ -27,7 +29,8 @@ object UserActitvityAggregation extends App with Logging {
     setStreamingLogLevels
     //val aggregators = getAggregators()
     val applicationName = ConfigurationManager.get("kanalony.events_aggregation.application_name")
-    val checkpointDirectory = s"/tmp/checkpoint/$applicationName"
+    val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
+    val checkpointDirectory = s"$checkpointRootPath/$applicationName"
     // Get StreamingContext from checkpoint data or create a new one
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {

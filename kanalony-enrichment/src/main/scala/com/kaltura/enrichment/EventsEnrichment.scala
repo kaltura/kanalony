@@ -20,7 +20,8 @@ object EventsEnrichment extends App with Logging {
 
     setStreamingLogLevels
     val applicationName = ConfigurationManager.get("kanalony.events_enhancer.application_name")
-    val checkpointDirectory = s"/tmp/checkpoint/$applicationName"
+    val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
+    val checkpointDirectory = s"$checkpointRootPath/$applicationName"
     // Get StreamingContext from checkpoint data or create a new one
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {

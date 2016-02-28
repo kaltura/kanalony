@@ -5,7 +5,7 @@ lazy val `kanalony-model` = (project in file(".")).
   settings(
     name := "kanalony-model",
     version := "1.0",
-    scalaVersion := "2.10.6",
+    scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
         "org.scalatest"           %% "scalatest"                  % "2.2.4"       % "test",
         "org.apache.spark"        %% "spark-core"                 % sparkVersion,
