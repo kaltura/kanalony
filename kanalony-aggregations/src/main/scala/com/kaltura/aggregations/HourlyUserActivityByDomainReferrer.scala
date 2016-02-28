@@ -1,17 +1,18 @@
 package com.kaltura.aggregations
 
 import com.datastax.spark.connector.{SomeColumns, _}
+import com.kaltura.aggregations.keys.UserActivityDomainReferrerKey
 import com.kaltura.model.aggregations.{HourlyPartnerDomainReferrer, HourlyPartnerCountryCity}
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
 import org.apache.spark.streaming.{State, Time}
 
 
-object HourlyUserActivityByDomainReferrer extends BaseEventsAggregation[UserActivityDomainReferrerKey, HourlyPartnerDomainReferrer] with IAggregateHourly {
+object HourlyUserActivityByDomainReferrer extends BaseUserActivityAggregation[UserActivityDomainReferrerKey, HourlyPartnerDomainReferrer] with IAggregateHourly with Serializable {
 
-  override def tableMetadata(): Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_referrer" -> columns(),
-    "hourly_ua_clst_referrer" -> columns(),
+  override lazy val tableMetadata: Map[String, SomeColumns] = Map(
+    "hourly_ua_prtn_referrer" -> columns,
+    "hourly_ua_clst_referrer" -> columns,
     "hourly_ua_prtn_domain_clst_referrer" -> SomeColumns(
       "partner_id" as "partnerId",
       "domain" as "domain",
@@ -20,29 +21,16 @@ object HourlyUserActivityByDomainReferrer extends BaseEventsAggregation[UserActi
       "hour" as "hour",
       "year" as "year",
       "value" as "value")
-    )
+  )
 
-  /*override def trackStateFunc(batchTime: Time, key: UserActivityDomainReferrerKey, value: Option[Long], state: State[Long]): Option[(UserActivityDomainReferrerKey, Long)] = {
-    val sum = value.getOrElse(0L) + state.getOption.getOrElse(0L)
-    val output = (key, sum)
-    if (!state.isTimingOut())
-      state.update(sum)
-    Some(output)
-  }*/
-
-  override def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]): DStream[(UserActivityDomainReferrerKey, Long)] =
-    enrichedEvents.map(x => (UserActivityDomainReferrerKey(x.partnerId, x.eventType, x.eventTime.hourOfDay().roundFloorCopy(), x.urlParts.domain, x.urlParts.canonicalUrl),1L)).reduceByKey(_ + _)
-
-  override def prepareForSave(aggregatedEvents: MapWithStateDStream[UserActivityDomainReferrerKey, Long, Long, (UserActivityDomainReferrerKey, Long)]): DStream[HourlyPartnerDomainReferrer] =
-    aggregatedEvents.map({ case (k,v) => HourlyPartnerDomainReferrer(k.partnerId, k.metric, k.time.getYear, k.time, k.domain, k.referrer, v)})
-
-  override def ttl(): Int = 60*60 + 5*60
-
-  def columns() : SomeColumns = SomeColumns(
+  val columns : SomeColumns = SomeColumns(
     "partner_id" as "partnerId",
     "referrer" as "referrer",
     "metric" as "metric",
     "hour" as "hour",
     "year" as "year",
     "value" as "value")
+
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityDomainReferrerKey = UserActivityDomainReferrerKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.urlParts.domain, e.urlParts.canonicalUrl)
+  override def toRow(pair: (UserActivityDomainReferrerKey, Long)): HourlyPartnerDomainReferrer = HourlyPartnerDomainReferrer(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.domain, pair._1.referrer, pair._2)
 }

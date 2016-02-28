@@ -3,14 +3,9 @@ package com.kaltura.aggregations
 
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
-import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
-import kafka.serializer.StringDecoder
-import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.spark.streaming.dstream.DStream
+import com.kaltura.model.events.PlayerEventParser
 import org.apache.spark.{SparkContext, Logging, SparkConf}
-import org.apache.spark.streaming.kafka.KafkaUtils
-import org.apache.spark.streaming.{StateSpec, Seconds, StreamingContext, Time, State}
-import com.datastax.spark.connector._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.log4j.{Level, Logger}
 import org.clapper.classutil.ClassFinder
 
@@ -21,10 +16,7 @@ import scala.reflect.ClassTag
 import java.io.File
 import scala.reflect.runtime.universe._
 
-/**
- * Created by orlylampert on 1/11/16.
- */
-object EventsAggregation extends App with Logging {
+object UserActitvityAggregation extends App with Logging {
 
   case class EntryAggrKey(entryId: String, eventType: Int, minute: DateTime)
 
@@ -40,7 +32,6 @@ object EventsAggregation extends App with Logging {
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
         createSparkStreamingContext(checkpointDirectory)//, aggregators)
-        //createSparkStreamingContext(checkpointDirectory)
 
       })
 
@@ -50,7 +41,7 @@ object EventsAggregation extends App with Logging {
 
   }
 
-  def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String, String)] = List()): StreamingContext = {
+  def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String)] = List()): StreamingContext = {
 
     val sparkConf = new SparkConf().
       setAppName(ConfigurationManager.get("kanalony.events_aggregation.application_name")).
@@ -68,43 +59,25 @@ object EventsAggregation extends App with Logging {
       map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
 
-    //parsedEnrichedEvents.print()
-    // filter events by time and remove old events
-    /*val parsedEnrichedEventsByMinute = parsedEnrichedEvents.filter(
-      event => event.eventTime.plusMinutes(ConfigurationManager.getOrElse("kanalony.events_aggregations.minutes_to_save", "5").toInt).isAfterNow)
-
-    val parsedEnrichedEventsByHour = parsedEnrichedEvents.filter(
-      event => event.eventTime.plusHours(ConfigurationManager.getOrElse("kanalony.events_aggregations.hours_to_save", "1").toInt)
-        .plusMinutes(ConfigurationManager.getOrElse("kanalony.events_aggregations.minutes_to_save", "5").toInt).isAfterNow)
-*/
-    /*
-    aggregators.foreach(x => x match {
-      case (a, "Hourly") => aggregate(a, parsedEnrichedEventsByHour)
-      case (a, "Minutely") => aggregate(a, parsedEnrichedEventsByMinute)
-    })
-    */
     HourlyUserActivity.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByEntry.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    //HourlyUserActivityByBrowser.aggregate(parsedEnrichedEventsByHour)
-
-    /*
-    HourlyUserActivityByEntry.aggregate(parsedEnrichedEventsByHour)
-    MinutelyUserActivityByEntry.aggregate(parsedEnrichedEventsByMinute)
-    MinutelyUserActivity.aggregate(parsedEnrichedEventsByMinute)
-    HourlyUserActivityPeakAudience.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivity.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByBrowser.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByCountry.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByCountryCity.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByDevice.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByDeviceOperatingSystem.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByDomain.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByDomainReferrer.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByOperatingSystem.aggregate(parsedEnrichedEventsByHour)
-    HourlyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEventsByHour)
-    **/
+    HourlyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByEntry.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByEntry.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivity.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityPeakAudience.aggregate(parsedEnrichedEvents)
+    HourlyUserActivity.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountry.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountryCity.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByDevice.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByDomain.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByDomainReferrer.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByOperatingSystem.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
 
     ssc
   }
@@ -120,14 +93,14 @@ object EventsAggregation extends App with Logging {
     Logger.getRootLogger.setLevel(Level.WARN)
   }
 
-  def getAggregators() : List[(String, String)] = {
+  def getAggregators() : List[(String)] = {
     val path = Seq("../").map(new File(_));
     val finder = ClassFinder(path)
     val classes = finder.getClasses
 
     val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
 
-    aggregators.map(cls => if (cls.implements("com.kaltura.aggregations.IAggregateHourly")) (cls.name, "Hourly") else (cls.name, "Minutely")).toList
+    aggregators.map(cls => cls.name).toList
 
 
   }

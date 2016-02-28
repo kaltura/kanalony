@@ -1,10 +1,11 @@
 package com.kaltura.aggregations
 
 import com.datastax.spark.connector.{SomeColumns, _}
+import com.kaltura.aggregations.keys.EntryKey
 import com.kaltura.model.aggregations.HourlyEntry
 import com.kaltura.model.events.EnrichedPlayerEvent
 
-object HourlyUserActivityByEntry extends BaseEventsAggregation[EntryKey, HourlyEntry] with IAggregateHourly with Serializable {
+object HourlyUserActivityByEntry extends BaseUserActivityAggregation[EntryKey, HourlyEntry] with IAggregateHourly with Serializable {
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry" -> SomeColumns(

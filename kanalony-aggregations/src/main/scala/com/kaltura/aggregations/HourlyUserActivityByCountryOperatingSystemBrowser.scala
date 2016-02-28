@@ -1,13 +1,11 @@
 package com.kaltura.aggregations
 
 import com.datastax.spark.connector.{SomeColumns, _}
-import com.kaltura.model.aggregations.{HourlyPartnerCountryOperatingSystemBrowser, HourlyPartnerOperatingSystemBrowser}
+import com.kaltura.aggregations.keys.UserActivityCountryOperatingSystemBrowserKey
+import com.kaltura.model.aggregations.HourlyPartnerCountryOperatingSystemBrowser
 import com.kaltura.model.events.EnrichedPlayerEvent
-import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
-import org.apache.spark.streaming.{State, Time}
 
-
-object HourlyUserActivityByCountryOperatingSystemBrowser extends BaseEventsAggregation[UserActivityCountryOperatingSystemBrowserKey, HourlyPartnerCountryOperatingSystemBrowser] with IAggregateHourly  with Serializable{
+object HourlyUserActivityByCountryOperatingSystemBrowser extends BaseUserActivityAggregation[UserActivityCountryOperatingSystemBrowserKey, HourlyPartnerCountryOperatingSystemBrowser] with IAggregateHourly with Serializable{
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_country_clst_os_browser" -> columns,
