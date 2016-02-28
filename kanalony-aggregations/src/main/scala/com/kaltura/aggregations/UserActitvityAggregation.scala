@@ -1,24 +1,18 @@
 package com.kaltura.aggregations
 
 
-import java.nio.file.Path
+import java.io.File
 
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.PlayerEventParser
-import org.apache.spark.{SparkContext, Logging, SparkConf}
-import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.{Logging, SparkConf, SparkContext}
 import org.clapper.classutil.ClassFinder
-
-
 import org.joda.time.DateTime
 
-import scala.reflect.ClassTag
-import java.io.File
-import scala.reflect.runtime.universe._
-
-object UserActitvityAggregation extends App with Logging {
+object UserActivityAggregation extends App with Logging {
 
   case class EntryAggrKey(entryId: String, eventType: Int, minute: DateTime)
 
@@ -46,10 +40,11 @@ object UserActitvityAggregation extends App with Logging {
 
   def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String)] = List()): StreamingContext = {
 
-    val sparkConf = new SparkConf().
-      setAppName(ConfigurationManager.get("kanalony.events_aggregation.application_name")).
-      setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]")).
-      set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
+    val sparkConf = new SparkConf()
+      .setAppName(ConfigurationManager.get("kanalony.events_aggregation.application_name"))
+      .setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]"))
+      .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
+      .set("spark.cassandra.connection.keep_alive_ms","30000")
     val sparkContext = new SparkContext(sparkConf)
     val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.batch_duration", "1").toInt))
     ssc.checkpoint(checkpointDirectory)
