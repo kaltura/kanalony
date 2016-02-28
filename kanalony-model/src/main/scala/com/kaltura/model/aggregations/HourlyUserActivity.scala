@@ -19,7 +19,7 @@ case class HourlyPartnerPlaybackContext(partnerId: Int, metric: Int, year: Int, 
 case class HourlyPartnerApplicationPlaybackContext(partnerId: Int, metric: Int, year: Int, hour: DateTime, application: String, playbackContext: Int, value: Long)
 case class HourlyPartnerCountryOperatingSystemBrowser(partnerId: Int, metric: Int, year: Int, hour: DateTime, country: String, operatingSystem: OperatingSystem.Value, browser: Browser.Value, value: Long)
 
-case class HourlyEntry(partnerId: Int, entryId: String, metric: Int, year: Int, month: Int, hour: DateTime, value: Long)
+case class HourlyEntry(partnerId: Int, entryId: String, metric: Int, year: Int, hour: DateTime, value: Long)
 case class HourlyEntryCountry(partnerId: Int, entryId: String, metric: Int, year: Int, hour: DateTime, country: String, value: Long)
 case class HourlyEntryCountryCity(partnerId: Int, entryId: String, metric: Int, year: Int, hour: DateTime, country: String, city: String, value: Long)
 case class HourlyEntryDomain(partnerId: Int, entryId: String, metric: Int, year: Int, hour: DateTime, domain: String, value: Long)

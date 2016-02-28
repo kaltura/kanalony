@@ -8,7 +8,7 @@ import com.kaltura.core.userAgent.enums.{Device, OperatingSystem, Browser}
  */
 object UserAgentResolver {
 
-  private val cache = scala.collection.mutable.HashMap.empty[String, UserAgent]
+  private val cache = scala.collection.mutable.HashMap.empty[String, UserAgent] // TODO - use Guava cache
   def resolve(ua:String): UserAgent = {
     cache.getOrElseUpdate(ua, parse(ua))
   }

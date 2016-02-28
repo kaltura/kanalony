@@ -24,7 +24,7 @@ import scala.reflect.runtime.universe._
 /**
  * Created by orlylampert on 1/11/16.
  */
-object EntryEventsAggregation extends App with Logging {
+object EventsAggregation extends App with Logging {
 
   case class EntryAggrKey(entryId: String, eventType: Int, minute: DateTime)
 
@@ -33,13 +33,13 @@ object EntryEventsAggregation extends App with Logging {
   override def main(args: Array[String]) {
 
     setStreamingLogLevels
-    val aggregators = getAggregators()
+    //val aggregators = getAggregators()
     val applicationName = ConfigurationManager.get("kanalony.events_aggregation.application_name")
     val checkpointDirectory = s"/tmp/checkpoint/$applicationName"
     // Get StreamingContext from checkpoint data or create a new one
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
-        createSparkStreamingContext(checkpointDirectory, aggregators)
+        createSparkStreamingContext(checkpointDirectory)//, aggregators)
         //createSparkStreamingContext(checkpointDirectory)
 
       })
@@ -50,9 +50,9 @@ object EntryEventsAggregation extends App with Logging {
 
   }
 
-  def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String, String)]): StreamingContext = {
+  def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String, String)] = List()): StreamingContext = {
 
-      val sparkConf = new SparkConf().
+    val sparkConf = new SparkConf().
       setAppName(ConfigurationManager.get("kanalony.events_aggregation.application_name")).
       setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]")).
       set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
@@ -68,23 +68,25 @@ object EntryEventsAggregation extends App with Logging {
       map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
 
-    parsedEnrichedEvents.print()
+    //parsedEnrichedEvents.print()
     // filter events by time and remove old events
-    val parsedEnrichedEventsByMinute = parsedEnrichedEvents.filter(
+    /*val parsedEnrichedEventsByMinute = parsedEnrichedEvents.filter(
       event => event.eventTime.plusMinutes(ConfigurationManager.getOrElse("kanalony.events_aggregations.minutes_to_save", "5").toInt).isAfterNow)
 
     val parsedEnrichedEventsByHour = parsedEnrichedEvents.filter(
       event => event.eventTime.plusHours(ConfigurationManager.getOrElse("kanalony.events_aggregations.hours_to_save", "1").toInt)
         .plusMinutes(ConfigurationManager.getOrElse("kanalony.events_aggregations.minutes_to_save", "5").toInt).isAfterNow)
-
+*/
     /*
     aggregators.foreach(x => x match {
       case (a, "Hourly") => aggregate(a, parsedEnrichedEventsByHour)
       case (a, "Minutely") => aggregate(a, parsedEnrichedEventsByMinute)
     })
     */
-
-    HourlyUserActivityByBrowser.aggregate(parsedEnrichedEventsByHour)
+    HourlyUserActivity.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByEntry.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    //HourlyUserActivityByBrowser.aggregate(parsedEnrichedEventsByHour)
 
     /*
     HourlyUserActivityByEntry.aggregate(parsedEnrichedEventsByHour)
@@ -129,7 +131,7 @@ object EntryEventsAggregation extends App with Logging {
 
 
   }
-
+/*
   def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
     val mirror = runtimeMirror(getClass.getClassLoader)
     val module = mirror.staticModule(className)
@@ -138,6 +140,6 @@ object EntryEventsAggregation extends App with Logging {
     val im =mirror.reflect(cls)
     val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
     im.reflectMethod(method)(events)
-  }
+  }*/
 
 }

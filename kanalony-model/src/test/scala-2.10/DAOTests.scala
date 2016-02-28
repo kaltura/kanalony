@@ -18,19 +18,6 @@ class DAOTests extends FlatSpec with Matchers with BeforeAndAfterAll  {
     }
   }
 
-  "PartnerDAO.findById" should "not be empty" in {
-    val partner: Option[Partner] = PartnerDAO.findById(1234)
-    partner.isEmpty shouldBe false
-
-    time {
-      Range(1, 50000).foreach { i =>
-        PartnerDAO.findById(i)
-        //partner.isEmpty shouldBe false
-      }
-    }
-
-  }
-
   def time[R](block: => R): R = {
     val t0 = System.nanoTime()
     val result = block    // call-by-name

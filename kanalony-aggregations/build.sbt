@@ -5,7 +5,7 @@ lazy val `kanalony-aggregations` = (project in file(".")).
   settings(
     name := "kanalony-aggregations",
     version := "1.0",
-    scalaVersion := "2.11.7",
+    scalaVersion := "2.10.6",
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
       "org.clapper"           %% "classutil"                  % "1.0.6",
@@ -19,4 +19,8 @@ lazy val `kanalony-aggregations` = (project in file(".")).
     )
   ).dependsOn(`kanalony-model`, `kanalony-core`)
 
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
 

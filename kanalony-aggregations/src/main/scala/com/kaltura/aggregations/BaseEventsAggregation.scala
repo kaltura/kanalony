@@ -1,14 +1,9 @@
 package com.kaltura.aggregations
 
-import com.datastax.spark.connector.cql.TableDef
-import com.datastax.spark.connector.mapper.ColumnMapper
-import com.datastax.spark.connector.rdd
-import com.datastax.spark.connector.writer.{RowWriter, RowWriterFactory}
-import com.kaltura.core.userAgent.enums.{OperatingSystem, Browser, Device}
-import com.kaltura.model.events.EnrichedPlayerEvent
+import com.datastax.spark.connector._
+import com.kaltura.core.userAgent.enums.{Browser, Device, OperatingSystem}
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
-import com.datastax.spark.connector._
 import org.joda.time.DateTime
 
 import scala.reflect.ClassTag
@@ -16,27 +11,35 @@ import scala.reflect.runtime.universe._
 
 
 
-abstract class BaseEventsAggregation[AggKey:ClassTag, AggRes:TypeTag] extends Serializable with IAggregate {
+abstract class BaseEventsAggregation[EventType:ClassTag, AggKey:ClassTag, AggRes:TypeTag :ClassTag] extends Serializable with IAggregate {
 
-  def tableMetadata() : Map[String, SomeColumns]
-  def keyspace() : String = "kanalony_user_activity"
-  def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]) : DStream[(AggKey,Long)]
+  val tableMetadata: Map[String, SomeColumns]
+  val keyspace = "kanalony_user_activity"
+
+  def aggregateBatchEvents(enrichedEvents: DStream[EventType]) : DStream[(AggKey,Long)] =
+    enrichedEvents.map(e => (aggKey(e),1L)).reduceByKey(_ + _)
+
+  def aggKey(e: EventType): AggKey
+
   def trackStateFunc(batchTime: Time, key: AggKey, value: Option[Long], state: State[Long]): Option[(AggKey, Long)] = {
     val sum = value.getOrElse(0L) + state.getOption.getOrElse(0L)
-
     val output = (key, sum)
     if (!state.isTimingOut())
       state.update(sum)
     Some(output)
   }
 
-  def prepareForSave(aggregatedEvents: MapWithStateDStream[AggKey, Long, Long, (AggKey, Long)]) : DStream[AggRes]
-  def ttl() : Int
+  def prepareForSave(aggregatedEvents: MapWithStateDStream[AggKey, Long, Long, (AggKey, Long)]) : DStream[AggRes] =
+    aggregatedEvents.map(agg => toRow(agg))
+
+
+  def toRow(pair:(AggKey,Long)): AggRes
+
   val stateSpec = StateSpec.function(trackStateFunc _).timeout(Seconds(ttl))
 
   def save(aggregatedEvents: DStream[AggRes]) : Unit = {
     try {
-      tableMetadata().foreach {
+      tableMetadata.foreach {
         case (tableName, columns) => aggregatedEvents.foreachRDD(rdd => if (rdd.count() > 0) rdd.saveToCassandra(keyspace, tableName, columns))
       }
     } catch {
@@ -45,7 +48,7 @@ abstract class BaseEventsAggregation[AggKey:ClassTag, AggRes:TypeTag] extends Se
   }
 
 
-  def aggregate(enrichedEvents: DStream[EnrichedPlayerEvent]) : Unit = {
+  def aggregate(enrichedEvents: DStream[EventType]) : Unit = {
     try {
       val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
       val aggregatedEvents = aggregatedBatchEvents.mapWithState[Long,(AggKey, Long)](stateSpec)

@@ -13,6 +13,7 @@ object HourlyUserActivityByDomainReferrer extends BaseEventsAggregation[UserActi
     "hourly_ua_prtn_referrer" -> columns(),
     "hourly_ua_clst_referrer" -> columns(),
     "hourly_ua_prtn_domain_clst_referrer" -> SomeColumns(
+      "partner_id" as "partnerId",
       "domain" as "domain",
       "referrer" as "referrer",
       "metric" as "metric",
@@ -21,13 +22,13 @@ object HourlyUserActivityByDomainReferrer extends BaseEventsAggregation[UserActi
       "value" as "value")
     )
 
-  override def trackStateFunc(batchTime: Time, key: UserActivityDomainReferrerKey, value: Option[Long], state: State[Long]): Option[(UserActivityDomainReferrerKey, Long)] = {
+  /*override def trackStateFunc(batchTime: Time, key: UserActivityDomainReferrerKey, value: Option[Long], state: State[Long]): Option[(UserActivityDomainReferrerKey, Long)] = {
     val sum = value.getOrElse(0L) + state.getOption.getOrElse(0L)
     val output = (key, sum)
     if (!state.isTimingOut())
       state.update(sum)
     Some(output)
-  }
+  }*/
 
   override def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]): DStream[(UserActivityDomainReferrerKey, Long)] =
     enrichedEvents.map(x => (UserActivityDomainReferrerKey(x.partnerId, x.eventType, x.eventTime.hourOfDay().roundFloorCopy(), x.urlParts.domain, x.urlParts.canonicalUrl),1L)).reduceByKey(_ + _)
