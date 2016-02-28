@@ -3,8 +3,10 @@ package com.kaltura.model.events
 import java.text.SimpleDateFormat
 
 import com.kaltura.core.urls.UrlParser
+import com.kaltura.core.userAgent.enums.{Device, OperatingSystem, Browser}
 import org.apache.spark.Logging
 import org.json4s.DefaultFormats
+import org.json4s.ext.EnumNameSerializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
 import scala.collection.mutable
@@ -12,7 +14,10 @@ import scala.collection.mutable
 object PlayerEventParser extends Logging {
   implicit val formats = new DefaultFormats {
     override def dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-  } ++ org.json4s.ext.JodaTimeSerializers.all
+  } ++ org.json4s.ext.JodaTimeSerializers.all +
+    new EnumNameSerializer(Browser) +
+    new EnumNameSerializer(OperatingSystem) +
+    new EnumNameSerializer(Device)
 
   def parsePlayerEvent(playerEvent: String): Option[RawPlayerEvent] = {
     try {
@@ -29,7 +34,7 @@ object PlayerEventParser extends Logging {
     }
     catch {
       case e: Exception => {
-        logError(s"Unable to parse log row: $playerEvent, error: $e")
+        logWarning(s"Unable to parse log row: $playerEvent, error: $e")
         None
       }
     }
@@ -41,6 +46,7 @@ object PlayerEventParser extends Logging {
     }
     catch {
       case e: Exception => {
+        logWarning(s"Unable to enriched player event: $playerEvent, error: $e")
         None
       }
     }
