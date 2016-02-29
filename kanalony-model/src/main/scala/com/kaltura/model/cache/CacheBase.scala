@@ -10,7 +10,7 @@ import com.kaltura.core.cassandra.ClusterManager
  */
 trait CacheBase[T, IDType] {
   def cassandraSession = ClusterManager.getSession
-  val keySpace = "schema_tests"
+  val keySpace = "enrichment_cache"
   val tableName: String
   val idFieldName: String
 

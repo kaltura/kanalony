@@ -1,34 +1,17 @@
 package com.kaltura.aggregations
 
+import com.kaltura.aggregations.keys.EntryKey
 import com.kaltura.model.aggregations.MinutelyEntry
 import com.kaltura.model.events.EnrichedPlayerEvent
-import org.apache.spark.streaming.{State, Time}
-import org.apache.spark.streaming.dstream.{MapWithStateDStream, DStream}
-
-
 import com.datastax.spark.connector._
 import com.datastax.spark.connector.SomeColumns
 
 
 
 
-object MinutelyUserActivityByEntry extends BaseEventsAggregation[EntryKey, MinutelyEntry] with IAggregateMinutely {
+object MinutelyUserActivityByEntry extends BaseUserActivityAggregation[EntryKey, MinutelyEntry] with IAggregateMinutely with Serializable {
 
-  override def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]): DStream[(EntryKey, Long)] = enrichedEvents.map(x => (EntryKey(x.partnerId, x.entryId, x.eventType, x.eventTime.minuteOfHour().roundFloorCopy()),1L)).reduceByKey(_ + _)
-
-  override def trackStateFunc(batchTime: Time, key: EntryKey, value: Option[Long], state: State[Long]): Option[(EntryKey, Long)] = {
-    val sum = value.getOrElse(0L) + state.getOption.getOrElse(0L)
-    val output = (key, sum)
-    if (!state.isTimingOut())
-      state.update(sum)
-    Some(output)
-  }
-
-  override def prepareForSave(aggregatedEvents: MapWithStateDStream[EntryKey, Long, Long, (EntryKey, Long)]): DStream[MinutelyEntry] = {
-    aggregatedEvents.map({ case (k,v) => MinutelyEntry(k.partnerId, k.entryId, k.metric, k.time.getDayOfYear, k.time, v)})
-  }
-
-  override def tableMetadata(): Map[String, SomeColumns] = Map(
+  override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry" -> SomeColumns(
       "partner_id" as "partnerId",
       "entry_id" as "entryId",
@@ -44,7 +27,6 @@ object MinutelyUserActivityByEntry extends BaseEventsAggregation[EntryKey, Minut
       "value" as "value")
     )
 
-
-
-  override def ttl(): Int = 120
+  override def aggKey(e: EnrichedPlayerEvent): EntryKey = EntryKey(e.partnerId, e.entryId, e.eventType, e.eventTime.minuteOfHour().roundFloorCopy())
+  override def toRow(pair: (EntryKey, Long)): MinutelyEntry = MinutelyEntry(pair._1.partnerId, pair._1.entryId, pair._1.metric, pair._1.time.getDayOfYear, pair._1.time, pair._2)
 }

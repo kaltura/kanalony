@@ -1,13 +1,14 @@
 package com.kaltura.core.cassandra
 
 import com.datastax.driver.core.{Cluster, Session}
+import com.kaltura.core.utils.ConfigurationManager
 
 /**
  * Created by ofirk on 26/01/2016.
  */
 object ClusterManager {
   private val cluster = Cluster.builder()
-            .addContactPoint("127.0.0.1")
+            .addContactPoint(ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
             .build()
 
   private val session = cluster.connect()

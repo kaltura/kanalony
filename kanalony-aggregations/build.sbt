@@ -19,4 +19,10 @@ lazy val `kanalony-aggregations` = (project in file(".")).
     )
   ).dependsOn(`kanalony-model`, `kanalony-core`)
 
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
+assemblyJarName := "kanalony-aggregations.jar"
+assemblyOutputPath := file("../out/" + assemblyJarName)
 

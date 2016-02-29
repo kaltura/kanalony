@@ -1,36 +1,18 @@
 package com.kaltura.aggregations
 
 import com.datastax.spark.connector.{SomeColumns, _}
-import com.kaltura.model.aggregations.{HourlyPartnerDeviceOperatingSystem, HourlyPartnerCountryCity}
+import com.kaltura.aggregations.keys.UserActivityDeviceOperatingSystemKey
+import com.kaltura.model.aggregations.HourlyPartnerDeviceOperatingSystem
 import com.kaltura.model.events.EnrichedPlayerEvent
-import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
-import org.apache.spark.streaming.{State, Time}
 
+object HourlyUserActivityByDeviceOperatingSystem extends BaseUserActivityAggregation[UserActivityDeviceOperatingSystemKey, HourlyPartnerDeviceOperatingSystem] with IAggregateHourly with Serializable {
 
-object HourlyUserActivityByDeviceOperatingSystem extends BaseEventsAggregation[UserActivityDeviceOperatingSystemKey, HourlyPartnerDeviceOperatingSystem] with IAggregateHourly{
+  override lazy val tableMetadata: Map[String, SomeColumns] = Map(
+    "hourly_ua_prtn_device_clst_os" -> columns,
+    "hourly_ua_prtn_device_os" -> columns
+  )
 
-  override def tableMetadata(): Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_device_clst_os" -> columns(),
-    "hourly_ua_prtn_device_os" -> columns()
-    )
-
-  override def trackStateFunc(batchTime: Time, key: UserActivityDeviceOperatingSystemKey, value: Option[Long], state: State[Long]): Option[(UserActivityDeviceOperatingSystemKey, Long)] = {
-    val sum = value.getOrElse(0L) + state.getOption.getOrElse(0L)
-    val output = (key, sum)
-    if (!state.isTimingOut())
-      state.update(sum)
-    Some(output)
-  }
-
-  override def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]): DStream[(UserActivityDeviceOperatingSystemKey, Long)] =
-    enrichedEvents.map(x => (UserActivityDeviceOperatingSystemKey(x.partnerId, x.eventType, x.eventTime.hourOfDay().roundFloorCopy(), x.userAgent.device, x.userAgent.operatingSystem),1L)).reduceByKey(_ + _)
-
-  override def prepareForSave(aggregatedEvents: MapWithStateDStream[UserActivityDeviceOperatingSystemKey, Long, Long, (UserActivityDeviceOperatingSystemKey, Long)]): DStream[HourlyPartnerDeviceOperatingSystem] =
-    aggregatedEvents.map({ case (k,v) => HourlyPartnerDeviceOperatingSystem(k.partnerId, k.metric, k.time.getYear, k.time, k.device, k.operatingSystem, v)})
-
-  override def ttl(): Int = 60*60 + 5*60
-
-  def columns() : SomeColumns = new SomeColumns(
+  val columns : SomeColumns = new SomeColumns(
     "partner_id" as "partnerId",
     "device" as "device",
     "operating_system" as "operatingSystem",
@@ -38,4 +20,7 @@ object HourlyUserActivityByDeviceOperatingSystem extends BaseEventsAggregation[U
     "hour" as "hour",
     "year" as "year",
     "value" as "value")
+
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityDeviceOperatingSystemKey = UserActivityDeviceOperatingSystemKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.device.id, e.userAgent.operatingSystem.id)
+  override def toRow(pair: (UserActivityDeviceOperatingSystemKey, Long)): HourlyPartnerDeviceOperatingSystem = HourlyPartnerDeviceOperatingSystem(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.device, pair._1.operatingSystem, pair._2)
 }

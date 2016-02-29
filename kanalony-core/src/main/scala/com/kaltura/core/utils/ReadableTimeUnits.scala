@@ -10,6 +10,9 @@ object ReadableTimeUnits {
 
     def hours = unit * 60 * 60
     def hour = hours
+
+    def minutes = unit * 60
+    def minute = minutes
   }
 }
 

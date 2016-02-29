@@ -1,36 +1,20 @@
 package com.kaltura.aggregations
 
 import com.datastax.spark.connector.{SomeColumns, _}
-import com.kaltura.model.aggregations.{HourlyPartnerCountryCity, HourlyPartnerCountry}
+import com.kaltura.aggregations.keys.UserActivityCountryCityKey
+import com.kaltura.model.aggregations.HourlyPartnerCountryCity
 import com.kaltura.model.events.EnrichedPlayerEvent
-import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
-import org.apache.spark.streaming.{State, Time}
 
 
-object HourlyUserActivityByCountryCity extends BaseEventsAggregation[UserActivityCountryCityKey, HourlyPartnerCountryCity] with IAggregateHourly {
 
-  override def tableMetadata(): Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_country_city" -> columns(),
-    "hourly_ua_clst_country_city" -> columns()
-    )
+object HourlyUserActivityByCountryCity extends BaseUserActivityAggregation[UserActivityCountryCityKey, HourlyPartnerCountryCity] with IAggregateHourly with Serializable{
 
-  override def trackStateFunc(batchTime: Time, key: UserActivityCountryCityKey, value: Option[Long], state: State[Long]): Option[(UserActivityCountryCityKey, Long)] = {
-    val sum = value.getOrElse(0L) + state.getOption.getOrElse(0L)
-    val output = (key, sum)
-    if (!state.isTimingOut())
-      state.update(sum)
-    Some(output)
-  }
+  override lazy val tableMetadata: Map[String, SomeColumns] = Map(
+    "hourly_ua_prtn_country_city" -> columns,
+    "hourly_ua_clst_country_city" -> columns
+  )
 
-  override def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]): DStream[(UserActivityCountryCityKey, Long)] =
-    enrichedEvents.map(x => (UserActivityCountryCityKey(x.partnerId, x.eventType, x.eventTime.hourOfDay().roundFloorCopy(), x.location.country, x.location.city),1L)).reduceByKey(_ + _)
-
-  override def prepareForSave(aggregatedEvents: MapWithStateDStream[UserActivityCountryCityKey, Long, Long, (UserActivityCountryCityKey, Long)]): DStream[HourlyPartnerCountryCity] =
-    aggregatedEvents.map({ case (k,v) => HourlyPartnerCountryCity(k.partnerId, k.metric, k.time.getYear, k.time, k.country, k.city, v)})
-
-  override def ttl(): Int = 60*60 + 5*60
-
-  def columns() : SomeColumns = new SomeColumns(
+  val columns : SomeColumns = new SomeColumns(
     "partner_id" as "partnerId",
     "country" as "country",
     "city" as "city",
@@ -38,4 +22,8 @@ object HourlyUserActivityByCountryCity extends BaseEventsAggregation[UserActivit
     "hour" as "hour",
     "year" as "year",
     "value" as "value")
+
+
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityCountryCityKey = UserActivityCountryCityKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.location.country, e.location.city)
+  override def toRow(pair: (UserActivityCountryCityKey, Long)): HourlyPartnerCountryCity = HourlyPartnerCountryCity(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.country, pair._1.city, pair._2)
 }

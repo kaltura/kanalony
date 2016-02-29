@@ -10,7 +10,4 @@ lazy val `kanalony-storage-api` = (project in file(".")).
     )
   ).dependsOn(`kanalony-storage-access`)
 
-version := "1.0"
-
-scalaVersion := "2.11.7"
     
