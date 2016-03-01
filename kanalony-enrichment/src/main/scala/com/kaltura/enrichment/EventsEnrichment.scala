@@ -35,10 +35,12 @@ object EventsEnrichment extends App with Logging {
   }
 
   def createSparkStreamingContext(checkpointDirectory: String): StreamingContext = {
-    val sparkConf = new SparkConf().
-      setAppName(ConfigurationManager.get("kanalony.events_enhancer.application_name")).
-      setMaster(ConfigurationManager.getOrElse("kanalony.events_enhancer.master","local[8]")).
-      set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
+    val sparkConf = new SparkConf()
+      .setAppName(ConfigurationManager.get("kanalony.events_enhancer.application_name"))
+      .setMaster(ConfigurationManager.getOrElse("kanalony.events_enhancer.master","local[8]"))
+      .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
+      .set("spark.cassandra.connection.keep_alive_ms","30000")
+      .set("spark.streaming.backpressure.enabled", ConfigurationManager.getOrElse("kanalony.events_enhancer.backpressure","false"))
     val sparkContext = new SparkContext(sparkConf)
     val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","1").toInt))
     ssc.checkpoint(checkpointDirectory)
@@ -88,7 +90,10 @@ object EventsEnrichment extends App with Logging {
             rawPlayerEvent.params.getOrElse("categories",""),
             rawPlayerEvent.params.getOrElse("application",""),
             rawPlayerEvent.params.getOrElse("playbackContext",""),
-            rawPlayerEvent.params.getOrElse("playbackType","")
+            rawPlayerEvent.params.getOrElse("playbackType",""),
+            rawPlayerEvent.params.getOrElse("customVar1",""),
+            rawPlayerEvent.params.getOrElse("customVar2",""),
+            rawPlayerEvent.params.getOrElse("customVar3","")
           )
           producer.send(new ProducerRecord[String,String]("enriched-player-events", null, PlayerEventParser.asJson(playerEvent)))
           logError(playerEvent.toString)

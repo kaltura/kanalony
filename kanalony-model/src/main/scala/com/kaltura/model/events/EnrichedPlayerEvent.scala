@@ -18,5 +18,8 @@ case class EnrichedPlayerEvent(eventType:       Int,
                                categories:      String = "",
                                application:     String = "",
                                playbackContext: String = "",
-                               playbackType:    String = ""
+                               playbackType:    String = "",
+                               customVar1:      String = "",
+                               customVar2:      String = "",
+                               customVar3:      String = ""
                               )
