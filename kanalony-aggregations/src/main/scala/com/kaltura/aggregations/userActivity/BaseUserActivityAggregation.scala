@@ -1,11 +1,10 @@
-package com.kaltura.aggregations
+package com.kaltura.aggregations.userActivity
 
 import com.datastax.spark.connector._
-import com.kaltura.core.userAgent.enums.{Browser, Device, OperatingSystem}
+import com.kaltura.aggregations.IAggregate
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
-import org.joda.time.DateTime
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._

@@ -1,7 +1,9 @@
-package com.kaltura.aggregations
+package com.kaltura.aggregations.userActivity.hourly
 
 import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.keys.UserActivityCountryOperatingSystemBrowserKey
+import com.kaltura.aggregations.IAggregateHourly
+import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
 import com.kaltura.model.aggregations.HourlyPartnerCountryOperatingSystemBrowser
 import com.kaltura.model.events.EnrichedPlayerEvent
 
