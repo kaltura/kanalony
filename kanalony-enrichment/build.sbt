@@ -11,8 +11,6 @@ lazy val `kanalony-enrichment` = (project in file(".")).
       "org.apache.spark"      %% "spark-core"                 % sparkVersion,
       "org.apache.spark"      %% "spark-streaming"            % sparkVersion,
       "org.apache.spark"      %% "spark-streaming-kafka"      % sparkVersion,
-      "org.apache.spark"      %% "spark-sql"                  % sparkVersion,
-      "com.datastax.spark"    %% "spark-cassandra-connector"  % "1.4.1",
       "org.json4s"            %% "json4s-jackson"             % json4sVersion,
       "org.json4s"            %% "json4s-native"              % json4sVersion,
       "org.json4s"            %% "json4s-ext"                 % json4sVersion,

@@ -1,6 +1,6 @@
 package com.kaltura.model.cache
 
-import com.datastax.driver.core.Row
+import com.datastax.driver.core.{Statement, Row}
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.kaltura.core.utils.ReadableTimeUnits._
 import com.kaltura.model.dao.EntryDAO

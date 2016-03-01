@@ -7,8 +7,9 @@ lazy val `kanalony-storage-access` = (project in file(".")).
     version := "1.0",
     scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
-      "com.websudos"  %% "phantom-dsl"                   % "1.12.2",
-      "com.websudos"  %% "phantom-testkit"               % "1.12.2"
+      "com.datastax.cassandra"  %  "cassandra-driver-core"      % "3.0.0",
+      "com.websudos"            %% "phantom-dsl"                % "1.12.2",
+      "com.websudos"            %% "phantom-testkit"            % "1.12.2"
     ),
     resolvers ++= Seq(
       "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",

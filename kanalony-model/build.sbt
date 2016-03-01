@@ -13,7 +13,7 @@ lazy val `kanalony-model` = (project in file(".")).
         "org.json4s"              %% "json4s-native"              % json4sVersion,
         "org.json4s"              %% "json4s-ext"                 % json4sVersion,
         "joda-time"               %  "joda-time"                  % "2.8.1",
-        "com.datastax.cassandra"  %  "cassandra-driver-core"      % "2.1.9",
+        "com.datastax.cassandra"  %  "cassandra-driver-core"      % "3.0.0",
         "org.scalikejdbc"         %% "scalikejdbc"                % "2.3.4",
         "mysql"                   %  "mysql-connector-java"       % "5.1.38",
         "com.kaltura"             % "kalturaClient"               % "3.2.1"
