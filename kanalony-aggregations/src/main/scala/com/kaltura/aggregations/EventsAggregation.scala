@@ -3,16 +3,22 @@ package com.kaltura.aggregations
 
 import java.io.File
 
+import com.kaltura.aggregations.userActivity.hourly._
+import com.kaltura.aggregations.userActivity.minutely.{MinutelyUserActivityByEntry, MinutelyUserActivity}
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
-import com.kaltura.model.events.PlayerEventParser
+import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
 import org.clapper.classutil.ClassFinder
 import org.joda.time.DateTime
 
-object UserActivityAggregation extends App with Logging {
+import java.io.File
+import scala.reflect.runtime.universe._
+
+object EventsAggregation extends App with Logging {
 
   case class EntryAggrKey(entryId: String, eventType: Int, minute: DateTime)
 
@@ -21,14 +27,14 @@ object UserActivityAggregation extends App with Logging {
   override def main(args: Array[String]) {
 
     setStreamingLogLevels
-    //val aggregators = getAggregators()
+    val aggregators = getAggregators()
     val applicationName = ConfigurationManager.get("kanalony.events_aggregation.application_name")
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
     val checkpointDirectory = s"$checkpointRootPath/$applicationName"
     // Get StreamingContext from checkpoint data or create a new one
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
-        createSparkStreamingContext(checkpointDirectory)//, aggregators)
+        createSparkStreamingContext(checkpointDirectory, aggregators)
 
       })
 
@@ -57,7 +63,11 @@ object UserActivityAggregation extends App with Logging {
       map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
 
+    aggregators.foreach(aggregate(_, parsedEnrichedEvents))
+
+
     HourlyUserActivity.aggregate(parsedEnrichedEvents)
+    /*
     HourlyUserActivityByEntry.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
@@ -76,6 +86,7 @@ object UserActivityAggregation extends App with Logging {
     HourlyUserActivityByDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    */
 
     ssc
   }
@@ -93,7 +104,7 @@ object UserActivityAggregation extends App with Logging {
 
   def getAggregators() : List[(String)] = {
     val path = Seq("../").map(new File(_));
-    val finder = ClassFinder(path)
+    val finder = ClassFinder()
     val classes = finder.getClasses
 
     val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
@@ -102,7 +113,7 @@ object UserActivityAggregation extends App with Logging {
 
 
   }
-/*
+
   def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
     val mirror = runtimeMirror(getClass.getClassLoader)
     val module = mirror.staticModule(className)
@@ -111,6 +122,6 @@ object UserActivityAggregation extends App with Logging {
     val im =mirror.reflect(cls)
     val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
     im.reflectMethod(method)(events)
-  }*/
+  }
 
 }

@@ -1,7 +1,9 @@
-package com.kaltura.aggregations
+package com.kaltura.aggregations.userActivity.minutely
 
 import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.keys.UserActivityKey
+import com.kaltura.aggregations.IAggregateMinutely
+import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
 import com.kaltura.model.aggregations.MinutelyPartner
 import com.kaltura.model.events.EnrichedPlayerEvent
 
