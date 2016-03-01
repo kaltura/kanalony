@@ -23,7 +23,7 @@ object HourlyUserActivityByCF2 extends BaseUserActivityAggregation[UserActivityC
      "year" as "year",
      "value" as "value")
 
-   override def aggKey(e: EnrichedPlayerEvent): UserActivityCFKey = UserActivityCFKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.cf2)
+   override def aggKey(e: EnrichedPlayerEvent): UserActivityCFKey = UserActivityCFKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.customVar2)
    override def toRow(pair: (UserActivityCFKey, Long)): hourly_ua_prtn_cf2Row = hourly_ua_prtn_cf2Row(pair._1.partnerId, pair._1.cf, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
 
 
