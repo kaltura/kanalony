@@ -6,10 +6,10 @@ import com.kaltura.aggregations.keys.{UserActivityCF1CF2Key, UserActivityCountry
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
 import com.kaltura.model.aggregations.HourlyPartnerCountryCity
 import com.kaltura.model.events.EnrichedPlayerEvent
-import kanalony.storage.generated.{hourly_user_activity_prtn_cf1_cf2Row, hourly_user_activity_prtn_cf1Row}
+import kanalony.storage.generated.hourly_ua_prtn_cf1_cf2Row
 
 
-object HourlyUserActivityByCF1CF2 extends BaseUserActivityAggregation[UserActivityCF1CF2Key, hourly_user_activity_prtn_cf1_cf2Row] with IAggregateHourly with Serializable{
+object HourlyUserActivityByCF1CF2 extends BaseUserActivityAggregation[UserActivityCF1CF2Key, hourly_ua_prtn_cf1_cf2Row] with IAggregateHourly with Serializable{
 
    override lazy val tableMetadata: Map[String, SomeColumns] = Map(
      "hourly_ua_prtn_cf1_cf2" -> columns,
@@ -27,5 +27,5 @@ object HourlyUserActivityByCF1CF2 extends BaseUserActivityAggregation[UserActivi
 
 
    override def aggKey(e: EnrichedPlayerEvent): UserActivityCF1CF2Key = UserActivityCF1CF2Key(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.cf1, e.cf2)
-   override def toRow(pair: (UserActivityCF1CF2Key, Long)): hourly_user_activity_prtn_cf1_cf2Row = hourly_user_activity_prtn_cf1_cf2Row(pair._1.partnerId, pair._1.cf1, pair._1.cf2, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
+   override def toRow(pair: (UserActivityCF1CF2Key, Long)): hourly_ua_prtn_cf1_cf2Row = hourly_ua_prtn_cf1_cf2Row(pair._1.partnerId, pair._1.cf1, pair._1.cf2, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
  }

@@ -5,11 +5,11 @@ import com.kaltura.aggregations.IAggregateHourly
 import com.kaltura.aggregations.keys.{UserActivityEntryApplicationKey, UserActivityApplicationKey}
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
 import com.kaltura.aggregations.userActivity.hourly.HourlyUserActivityByApplication
-import com.kaltura.model.aggregations.HourlyPartnerApplication
+import com.kaltura.model.aggregations.{HourlyEntryApplication, HourlyPartnerApplication}
 import com.kaltura.model.events.EnrichedPlayerEvent
 
 
-object HourlyUserActivityByEntryApplication extends BaseUserActivityAggregation[UserActivityEntryApplicationKey, HourlyPartnerApplication] with IAggregateHourly with Serializable{
+object HourlyUserActivityByEntryApplication extends BaseUserActivityAggregation[UserActivityEntryApplicationKey, HourlyEntryApplication] with IAggregateHourly with Serializable{
 
    override lazy val tableMetadata: Map[String, SomeColumns] = Map(
      "hourly_ua_prtn_entry_app" -> columns,
@@ -18,15 +18,16 @@ object HourlyUserActivityByEntryApplication extends BaseUserActivityAggregation[
 
    val columns : SomeColumns = new SomeColumns(
      "partner_id" as "partnerId",
-
+     "entry_id" as "entryId",
      "application" as "application",
      "metric" as "metric",
      "hour" as "hour",
      "year" as "year",
      "value" as "value")
 
-   override def aggKey(e: EnrichedPlayerEvent): UserActivityEntryApplicationKey = UserActivityEntryApplicationKey(e.entryId, HourlyUserActivityByApplication.aggKey(e))
-   override def toRow(pair: (UserActivityEntryApplicationKey, Long)): HourlyPartnerApplication = HourlyPartnerApplication(pair._1.applicationKey.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.application, pair._2)
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityEntryApplicationKey = UserActivityEntryApplicationKey(e.partnerId, e.entryId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.application)
+  override def toRow(pair: (UserActivityEntryApplicationKey, Long)): HourlyPartnerApplication = HourlyPartnerApplication(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.application, pair._2)
 
 
- }
+
+}

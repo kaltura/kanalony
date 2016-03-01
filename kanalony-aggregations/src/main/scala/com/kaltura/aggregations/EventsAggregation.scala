@@ -27,14 +27,14 @@ object EventsAggregation extends App with Logging {
   override def main(args: Array[String]) {
 
     setStreamingLogLevels
-    val aggregators = getAggregators()
+    //val aggregators = getAggregators()
     val applicationName = ConfigurationManager.get("kanalony.events_aggregation.application_name")
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
     val checkpointDirectory = s"$checkpointRootPath/$applicationName"
     // Get StreamingContext from checkpoint data or create a new one
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
-        createSparkStreamingContext(checkpointDirectory, aggregators)
+        createSparkStreamingContext(checkpointDirectory)//, aggregators)
 
       })
 
@@ -63,11 +63,8 @@ object EventsAggregation extends App with Logging {
       map(_._2).
       flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
 
-    aggregators.foreach(aggregate(_, parsedEnrichedEvents))
+    //aggregators.foreach(aggregate(_, parsedEnrichedEvents))
 
-
-    HourlyUserActivity.aggregate(parsedEnrichedEvents)
-    /*
     HourlyUserActivityByEntry.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
@@ -86,7 +83,7 @@ object EventsAggregation extends App with Logging {
     HourlyUserActivityByDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    */
+
 
     ssc
   }
