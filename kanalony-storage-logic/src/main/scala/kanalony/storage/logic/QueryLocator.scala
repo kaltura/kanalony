@@ -27,7 +27,7 @@ object QueryLocator {
 
     val constraintDiffSize = tableAndQueryEqualityConstraintsSymmetricDifferenceSize(table, queryParams)
 
-    if (!(table.supportedMetrics contains queryParams.metric) ||
+    if (!(queryParams.metrics.toSet subsetOf table.supportedMetrics) ||
         !(constraintDiffSize == 0) ||
         !(tableSupportsAllQueryDimensions(table, queryParams))) {
       queryIncompatibleScoreThreshold + constraintDiffSize
