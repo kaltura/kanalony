@@ -28,5 +28,5 @@ object HourlyUserActivityByEntryCountryCity extends BaseUserActivityAggregation[
 
 
   override def aggKey(e: EnrichedPlayerEvent): UserActivityEntryCountryCityKey = UserActivityEntryCountryCityKey(e.partnerId, e.entryId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.location.country, e.location.city)
-  override def toRow(pair: (UserActivityEntryCountryCityKey, Long)): hourly_ua_prtn_entry_country_cityRow = hourly_ua_prtn_entry_country_cityRow(pair._1.partnerId, pair._1.entryId, pair._1.metric, pair._1.country, pair._1.city, pair._1.time.getYear, pair._1.time, pair._2)
+  override def toRow(pair: (UserActivityEntryCountryCityKey, Long)): hourly_ua_prtn_entry_country_cityRow = hourly_ua_prtn_entry_country_cityRow(pair._1.partnerId, pair._1.entryId, pair._1.country, pair._1.city, pair._1.metric , pair._1.time.getYear, pair._1.time, pair._2)
 }

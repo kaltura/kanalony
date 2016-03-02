@@ -26,7 +26,7 @@ object HourlyUserActivityByEntryBrowser extends BaseUserActivityAggregation[User
     "value" as "value")
 
   override def aggKey(e: EnrichedPlayerEvent): UserActivityEntryBrowserKey = UserActivityEntryBrowserKey(e.partnerId, e.entryId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.browser.id)
-  override def toRow(pair: (UserActivityEntryBrowserKey, Long)): hourly_ua_prtn_entry_browserRow = hourly_ua_prtn_entry_browserRow(pair._1.partnerId, pair._1.entryId, pair._1.browser.toString, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
+  override def toRow(pair: (UserActivityEntryBrowserKey, Long)): hourly_ua_prtn_entry_browserRow = hourly_ua_prtn_entry_browserRow(pair._1.partnerId, pair._1.entryId, pair._1.browser, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
 
 
 }
