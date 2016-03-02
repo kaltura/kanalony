@@ -4,10 +4,10 @@ import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.keys.UserActivityDomainKey
 import com.kaltura.aggregations.IAggregateHourly
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
-import com.kaltura.model.aggregations.HourlyPartnerDomain
 import com.kaltura.model.events.EnrichedPlayerEvent
+import kanalony.storage.generated.hourly_ua_prtn_domainRow
 
-object HourlyUserActivityByDomain extends BaseUserActivityAggregation[UserActivityDomainKey, HourlyPartnerDomain] with IAggregateHourly with Serializable {
+object HourlyUserActivityByDomain extends BaseUserActivityAggregation[UserActivityDomainKey, hourly_ua_prtn_domainRow] with IAggregateHourly with Serializable {
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_domain" -> columns,
@@ -23,5 +23,5 @@ object HourlyUserActivityByDomain extends BaseUserActivityAggregation[UserActivi
     "value" as "value")
 
   override def aggKey(e: EnrichedPlayerEvent): UserActivityDomainKey = UserActivityDomainKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.urlParts.domain)
-  override def toRow(pair: (UserActivityDomainKey, Long)): HourlyPartnerDomain = HourlyPartnerDomain(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.domain, pair._2)
+  override def toRow(pair: (UserActivityDomainKey, Long)): hourly_ua_prtn_domainRow = hourly_ua_prtn_domainRow(pair._1.partnerId, pair._1.domain, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
 }

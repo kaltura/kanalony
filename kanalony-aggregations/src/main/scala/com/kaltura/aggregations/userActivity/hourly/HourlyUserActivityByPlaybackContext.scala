@@ -2,13 +2,13 @@ package com.kaltura.aggregations.userActivity.hourly
 
 import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.IAggregateHourly
-import com.kaltura.aggregations.keys.{UserActivityPlaybackContextKey, UserActivityApplicationKey}
+import com.kaltura.aggregations.keys.UserActivityPlaybackContextKey
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
-import com.kaltura.model.aggregations.{HourlyPartnerPlaybackContext, HourlyPartnerApplication}
 import com.kaltura.model.events.EnrichedPlayerEvent
+import kanalony.storage.generated.hourly_ua_prtn_playbackcontextRow
 
 
-object HourlyUserActivityByPlaybackContext extends BaseUserActivityAggregation[UserActivityPlaybackContextKey, HourlyPartnerPlaybackContext] with IAggregateHourly with Serializable{
+object HourlyUserActivityByPlaybackContext extends BaseUserActivityAggregation[UserActivityPlaybackContextKey, hourly_ua_prtn_playbackcontextRow] with IAggregateHourly with Serializable{
 
    override lazy val tableMetadata: Map[String, SomeColumns] = Map(
      "hourly_ua_prtn_playbackContext" -> columns,
@@ -24,7 +24,7 @@ object HourlyUserActivityByPlaybackContext extends BaseUserActivityAggregation[U
      "value" as "value")
 
    override def aggKey(e: EnrichedPlayerEvent): UserActivityPlaybackContextKey = UserActivityPlaybackContextKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.playbackContext)
-   override def toRow(pair: (UserActivityPlaybackContextKey, Long)): HourlyPartnerPlaybackContext = HourlyPartnerPlaybackContext(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.playbackContext, pair._2)
+   override def toRow(pair: (UserActivityPlaybackContextKey, Long)): hourly_ua_prtn_playbackcontextRow = hourly_ua_prtn_playbackcontextRow(pair._1.partnerId, pair._1.playbackContext, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
 
 
  }
