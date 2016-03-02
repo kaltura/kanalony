@@ -3,5 +3,5 @@ import org.joda.time.DateTime
 case class minutely_ua_clst_browserRow(partner_id:Int,
 metric:Int,
 minute:DateTime,
-browser:String,
+browser:Int,
 value:Long)

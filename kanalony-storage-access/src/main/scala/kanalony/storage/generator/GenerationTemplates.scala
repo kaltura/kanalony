@@ -81,7 +81,7 @@ object GenerationTemplates {
   }
 
   case object queryDefinitionTemplate {
-    val content = """def query(%PARAM_DEFS%) : SelectQuery[%TABLE_CLASS_NAME%, %ENTITY_CLASS%, Unlimited, Unordered, Unspecified, Chainned] = {
+    val content = """def query(%PARAM_DEFS%) : SelectQuery[%TABLE_CLASS_NAME%, %ENTITY_CLASS%, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
                     |    select%FILTERS%
                     |  }"""
     val paramDefsPlaceholder = "%PARAM_DEFS%"
@@ -102,6 +102,7 @@ object GenerationTemplates {
     val content = """import com.websudos.phantom.dsl._
                     |import com.websudos.phantom.builder.query._
                     |import com.websudos.phantom.builder._
+                    |import shapeless.HNil
                     |import scala.concurrent.Future
                     |
                     |abstract class %CLASSNAME% extends CassandraTable[%CLASSNAME%, %ENTITY_CLASS%] with RootConnector {
