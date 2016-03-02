@@ -4,13 +4,13 @@ import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.keys.UserActivityKey
 import com.kaltura.aggregations.IAggregateHourly
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
-import com.kaltura.model.aggregations.HourlyPartner
 import com.kaltura.model.events.EnrichedPlayerEvent
+import kanalony.storage.generated.hourly_ua_Row
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, State, StateSpec, Time}
 
 
-object HourlyUserActivityPeakAudience extends BaseUserActivityAggregation[UserActivityKey, HourlyPartner] with IAggregateHourly {
+object HourlyUserActivityPeakAudience extends BaseUserActivityAggregation[UserActivityKey, hourly_ua_Row] with IAggregateHourly {
 
   //TODO: change to metric enum
   val peakAudience = 101;
@@ -52,5 +52,5 @@ object HourlyUserActivityPeakAudience extends BaseUserActivityAggregation[UserAc
   }
 
   override def aggKey(e: EnrichedPlayerEvent): UserActivityKey = UserActivityKey(e.partnerId, e.eventType, e.eventTime.withSecondOfMinute(e.eventTime.getSecondOfMinute() / 10 * 10).withMillisOfSecond(0))
-  override def toRow(pair: (UserActivityKey, Long)): HourlyPartner = HourlyPartner(pair._1.partnerId, peakAudience, pair._1.time.getYear, pair._1.time, pair._2)
+  override def toRow(pair: (UserActivityKey, Long)): hourly_ua_Row = hourly_ua_Row(pair._1.partnerId, peakAudience, pair._1.time.getYear, pair._1.time, pair._2)
 }
