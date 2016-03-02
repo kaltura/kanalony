@@ -4,7 +4,7 @@ package kanalony.storage.generator
  * Created by elad.benedict on 2/7/2016.
  */
 trait IColumnDefinition {
-  val name : String
+  val name : ColumnNames.Value
   val typeName : ColumnType.Value
 }
 
@@ -12,7 +12,7 @@ object ColumnQueryKind extends Enumeration {
   val Equality, Range, List = Value
 }
 
-trait IColumnQueryDefinition extends IColumnDefinition{
+trait IQueryableColumnDefinition extends IColumnDefinition{
     val queryKind : ColumnQueryKind.Value
 }
 

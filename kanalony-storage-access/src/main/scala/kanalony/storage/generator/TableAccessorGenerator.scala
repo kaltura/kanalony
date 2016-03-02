@@ -69,10 +69,10 @@ class TableAccessorGenerator(val tm : TableMetadata) {
   private def generateQueryMethods(pkSingleValueEquality : Boolean) : String = {
     val pkColumnQueryKind = if (pkSingleValueEquality) ColumnQueryKind.Equality else ColumnQueryKind.List
     val methodGenerator = new QueryMethodsGenerator(tm)
-    val partitionKeyQueryColumnDefs = tm.primaryKey.pk.columns.map(x => new ColumnQueryDefinition(x.name, x.typeName, pkColumnQueryKind))
+    val partitionKeyQueryColumnDefs = tm.primaryKey.pk.columns.map(x => new QueryableColumnDefinition(x.name, x.typeName, pkColumnQueryKind))
     var generatedQueries = methodGenerator.generateQueryMethod(partitionKeyQueryColumnDefs);
 
-    val clusteringQueryColumnDefs = tm.primaryKey.ck.columns.map(x => new ColumnQueryDefinition(x.name, x.typeName, ColumnQueryKind.Range))
+    val clusteringQueryColumnDefs = tm.primaryKey.ck.columns.map(x => new QueryableColumnDefinition(x.name, x.typeName, ColumnQueryKind.Range))
     for( i <- 1 to clusteringQueryColumnDefs.length) {
       generatedQueries = generatedQueries + "\n " + methodGenerator.generateQueryMethod(partitionKeyQueryColumnDefs ::: clusteringQueryColumnDefs.take(i));
     }

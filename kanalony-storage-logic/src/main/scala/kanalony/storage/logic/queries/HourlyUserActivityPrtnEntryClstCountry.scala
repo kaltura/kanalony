@@ -4,7 +4,6 @@ import kanalony.storage.generated._
 import kanalony.storage.logic._
 import kanalony.storage.logic.queries.model._
 import org.joda.time.DateTime
-
 import scala.concurrent.Future
 
 /**

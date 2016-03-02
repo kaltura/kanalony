@@ -4,21 +4,13 @@ package kanalony.storage.generator
  * Created by elad.benedict on 2/9/2016.
  */
 
-class QueryMethodsGenerator(val tm : TableMetadata) {
+object QueryMethodsGenerator {
 
-  private def getRangeParamNames(colDef : IColumnDefinition)  = {
-    (colDef.name + "Start", colDef.name + "End")
+  def generateColDefs(cols : List[IQueryableColumnDefinition]) = {
+    cols.map(QueryMethodsGenerator.genParamDefinition).mkString(", ")
   }
 
-  private def getListParamName(colDef : IColumnDefinition)  = {
-    colDef.name + "_list"
-  }
-
-  private def generateColDefs(cols : List[IColumnQueryDefinition]) = {
-    cols.map(genParamDefinition).mkString(", ")
-  }
-
-  private def genParamDefinition(cqd : IColumnQueryDefinition) = {
+  private def genParamDefinition(cqd : IQueryableColumnDefinition) = {
     cqd.queryKind match {
       case ColumnQueryKind.Equality => {
         cqd.name + " : " + cqd.typeName
@@ -33,14 +25,29 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
     }
   }
 
-  def generateContainmentCondition(x: IColumnQueryDefinition) = {
+  private def getRangeParamNames(colDef : IColumnDefinition)  = {
+    (colDef.name + "Start", colDef.name + "End")
+  }
+
+  private def getListParamName(colDef : IColumnDefinition)  = {
+    colDef.name + "_list"
+  }
+}
+
+class QueryMethodsGenerator(val tm : TableMetadata) {
+
+  private def generateColDefs(cols : List[IQueryableColumnDefinition]) = {
+    QueryMethodsGenerator.generateColDefs(cols)
+  }
+
+  def generateContainmentCondition(x: IQueryableColumnDefinition) = {
     val containmentConditionTemplate = GenerationTemplates.containmentConditionTemplate;
-    var condition = containmentConditionTemplate.content.replace(containmentConditionTemplate.listPlaceholder, getListParamName(x))
+    var condition = containmentConditionTemplate.content.replace(containmentConditionTemplate.listPlaceholder, QueryMethodsGenerator.getListParamName(x))
     condition = condition.replace(containmentConditionTemplate.columnNamePlaceholder, x.name)
     condition
   }
 
-  private def generateWhereCondition(x: IColumnQueryDefinition) = {
+  private def generateWhereCondition(x: IQueryableColumnDefinition) = {
     val whereClauseTemplate = GenerationTemplates.whereClauseTemplate;
     val condition =  x.queryKind match  {
       case ColumnQueryKind.Equality => generateEqualityCondition(x)
@@ -57,24 +64,24 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
     condition
   }
 
-  private def generateRangeCondition(x: IColumnQueryDefinition) = {
+  private def generateRangeCondition(x: IQueryableColumnDefinition) = {
     val andClauseTemplate = GenerationTemplates.andClauseTemplate
 
     val gtConditionTemplate = GenerationTemplates.greaterThanOrEqualConditionTemplate
     var gtCondition = gtConditionTemplate.content.replace(gtConditionTemplate.columnNamePlaceholder, x.name)
-    gtCondition = gtCondition.replace(gtConditionTemplate.rangeValuePlaceholder, getRangeParamNames(x)._1)
+    gtCondition = gtCondition.replace(gtConditionTemplate.rangeValuePlaceholder, QueryMethodsGenerator.getRangeParamNames(x)._1)
     val gtAndClauseTemplate = andClauseTemplate.content.replace(andClauseTemplate.conditionPlaceholder, gtCondition)
 
     val ltConditionTemplate = GenerationTemplates.lessThanConditionTemplate
     var ltCondition = ltConditionTemplate.content.replace(ltConditionTemplate.columnNamePlaceholder, x.name)
-    ltCondition = ltCondition.replace(ltConditionTemplate.rangeValuePlaceholder, getRangeParamNames(x)._2)
+    ltCondition = ltCondition.replace(ltConditionTemplate.rangeValuePlaceholder, QueryMethodsGenerator.getRangeParamNames(x)._2)
     val ltAndClauseTemplate = andClauseTemplate.content.replace(andClauseTemplate.conditionPlaceholder, ltCondition)
 
     gtAndClauseTemplate + "\n" + ltAndClauseTemplate
 
   }
 
-  private def generateAndClause(x: IColumnQueryDefinition) = {
+  private def generateAndClause(x: IQueryableColumnDefinition) = {
     val andClauseTemplate = GenerationTemplates.andClauseTemplate;
     val andClause = x.queryKind match {
       case ColumnQueryKind.Equality => {
@@ -88,11 +95,11 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
     andClause
   }
 
-  private def generateAndConditions(xs: List[IColumnQueryDefinition]): String = {
+  private def generateAndConditions(xs: List[IQueryableColumnDefinition]): String = {
     xs.map(generateAndClause).mkString("\n")
   }
 
-  def generateQueryMethod(cols : List[IColumnQueryDefinition]): String = {
+  def generateQueryMethod(cols : List[IQueryableColumnDefinition]): String = {
     val generatedQueryTemplate = GenerationTemplates.queryDefinitionTemplate
     var generatedQuery = generatedQueryTemplate.content
     val colsDefs = generateColDefs(cols)
