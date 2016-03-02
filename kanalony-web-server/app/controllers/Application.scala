@@ -126,7 +126,6 @@ class Application extends Controller {
       dimension => QueryDimensionDefinition(dimension , new DimensionUnconstrained, true)
     }
 
-    // TODO : currently only a single metric is supported
-    QueryParams(constrainedDimensionDefinitions ::: unconstrainedDimensionDefinitions, metricsInResult(0), new DateTime(req.from), new DateTime(req.to))
+    QueryParams(constrainedDimensionDefinitions ::: unconstrainedDimensionDefinitions, metricsInResult, new DateTime(req.from), new DateTime(req.to))
   }
 }
