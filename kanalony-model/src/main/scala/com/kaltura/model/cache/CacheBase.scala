@@ -2,6 +2,7 @@ package com.kaltura.model.cache
 
 import com.datastax.driver.core.{Row, Statement}
 import com.datastax.driver.core.querybuilder.QueryBuilder
+import com.datastax.driver.core.querybuilder.QueryBuilder._
 import QueryBuilder.{eq => eql}
 import com.kaltura.core.cassandra.ClusterManager
 

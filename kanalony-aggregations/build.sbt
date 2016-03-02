@@ -9,14 +9,16 @@ lazy val `kanalony-aggregations` = (project in file(".")).
     scalaVersion := "2.11.7",
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      "org.clapper"           %% "classutil"                  % "1.0.6",
-      "org.apache.spark"      %% "spark-core"                 % sparkVersion,
-      "org.apache.spark"      %% "spark-streaming"            % sparkVersion,
-      "org.apache.spark"      %% "spark-streaming-kafka"      % sparkVersion,
-      "com.datastax.spark"    %% "spark-cassandra-connector"  % "1.4.0",
-      "joda-time"             % "joda-time"                   % "2.8.2",
+      "org.clapper"             %% "classutil"                  % "1.0.6",
+      "org.apache.spark"        %% "spark-core"                 % sparkVersion,
+      "org.apache.spark"        %% "spark-streaming"            % sparkVersion,
+      "org.apache.spark"        %% "spark-streaming-kafka"      % sparkVersion,
+      "org.apache.spark"        %% "spark-sql"                  % sparkVersion,
+      "com.datastax.cassandra"  %   "cassandra-driver-core"     % "3.0.0",
+      "com.datastax.spark"      %% "spark-cassandra-connector"  % "1.5.0",
+      "joda-time"               % "joda-time"                   % "2.8.2",
       // Test
-      "org.scalatest"         %% "scalatest"                  % "2.2.4"    % "test"
+      "org.scalatest"           %% "scalatest"                  % "2.2.4"    % "test"
     )
   ).dependsOn(`kanalony-model`, `kanalony-core`, `kanalony-storage-access`)
 

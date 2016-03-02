@@ -2,6 +2,7 @@ package kanalony.storage.generated
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.builder.query._
 import com.websudos.phantom.builder._
+import shapeless.HNil
 import scala.concurrent.Future
 
 abstract class minutely_ua_prtn_countryTableAccessor extends CassandraTable[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow] with RootConnector {
@@ -35,21 +36,21 @@ value(row)
       .future()
   }
 
-  def query(partner_id : Int, metric : Int, country : String) : SelectQuery[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow, Unlimited, Unordered, Unspecified, Chainned] = {
+  def query(partner_id : Int, metric : Int, country : String) : SelectQuery[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.country eqs country)
   }
- def query(partner_id : Int, metric : Int, country : String, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, metric : Int, country : String, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.country eqs country)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
-def query(partner_id_list : List[Int], metric_list : List[Int], country_list : List[String]) : SelectQuery[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow, Unlimited, Unordered, Unspecified, Chainned] = {
+def query(partner_id_list : List[Int], metric_list : List[Int], country_list : List[String]) : SelectQuery[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.country in country_list)
   }
- def query(partner_id_list : List[Int], metric_list : List[Int], country_list : List[String], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], metric_list : List[Int], country_list : List[String], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_countryTableAccessor, minutely_ua_prtn_countryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.country in country_list)
 .and(_.minute gte minuteStart)

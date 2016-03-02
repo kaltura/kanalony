@@ -2,6 +2,7 @@ package kanalony.storage.generated
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.builder.query._
 import com.websudos.phantom.builder._
+import shapeless.HNil
 import scala.concurrent.Future
 
 abstract class hourly_ua_clst_country_cityTableAccessor extends CassandraTable[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow] with RootConnector {
@@ -41,17 +42,17 @@ value(row)
       .future()
   }
 
-  def query(partner_id : Int, metric : Int, year : Int) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned] = {
+  def query(partner_id : Int, metric : Int, year : Int) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.year eqs year)
   }
- def query(partner_id : Int, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
   }
- def query(partner_id : Int, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime, countryStart : String, countryEnd : String) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime, countryStart : String, countryEnd : String) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
@@ -59,7 +60,7 @@ value(row)
 .and(_.country gte countryStart)
 .and(_.country lt countryEnd)
   }
- def query(partner_id : Int, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
@@ -69,17 +70,17 @@ value(row)
 .and(_.city gte cityStart)
 .and(_.city lt cityEnd)
   }
-def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List[Int]) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned] = {
+def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List[Int]) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.year in year_list)
   }
- def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.year in year_list)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
   }
- def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List[Int], hourStart : DateTime, hourEnd : DateTime, countryStart : String, countryEnd : String) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List[Int], hourStart : DateTime, hourEnd : DateTime, countryStart : String, countryEnd : String) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.year in year_list)
 .and(_.hour gte hourStart)
@@ -87,7 +88,7 @@ def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List
 .and(_.country gte countryStart)
 .and(_.country lt countryEnd)
   }
- def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List[Int], hourStart : DateTime, hourEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], metric_list : List[Int], year_list : List[Int], hourStart : DateTime, hourEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : SelectQuery[hourly_ua_clst_country_cityTableAccessor, hourly_ua_clst_country_cityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.year in year_list)
 .and(_.hour gte hourStart)

@@ -2,6 +2,7 @@ package kanalony.storage.generated
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.builder.query._
 import com.websudos.phantom.builder._
+import shapeless.HNil
 import scala.concurrent.Future
 
 abstract class minutely_ua_clst_playbackcontextTableAccessor extends CassandraTable[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow] with RootConnector {
@@ -35,30 +36,30 @@ value(row)
       .future()
   }
 
-  def query(partner_id : Int, metric : Int) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+  def query(partner_id : Int, metric : Int) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
   }
- def query(partner_id : Int, metric : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, metric : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
- def query(partner_id : Int, metric : Int, minuteStart : DateTime, minuteEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, metric : Int, minuteStart : DateTime, minuteEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
 .and(_.playbackContext gte playbackContextStart)
 .and(_.playbackContext lt playbackContextEnd)
   }
-def query(partner_id_list : List[Int], metric_list : List[Int]) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+def query(partner_id_list : List[Int], metric_list : List[Int]) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
   }
- def query(partner_id_list : List[Int], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
- def query(partner_id_list : List[Int], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[minutely_ua_clst_playbackcontextTableAccessor, minutely_ua_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)

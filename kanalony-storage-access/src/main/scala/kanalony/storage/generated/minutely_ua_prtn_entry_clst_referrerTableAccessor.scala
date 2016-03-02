@@ -2,6 +2,7 @@ package kanalony.storage.generated
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.builder.query._
 import com.websudos.phantom.builder._
+import shapeless.HNil
 import scala.concurrent.Future
 
 abstract class minutely_ua_prtn_entry_clst_referrerTableAccessor extends CassandraTable[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow] with RootConnector {
@@ -38,17 +39,17 @@ value(row)
       .future()
   }
 
-  def query(partner_id : Int, entry_id : String, metric : Int) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned] = {
+  def query(partner_id : Int, entry_id : String, metric : Int) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.entry_id eqs entry_id)
 .and(_.metric eqs metric)
   }
- def query(partner_id : Int, entry_id : String, metric : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, entry_id : String, metric : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.entry_id eqs entry_id)
 .and(_.metric eqs metric)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
- def query(partner_id : Int, entry_id : String, metric : Int, minuteStart : DateTime, minuteEnd : DateTime, referrerStart : String, referrerEnd : String) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, entry_id : String, metric : Int, minuteStart : DateTime, minuteEnd : DateTime, referrerStart : String, referrerEnd : String) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.entry_id eqs entry_id)
 .and(_.metric eqs metric)
 .and(_.minute gte minuteStart)
@@ -56,17 +57,17 @@ value(row)
 .and(_.referrer gte referrerStart)
 .and(_.referrer lt referrerEnd)
   }
-def query(partner_id_list : List[Int], entry_id_list : List[String], metric_list : List[Int]) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned] = {
+def query(partner_id_list : List[Int], entry_id_list : List[String], metric_list : List[Int]) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.entry_id in entry_id_list)
 .and(_.metric in metric_list)
   }
- def query(partner_id_list : List[Int], entry_id_list : List[String], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], entry_id_list : List[String], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.entry_id in entry_id_list)
 .and(_.metric in metric_list)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
- def query(partner_id_list : List[Int], entry_id_list : List[String], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime, referrerStart : String, referrerEnd : String) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], entry_id_list : List[String], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime, referrerStart : String, referrerEnd : String) : SelectQuery[minutely_ua_prtn_entry_clst_referrerTableAccessor, minutely_ua_prtn_entry_clst_referrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.entry_id in entry_id_list)
 .and(_.metric in metric_list)
 .and(_.minute gte minuteStart)

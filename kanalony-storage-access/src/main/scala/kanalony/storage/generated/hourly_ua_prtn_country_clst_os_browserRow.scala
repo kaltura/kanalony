@@ -5,6 +5,6 @@ country:String,
 metric:Int,
 year:Int,
 hour:DateTime,
-os:String,
-browser:String,
+os:Int,
+browser:Int,
 value:Long)
