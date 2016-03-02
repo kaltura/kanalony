@@ -4,5 +4,5 @@ case class hourly_ua_clst_osRow(partner_id:Int,
 metric:Int,
 year:Int,
 hour:DateTime,
-os:String,
+os:Int,
 value:Long)

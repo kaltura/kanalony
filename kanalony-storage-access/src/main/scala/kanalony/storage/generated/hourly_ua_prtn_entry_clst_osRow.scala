@@ -5,5 +5,5 @@ entry_id:String,
 metric:Int,
 year:Int,
 hour:DateTime,
-os:String,
+os:Int,
 value:Long)
