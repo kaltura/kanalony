@@ -2,6 +2,7 @@ package kanalony.storage.generated
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.builder.query._
 import com.websudos.phantom.builder._
+import shapeless.HNil
 import scala.concurrent.Future
 
 abstract class minutely_ua_prtn_cf1_cf2TableAccessor extends CassandraTable[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row] with RootConnector {
@@ -38,24 +39,24 @@ value(row)
       .future()
   }
 
-  def query(partner_id : Int, cf1 : String, cf2 : String, metric : Int) : SelectQuery[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row, Unlimited, Unordered, Unspecified, Chainned] = {
+  def query(partner_id : Int, cf1 : String, cf2 : String, metric : Int) : SelectQuery[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.cf1 eqs cf1)
 .and(_.cf2 eqs cf2)
 .and(_.metric eqs metric)
   }
- def query(partner_id : Int, cf1 : String, cf2 : String, metric : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, cf1 : String, cf2 : String, metric : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.cf1 eqs cf1)
 .and(_.cf2 eqs cf2)
 .and(_.metric eqs metric)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
-def query(partner_id_list : List[Int], cf1_list : List[String], cf2_list : List[String], metric_list : List[Int]) : SelectQuery[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row, Unlimited, Unordered, Unspecified, Chainned] = {
+def query(partner_id_list : List[Int], cf1_list : List[String], cf2_list : List[String], metric_list : List[Int]) : SelectQuery[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.cf1 in cf1_list)
 .and(_.cf2 in cf2_list)
 .and(_.metric in metric_list)
   }
- def query(partner_id_list : List[Int], cf1_list : List[String], cf2_list : List[String], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], cf1_list : List[String], cf2_list : List[String], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_cf1_cf2TableAccessor, minutely_ua_prtn_cf1_cf2Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.cf1 in cf1_list)
 .and(_.cf2 in cf2_list)
 .and(_.metric in metric_list)

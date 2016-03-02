@@ -2,6 +2,7 @@ package kanalony.storage.generated
 import com.websudos.phantom.dsl._
 import com.websudos.phantom.builder.query._
 import com.websudos.phantom.builder._
+import shapeless.HNil
 import scala.concurrent.Future
 
 abstract class minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor extends CassandraTable[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow] with RootConnector {
@@ -41,19 +42,19 @@ value(row)
       .future()
   }
 
-  def query(partner_id : Int, entry_id : String, application : String, year : Int) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+  def query(partner_id : Int, entry_id : String, application : String, year : Int) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.entry_id eqs entry_id)
 .and(_.application eqs application)
 .and(_.year eqs year)
   }
- def query(partner_id : Int, entry_id : String, application : String, year : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, entry_id : String, application : String, year : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.entry_id eqs entry_id)
 .and(_.application eqs application)
 .and(_.year eqs year)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
- def query(partner_id : Int, entry_id : String, application : String, year : Int, minuteStart : DateTime, minuteEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id : Int, entry_id : String, application : String, year : Int, minuteStart : DateTime, minuteEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.entry_id eqs entry_id)
 .and(_.application eqs application)
 .and(_.year eqs year)
@@ -62,19 +63,19 @@ value(row)
 .and(_.playbackContext gte playbackContextStart)
 .and(_.playbackContext lt playbackContextEnd)
   }
-def query(partner_id_list : List[Int], entry_id_list : List[String], application_list : List[String], year_list : List[Int]) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+def query(partner_id_list : List[Int], entry_id_list : List[String], application_list : List[String], year_list : List[Int]) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.entry_id in entry_id_list)
 .and(_.application in application_list)
 .and(_.year in year_list)
   }
- def query(partner_id_list : List[Int], entry_id_list : List[String], application_list : List[String], year_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], entry_id_list : List[String], application_list : List[String], year_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.entry_id in entry_id_list)
 .and(_.application in application_list)
 .and(_.year in year_list)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
- def query(partner_id_list : List[Int], entry_id_list : List[String], application_list : List[String], year_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned] = {
+ def query(partner_id_list : List[Int], entry_id_list : List[String], application_list : List[String], year_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[minutely_ua_prtn_entry_application_clst_playbackcontextTableAccessor, minutely_ua_prtn_entry_application_clst_playbackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.entry_id in entry_id_list)
 .and(_.application in application_list)
 .and(_.year in year_list)
