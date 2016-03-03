@@ -15,14 +15,16 @@ class DailyUserActivityPrtnEntryQuery extends DailyQueryBase[HourlyUserActivityP
   }
 
   override def getDailyGroupByKey(row: hourly_ua_prtn_entryRow): dailyUserActivityPrtnEntryRowAggregationKey = {
-    dailyUserActivityPrtnEntryRowAggregationKey(row.partner_id, row.entry_id, row.metric, row.year, row.hour.toLocalDate)
+    dailyUserActivityPrtnEntryRowAggregationKey(row.partner_id, row.entry_id, row.metric, row.year, row.metric, row.hour.toLocalDate)
   }
 
   override def queryRowCreator(t : (dailyUserActivityPrtnEntryRowAggregationKey, Long)): dailyUserActivityPrtnEntryRow = {
     val key = t._1
-    dailyUserActivityPrtnEntryRow(key.partner_id, key.entry_id, key.event_type, key.year, key.day, t._2)
+    dailyUserActivityPrtnEntryRow(key.partner_id, key.entry_id, key.event_type, key.year, key.day, key.metric, t._2)
   }
+
+  override private[logic] def extractMetric(row: dailyUserActivityPrtnEntryRow): Int = row.metric
 }
 
-case class dailyUserActivityPrtnEntryRowAggregationKey(partner_id:Int, entry_id:String, event_type:Int, year:Int, day:LocalDate)
-case class dailyUserActivityPrtnEntryRow(partner_id:Int, entry_id:String, event_type:Int, year:Int, day:LocalDate, count:Long)
+case class dailyUserActivityPrtnEntryRowAggregationKey(partner_id:Int, entry_id:String, event_type:Int, year:Int, metric:Int, day:LocalDate)
+case class dailyUserActivityPrtnEntryRow(partner_id:Int, entry_id:String, event_type:Int, year:Int, day:LocalDate, metric:Int, count:Long)

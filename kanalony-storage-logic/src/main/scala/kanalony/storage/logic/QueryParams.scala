@@ -8,4 +8,4 @@ import org.joda.time.DateTime
  * Created by elad.benedict on 2/14/2016.
  */
 
-case class QueryParams(dimensionDefinitions : List[QueryDimensionDefinition], metric : Metrics.Value, start : DateTime, end : DateTime)
+case class QueryParams(dimensionDefinitions : List[QueryDimensionDefinition], metrics : List[Metrics.Value], start : DateTime, end : DateTime)
