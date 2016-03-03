@@ -75,35 +75,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     rows => rows.groupBy(extractMetric)
   }
 
-  def combineMetrics(resultMetrics: List[Metrics.Value]): (String, Iterable[(List[String], String)]) => List[String] = {
-    (groping, rowsWithSameMetric) => {
-      var resultantRow = groping.split(":").toList
-      resultMetrics.foreach(metric => {
-        rowsWithSameMetric
-          .find(_._2 eq metric.toString)
-          .orElse(Some((List("0"), metric)))
-          .foreach(r => { resultantRow = resultantRow :+ r._1.last })
-      })
-      resultantRow
-    }
-  }
-
-  // Combine the sequence of QueryResult per metric to a single QueryResult
-  def combineResults(queryParams: QueryParams): (Iterable[QueryResult]) => QueryResult = {
-    queryResults => {
-      val resultantRows = queryResults
-        .flatMap(qr => qr.rows.map((_, qr.headers.last))) // Combine all rows to a single list, keeping the metric for each one
-        // Group by all fields except the value field
-        .groupBy((row: (List[String], String)) => row._1.take(row._1.length - 1).mkString(":")) // Map[grouping,Iterable[(row,metricHeader)]]
-        .transform(combineMetrics(queryParams.metrics))
-        .values
-        .toList
-      val headers = queryParams.dimensionDefinitions.filter(_.includeInResult).map(_.dimension.toString) ::: queryParams.metrics.map(_.toString)
-      QueryResult(headers, resultantRows)
-    }
-  }
-
-  def processMetric(params: QueryParams): (Map[Int, List[TQueryRow]]) => Iterable[QueryResult] = {
+  def processMetric(params: QueryParams): (Map[Int, List[TQueryRow]]) => List[QueryResult] = {
     // For each (group of rows with the same) metric
     x => x.map((kvp: (Int, List[TQueryRow])) => {
       // Turn to QueryResult
@@ -111,10 +83,10 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
       val queryResult = QueryResult(getResultHeaders(), processedRows)
       // Group by requested dimensions and aggregate
       groupAndAggregate(params, kvp._1)(queryResult) // => Iterable[QueryResult]
-    })
+    }).toList
   }
 
-  def query(params: QueryParams): Future[IQueryResult] = {
+  def query(params: QueryParams): Future[List[IQueryResult]] = {
     val inputParams = extractParams(params)
     val retrievedRowsFuture = executeQuery(inputParams)
 
@@ -123,7 +95,5 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
       .map(groupByMetric)
       // Calculate aggregation per metric
       .map(processMetric(params))
-      // Combine all metrics (for the same grouping key) to a single row
-      .map(combineResults(params))
   }
 }

@@ -38,8 +38,6 @@ class HourlyUserActivityPrtnEntryQuery extends QueryBase[HourlyUserActivityPrtnE
     )
   }
 
-  override val tableName: String = dbApi.H_UA_PartnerEntry_StorageClient.tableName
-
   override def metricValueLocationIndex(): Int = 4
 
   override private[logic] def extractMetric(row: hourly_ua_prtn_entryRow): Int = row.metric

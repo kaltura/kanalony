@@ -40,8 +40,6 @@ abstract class DailyQueryBase[Q <: QueryBase[TReq, TInternalQueryRow], TReq, TIn
 
   override def metricValueLocationIndex: Int = internalQuery.metricValueLocationIndex
 
-  override def tableName: String = { internalQuery.tableName }
-
   override val dimensionInformation: List[DimensionDefinition] = {
     internalQuery.dimensionInformation.map {
       case DimensionDefinition(Dimensions.hour, constraint) => DimensionDefinition(Dimensions.day, constraint)

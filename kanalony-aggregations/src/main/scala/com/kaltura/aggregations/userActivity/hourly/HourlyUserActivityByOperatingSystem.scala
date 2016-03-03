@@ -4,10 +4,10 @@ import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.keys.UserActivityOperatingSystemKey
 import com.kaltura.aggregations.IAggregateHourly
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
-import com.kaltura.model.aggregations.HourlyPartnerOperatingSystem
 import com.kaltura.model.events.EnrichedPlayerEvent
+import kanalony.storage.generated.hourly_ua_prtn_osRow
 
-object HourlyUserActivityByOperatingSystem extends BaseUserActivityAggregation[UserActivityOperatingSystemKey, HourlyPartnerOperatingSystem] with IAggregateHourly with Serializable{
+object HourlyUserActivityByOperatingSystem extends BaseUserActivityAggregation[UserActivityOperatingSystemKey, hourly_ua_prtn_osRow] with IAggregateHourly with Serializable{
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_os" -> columns,
@@ -23,5 +23,5 @@ object HourlyUserActivityByOperatingSystem extends BaseUserActivityAggregation[U
     "value" as "value")
 
   override def aggKey(e: EnrichedPlayerEvent): UserActivityOperatingSystemKey = UserActivityOperatingSystemKey(e.partnerId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy(), e.userAgent.operatingSystem.id)
-  override def toRow(pair: (UserActivityOperatingSystemKey, Long)): HourlyPartnerOperatingSystem = HourlyPartnerOperatingSystem(pair._1.partnerId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._1.operatingSystem, pair._2)
+  override def toRow(pair: (UserActivityOperatingSystemKey, Long)): hourly_ua_prtn_osRow = hourly_ua_prtn_osRow(pair._1.partnerId, pair._1.operatingSystem, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
 }

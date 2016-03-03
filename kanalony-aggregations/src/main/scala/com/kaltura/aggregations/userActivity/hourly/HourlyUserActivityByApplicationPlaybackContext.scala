@@ -2,9 +2,9 @@ package com.kaltura.aggregations.userActivity.hourly
 
 import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.IAggregateHourly
-import com.kaltura.aggregations.keys.{UserActivityApplicationPlaybackContextKey, UserActivityDeviceOperatingSystemKey}
+import com.kaltura.aggregations.keys.UserActivityApplicationPlaybackContextKey
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
-import com.kaltura.model.aggregations.{HourlyPartnerApplicationPlaybackContext, HourlyPartnerDeviceOperatingSystem}
+import com.kaltura.model.aggregations.HourlyPartnerApplicationPlaybackContext
 import com.kaltura.model.events.EnrichedPlayerEvent
 
 object HourlyUserActivityByApplicationPlaybackContext extends BaseUserActivityAggregation[UserActivityApplicationPlaybackContextKey, HourlyPartnerApplicationPlaybackContext] with IAggregateHourly with Serializable {

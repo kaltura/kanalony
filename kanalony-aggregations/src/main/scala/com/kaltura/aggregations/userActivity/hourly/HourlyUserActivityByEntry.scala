@@ -1,13 +1,13 @@
 package com.kaltura.aggregations.userActivity.hourly
 
 import com.datastax.spark.connector.{SomeColumns, _}
-import com.kaltura.aggregations.keys.EntryKey
+import com.kaltura.aggregations.keys.UserActivityEntryKey
 import com.kaltura.aggregations.IAggregateHourly
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
-import com.kaltura.model.aggregations.HourlyEntry
 import com.kaltura.model.events.EnrichedPlayerEvent
+import kanalony.storage.generated.hourly_ua_prtn_entryRow
 
-object HourlyUserActivityByEntry extends BaseUserActivityAggregation[EntryKey, HourlyEntry] with IAggregateHourly with Serializable {
+object HourlyUserActivityByEntry extends BaseUserActivityAggregation[UserActivityEntryKey, hourly_ua_prtn_entryRow] with IAggregateHourly with Serializable {
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry" -> SomeColumns(
@@ -26,6 +26,6 @@ object HourlyUserActivityByEntry extends BaseUserActivityAggregation[EntryKey, H
     "value" as "value"))
 
   // TODO - dropped month column temporarily
-  override def aggKey(e: EnrichedPlayerEvent): EntryKey = EntryKey(e.partnerId, e.entryId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy())
-  override def toRow(pair: (EntryKey, Long)): HourlyEntry = HourlyEntry(pair._1.partnerId, pair._1.entryId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityEntryKey = UserActivityEntryKey(e.partnerId, e.entryId, e.eventType, e.eventTime.hourOfDay().roundFloorCopy())
+  override def toRow(pair: (UserActivityEntryKey, Long)): hourly_ua_prtn_entryRow = hourly_ua_prtn_entryRow(pair._1.partnerId, pair._1.entryId, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
 }
