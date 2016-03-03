@@ -15,7 +15,7 @@ object QueryExecutor {
       q._1.query(queryParamsPerQuery)
     })
     Future.sequence(queryResults)
-          .map(_.flatMap(x=>x))
+          .map(_.flatten)
           .map(x => combineResults(qp)(x))
   }
 
