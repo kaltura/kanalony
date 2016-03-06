@@ -1,4 +1,4 @@
-package kanalony.storage.api
+package kanalony.storage
 
 import com.websudos.phantom.connectors.KeySpaceDef
 

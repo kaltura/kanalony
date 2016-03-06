@@ -3,7 +3,7 @@ package kanalony.storage.logic.queries
     import kanalony.storage.generated._
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
-    import kanalony.storage.api.DbClientFactory._
+    import DbClientFactory._
     import org.joda.time.DateTime
     import scala.concurrent.Future
 

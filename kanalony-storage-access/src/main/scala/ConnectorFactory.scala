@@ -1,7 +1,7 @@
-package kanalony.storage.api
+package kanalony.storage
 
 import com.typesafe.config.ConfigFactory
-import com.websudos.phantom.connectors.{ContactPoints, ContactPoint, KeySpaceDef}
+import com.websudos.phantom.connectors.{ContactPoints, KeySpaceDef}
 import collection.JavaConversions._
 
 /**
