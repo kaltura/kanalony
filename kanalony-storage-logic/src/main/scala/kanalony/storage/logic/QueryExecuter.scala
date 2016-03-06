@@ -8,6 +8,9 @@ import scala.concurrent.Future
  * Created by elad.benedict on 3/2/2016.
  */
 object QueryExecutor {
+
+  val groupingSeparator = "::"
+
   def query(qp : QueryParams) : Future[IQueryResult] = {
     val queries = QueryLocator.locate(qp)
     val queryResults = queries.map(q => {
@@ -21,7 +24,7 @@ object QueryExecutor {
 
   def combineMetrics(resultMetrics: List[Metrics.Value]): (String, Iterable[(List[String], String)]) => List[String] = {
     (groping, rowsWithSameMetric) => {
-      var resultantRow = groping.split(":").toList
+      var resultantRow = groping.split(groupingSeparator).toList
       resultMetrics.foreach(metric => {
         rowsWithSameMetric
           .find(_._2 eq metric.toString)
@@ -38,7 +41,7 @@ object QueryExecutor {
       val resultantRows = queryResults
         .flatMap(qr => qr.rows.map((_, qr.headers.last))) // Combine all rows to a single list, keeping the metric for each one
         // Group by all fields except the value field
-        .groupBy((row: (List[String], String)) => row._1.take(row._1.length - 1).mkString(":")) // Map[grouping,Iterable[(row,metricHeader)]]
+        .groupBy((row: (List[String], String)) => row._1.take(row._1.length - 1).mkString(groupingSeparator)) // Map[grouping,Iterable[(row,metricHeader)]]
         .transform(combineMetrics(queryParams.metrics))
         .values
         .toList

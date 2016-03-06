@@ -13,21 +13,21 @@ object OrderBy extends Enumeration {
 }
 
 
-class ColumnDefinition(val name : ColumnNames.Value, val typeName : ColumnType.Value) extends IColumnDefinition
+class ColumnDefinition(val name : ColumnNames.Value, val typeName : ColumnType.Value, val inPartitionKey : Boolean, val inClusteringKey : Boolean) extends IColumnDefinition
 
 object ColumnDefinition {
   def unapply(definition: IColumnDefinition): Option[(ColumnNames.Value,ColumnType.Value)] = {
     Some((definition.name, definition.typeName))
   }
 
-  def apply(name : ColumnNames.Value, typeName : ColumnType.Value) = {
-    new ColumnDefinition(name, typeName)
+  def apply(name : ColumnNames.Value, typeName : ColumnType.Value, inPartitionKey : Boolean, inClusteringKey : Boolean) = {
+    new ColumnDefinition(name, typeName, inPartitionKey, inClusteringKey)
   }
 }
 
-class QueryableColumnDefinition(override val name : ColumnNames.Value, override val typeName : ColumnType.Value, val queryKind: ColumnQueryKind.Value) extends ColumnDefinition(name, typeName) with IQueryableColumnDefinition
+class QueryableColumnDefinition(override val name : ColumnNames.Value, override val typeName : ColumnType.Value, val queryKind: ColumnQueryKind.Value, inPartitionKey : Boolean, inClusteringKey : Boolean) extends ColumnDefinition(name, typeName, inPartitionKey, inClusteringKey) with IQueryableColumnDefinition
 
-class ClusteringColumnDefinition(colName : ColumnNames.Value, colType : ColumnType.Value, val orderBy : OrderBy.Value, val queryKind : ColumnQueryKind.Value = ColumnQueryKind.Range) extends ColumnDefinition(colName, colType) with IClusteringColumnDefinition
+class ClusteringColumnDefinition(colName : ColumnNames.Value, colType : ColumnType.Value, val orderBy : OrderBy.Value, val queryKind : ColumnQueryKind.Value = ColumnQueryKind.Range) extends ColumnDefinition(colName, colType, false, true) with IClusteringColumnDefinition
 
 object ClusteringColumnDefinition {
   def apply(name : ColumnNames.Value, typeName : ColumnType.Value, orderBy : OrderBy.Value = OrderBy.Ascending) = {

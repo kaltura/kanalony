@@ -24,10 +24,10 @@ object Dimensions extends Enumeration {
     case ColumnNames.metric => Dimensions.metric
     case ColumnNames.minute => Dimensions.minute
     case ColumnNames.month => Dimensions.month
-    case ColumnNames.os => Dimensions.operatingSystem
-    case ColumnNames.partner => Dimensions.partner
+    case ColumnNames.`operating_system` => Dimensions.operatingSystem
+    case ColumnNames.partner_id => Dimensions.partner
     case ColumnNames.playbackContext=> Dimensions.playbackContext
     case ColumnNames.referrer => Dimensions.referrer
-    case _ => throw new IllegalArgumentException(s"column ${_} has no corresponding dimension")
+    case other => throw new IllegalArgumentException(s"column ${other} has no corresponding dimension")
   }
 }

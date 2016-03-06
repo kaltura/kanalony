@@ -6,6 +6,8 @@ package kanalony.storage.generator
 trait IColumnDefinition {
   val name : ColumnNames.Value
   val typeName : ColumnType.Value
+  val inPartitionKey : Boolean
+  val inClusteringKey : Boolean
 }
 
 object ColumnQueryKind extends Enumeration {

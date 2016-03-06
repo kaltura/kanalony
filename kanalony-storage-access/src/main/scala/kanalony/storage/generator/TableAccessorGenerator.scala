@@ -20,7 +20,7 @@ class TableAccessorGenerator(val tm : TableMetadata) {
     val columns = tm.columns
     for (c <- columns){
       var valueAssignment = GenerationTemplates.valueDefinitionTemplate.content
-      valueAssignment = valueAssignment.replace(GenerationTemplates.valueDefinitionTemplate.propertyNamePlaceholder, c.name)
+      valueAssignment = valueAssignment.replace(GenerationTemplates.valueDefinitionTemplate.propertyNamePlaceholder, c.name.toString)
       res = res + valueAssignment + "\n"
     }
     res
@@ -32,7 +32,7 @@ class TableAccessorGenerator(val tm : TableMetadata) {
     var res = "";
     for (colDef <- colDefs){
       val colDefTemplate = templateCreator(colDef)
-      val colDefResult = colDefTemplate.content.replace(colDefTemplate.propNamePlaceholder, colDef.name)
+      val colDefResult = colDefTemplate.content.replace(colDefTemplate.propNamePlaceholder, colDef.name.toString)
         .replace(colDefTemplate.typePlaceholder, colDef.typeName.toString)
       res = res + colDefResult + "\n"
     }
@@ -62,17 +62,17 @@ class TableAccessorGenerator(val tm : TableMetadata) {
   private def generateRowDecomposition() : String = generateRowDecomposition(tm.columns)
 
   private def generateRowDecomposition(cols : List[IColumnDefinition]) = {
-    cols.map(x => GenerationTemplates.propertyDecompositionTemplate.content.replace(GenerationTemplates.propertyDecompositionTemplate.propNamePlaceholder, x.name))
+    cols.map(x => GenerationTemplates.propertyDecompositionTemplate.content.replace(GenerationTemplates.propertyDecompositionTemplate.propNamePlaceholder, x.name.toString))
         .mkString(", \n")
   }
 
   private def generateQueryMethods(pkSingleValueEquality : Boolean) : String = {
     val pkColumnQueryKind = if (pkSingleValueEquality) ColumnQueryKind.Equality else ColumnQueryKind.List
     val methodGenerator = new QueryMethodsGenerator(tm)
-    val partitionKeyQueryColumnDefs = tm.primaryKey.pk.columns.map(x => new QueryableColumnDefinition(x.name, x.typeName, pkColumnQueryKind))
+    val partitionKeyQueryColumnDefs = tm.primaryKey.pk.columns.map(x => new QueryableColumnDefinition(x.name, x.typeName, pkColumnQueryKind, true, false))
     var generatedQueries = methodGenerator.generateQueryMethod(partitionKeyQueryColumnDefs);
 
-    val clusteringQueryColumnDefs = tm.primaryKey.ck.columns.map(x => new QueryableColumnDefinition(x.name, x.typeName, ColumnQueryKind.Range))
+    val clusteringQueryColumnDefs = tm.primaryKey.ck.columns.map(x => new QueryableColumnDefinition(x.name, x.typeName, ColumnQueryKind.Range, false, true))
     for( i <- 1 to clusteringQueryColumnDefs.length) {
       generatedQueries = generatedQueries + "\n " + methodGenerator.generateQueryMethod(partitionKeyQueryColumnDefs ::: clusteringQueryColumnDefs.take(i));
     }

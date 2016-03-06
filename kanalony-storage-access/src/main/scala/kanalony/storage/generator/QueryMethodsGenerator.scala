@@ -29,7 +29,7 @@ object QueryMethodsGenerator {
     (colDef.name + "Start", colDef.name + "End")
   }
 
-  private def getListParamName(colDef : IColumnDefinition)  = {
+  def getListParamName(colDef : IColumnDefinition)  = {
     colDef.name + "_list"
   }
 }
@@ -43,7 +43,7 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
   def generateContainmentCondition(x: IQueryableColumnDefinition) = {
     val containmentConditionTemplate = GenerationTemplates.containmentConditionTemplate;
     var condition = containmentConditionTemplate.content.replace(containmentConditionTemplate.listPlaceholder, QueryMethodsGenerator.getListParamName(x))
-    condition = condition.replace(containmentConditionTemplate.columnNamePlaceholder, x.name)
+    condition = condition.replace(containmentConditionTemplate.columnNamePlaceholder, x.name.toString)
     condition
   }
 
@@ -60,7 +60,7 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
 
   private def generateEqualityCondition(x: IColumnDefinition) = {
     val conditionTemplate = GenerationTemplates.equalityConditionTemplate
-    val condition = conditionTemplate.content.replace(conditionTemplate.columnNamePlaceholder, x.name)
+    val condition = conditionTemplate.content.replace(conditionTemplate.columnNamePlaceholder, x.name.toString)
     condition
   }
 
@@ -68,12 +68,12 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
     val andClauseTemplate = GenerationTemplates.andClauseTemplate
 
     val gtConditionTemplate = GenerationTemplates.greaterThanOrEqualConditionTemplate
-    var gtCondition = gtConditionTemplate.content.replace(gtConditionTemplate.columnNamePlaceholder, x.name)
+    var gtCondition = gtConditionTemplate.content.replace(gtConditionTemplate.columnNamePlaceholder, x.name.toString)
     gtCondition = gtCondition.replace(gtConditionTemplate.rangeValuePlaceholder, QueryMethodsGenerator.getRangeParamNames(x)._1)
     val gtAndClauseTemplate = andClauseTemplate.content.replace(andClauseTemplate.conditionPlaceholder, gtCondition)
 
     val ltConditionTemplate = GenerationTemplates.lessThanConditionTemplate
-    var ltCondition = ltConditionTemplate.content.replace(ltConditionTemplate.columnNamePlaceholder, x.name)
+    var ltCondition = ltConditionTemplate.content.replace(ltConditionTemplate.columnNamePlaceholder, x.name.toString)
     ltCondition = ltCondition.replace(ltConditionTemplate.rangeValuePlaceholder, QueryMethodsGenerator.getRangeParamNames(x)._2)
     val ltAndClauseTemplate = andClauseTemplate.content.replace(andClauseTemplate.conditionPlaceholder, ltCondition)
 

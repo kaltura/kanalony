@@ -9,8 +9,18 @@ import org.joda.time.DateTime
 
 object ParamsTypeGenerator {
 
-  def apply(tableName : String, colDefs : List[IColumnExtendedDefinition]) = new ParamsTypeGenerator(tableName, colDefs)
+  def apply() = new ParamsTypeGenerator()
   def getClassName(tableName : String) = s"${tableName}QueryParams"
+
+  def getParamName(colDef : IColumnExtendedDefinition) = {
+    if (colDef.inferred)
+    {
+      "years"
+    }
+    else {
+      QueryMethodsGenerator.getListParamName(colDef)
+    }
+  }
 }
 
 case class ImplicitColumnInferrer(cols : List[IColumnExtendedDefinition]) {
@@ -19,7 +29,7 @@ case class ImplicitColumnInferrer(cols : List[IColumnExtendedDefinition]) {
       return ""
     }
 
-    if (cols.length != 1 || cols.head.name != "year")
+    if (cols.length != 1 || cols.head.name.toString != "year")
     {
       throw new IllegalArgumentException("Only 'year' is currently supported")
     }
@@ -30,17 +40,14 @@ case class ImplicitColumnInferrer(cols : List[IColumnExtendedDefinition]) {
   }
 }
 
-class ParamsTypeGenerator(tableName : String, colDefs : List[IColumnExtendedDefinition]) {
-  val paramsClassTemplate = """import org.joda.time.DateTime
-                              |case class %QUERY_PARAMS_CLASS_NAME%(startTime : DateTime, endTime : DateTime, %EQ_COL_DEFS%) %IMPLICIT_VALUES_INFERRER%
-                              |""".stripMargin
-
+class ParamsTypeGenerator() {
+  val paramsClassTemplate = "case class %QUERY_PARAMS_CLASS_NAME%(startTime : DateTime, endTime : DateTime, %EQ_COL_DEFS%) %IMPLICIT_VALUES_INFERRER%"
   val colDefsPlaceholder = "%EQ_COL_DEFS%"
   val classNamePlaceholder = "%QUERY_PARAMS_CLASS_NAME%"
   val implicitValueImplementerPlaceholder = "%IMPLICIT_VALUES_INFERRER%"
 
-  def generate() = {
-    val explicitColumns = colDefs.filter(c => !(c.inferred)).map( c => new QueryableColumnDefinition(c.name, c.typeName, ColumnQueryKind.List))
+  def generate(tableName : String, colDefs : List[IColumnExtendedDefinition]) = {
+    val explicitColumns = colDefs.filter(c => !(c.inferred)).map( c => new QueryableColumnDefinition(c.name, c.typeName, ColumnQueryKind.List, c.inPartitionKey, c.inClusteringKey))
     val implicitColumns = colDefs.filter(_.inferred)
     val generatedColDefs = QueryMethodsGenerator.generateColDefs(explicitColumns)
 
