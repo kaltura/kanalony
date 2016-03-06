@@ -13,7 +13,6 @@ trait IColumnExtendedDefinition extends IColumnDefinition {
 class ColumnExtendedDefinition(val name : ColumnNames.Value, val typeName : ColumnType.Value, val inPartitionKey : Boolean, val inClusteringKey : Boolean, override val inferred : Boolean = false) extends IColumnExtendedDefinition
 
 object ColumnExtendedDefinition {
-    
     def isColumnImplicit(name: String): Boolean = name match {
         case "year" => true
         case _ => false

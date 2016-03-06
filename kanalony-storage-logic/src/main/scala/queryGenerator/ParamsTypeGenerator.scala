@@ -13,6 +13,7 @@ object ParamsTypeGenerator {
   def getClassName(tableName : String) = s"${tableName}QueryParams"
 
   def getParamName(colDef : IColumnExtendedDefinition) = {
+    // TODO: Extract to column specific logic if additional inferred column kinds will be supported
     if (colDef.inferred)
     {
       "years"
@@ -35,6 +36,7 @@ case class ImplicitColumnInferrer(cols : List[IColumnExtendedDefinition]) {
     }
     else
     {
+      // TODO: Likewise (Extract to column specific logic if additional inferred column kinds will be supported)
       "extends IYearlyPartitionedQueryParams"
     }
   }

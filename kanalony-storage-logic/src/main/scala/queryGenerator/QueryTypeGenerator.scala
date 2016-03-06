@@ -9,38 +9,31 @@ import kanalony.storage.logic.Dimensions
 
 class QueryTypeGenerator(tm : TableMetadata) {
 
+  // TODO: Consider treating Metric just like any other dimension
   val extendedColumnInformation = tm.columns map { ColumnExtendedDefinition.convert(_) }
-  val explicitColumnExtendedInformation = extendedColumnInformation
-    .take(extendedColumnInformation.length-1) // Skip the value column
-    .filter(c => !(c.inferred))
-  val explicitNonMetricColumnExtendedInformation = explicitColumnExtendedInformation
-    .filter(c => !(c.name == ColumnNames.metric))
-  val extendedPartitionKeyColumnsInformation = tm.primaryKey.pk.columns
-    .map(ColumnExtendedDefinition.convert(_))
-  val extendedPartitionKeyExplicitColumnsInformation =
-    extendedPartitionKeyColumnsInformation.filter(c => !c.inferred)
-  val explicitNonMetricPartitionKeyColumns = extendedPartitionKeyExplicitColumnsInformation.filter(c => !(c.name == ColumnNames.metric))
+  val explicitColumnExtendedInformation = extendedColumnInformation.take(extendedColumnInformation.length-1).filter(c => !(c.inferred))
+  val explicitNonMetricColumnExtendedInformation = explicitColumnExtendedInformation.filter(c => !(c.name == ColumnNames.metric))
+  val extendedPartitionKeyColumnsInformation = tm.primaryKey.pk.columns.map(ColumnExtendedDefinition.convert(_))
+  val explicitPartitionKeyColumnsExtendedInformation = extendedPartitionKeyColumnsInformation.filter(c => !c.inferred)
+  val explicitNonMetricPartitionKeyColumnsExtendedInformation = explicitPartitionKeyColumnsExtendedInformation.filter(c => !(c.name == ColumnNames.metric))
 
   def getQueryName : String = QueryTypeGenerator.getQueryName(tm)
   def getTableRowType : String = EntityClassGenerator.getEntityName(tm)
   def getQueryParamsTypeName : String = ParamsTypeGenerator.getClassName(tm.tableName)
   def getSupportedMetricsProvider : String = "UserActivityQuery" // This will require additional metadata and include logic when we support additional query kinds
-  def getEqualityConstraintExplicitColumnsNotIncludingMetrics : String = explicitNonMetricPartitionKeyColumns.map(c => c.name).mkString(",")
-  def getEqualityConstraintColumnTypesNotIncludingMetricPlaceholder : String = explicitNonMetricPartitionKeyColumns.map(c => c.typeName).mkString(",")
-  def getEqualityConstraintExplicitColumnsNotIncludingMetricsEnumValues : String = explicitNonMetricPartitionKeyColumns.map(c => s"Dimensions.${Dimensions.fromColumnName(c.name)}").mkString(",")
+  def getEqualityConstraintExplicitColumnsNotIncludingMetrics : String = explicitNonMetricPartitionKeyColumnsExtendedInformation.map(c => c.name).mkString(",")
+  def getEqualityConstraintColumnTypesNotIncludingMetricPlaceholder : String = explicitNonMetricPartitionKeyColumnsExtendedInformation.map(c => c.typeName).mkString(",")
+  def getEqualityConstraintExplicitColumnsNotIncludingMetricsEnumValues : String = explicitNonMetricPartitionKeyColumnsExtendedInformation.map(c => s"Dimensions.${Dimensions.fromColumnName(c.name)}").mkString(",")
 
 
   def getTableQueryingImplementation : String = {
-
     def getEqualityArguments : String = extendedPartitionKeyColumnsInformation.map(x => s"params.${ParamsTypeGenerator.getParamName(x)}").mkString(",")
-
     QueryTemplates.TableQueryingTemplate.content
       .replace(QueryTemplates.TableQueryingTemplate.tableAccessorNamePlaceholder, TableAccessorGenerator.generateClassName(tm))
       .replace(QueryTemplates.TableQueryingTemplate.allEqualityValuesPlaceholder, getEqualityArguments)
   }
 
   def getMetricValueLocation : String  = explicitColumnExtendedInformation.length.toString
-
   def getResultHeadersImplementation : String = {
     val headers = explicitColumnExtendedInformation
       .map(x => s"Dimensions.${Dimensions.fromColumnName(x.name)}.toString")
