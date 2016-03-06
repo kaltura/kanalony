@@ -12,7 +12,7 @@ object country extends StringColumn(this)with PartitionKey[String]
 object metric extends IntColumn(this)with PartitionKey[Int]
 object year extends IntColumn(this)with PartitionKey[Int]
 object hour extends DateTimeColumn(this)with ClusteringOrder[DateTime] with Descending
-object os extends IntColumn(this)with ClusteringOrder[Int] with Ascending
+object operating_system extends IntColumn(this)with ClusteringOrder[Int] with Ascending
 object value extends LongColumn(this)
 
 
@@ -25,7 +25,7 @@ country(row),
 metric(row), 
 year(row), 
 hour(row), 
-os(row), 
+operating_system(row), 
 value(row)
     )
   }
@@ -36,7 +36,7 @@ value(row)
 .value(_.metric, entity.metric)
 .value(_.year, entity.year)
 .value(_.hour, entity.hour)
-.value(_.os, entity.os)
+.value(_.operating_system, entity.operating_system)
 .value(_.value, entity.value)
 
       .future()
@@ -54,14 +54,14 @@ value(row)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
   }
- def query(partner_id : Int, country : String, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime, osStart : Int, osEnd : Int) : SelectQuery[hourly_ua_prtn_country_clst_osTableAccessor, hourly_ua_prtn_country_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partner_id : Int, country : String, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime, operating_systemStart : Int, operating_systemEnd : Int) : SelectQuery[hourly_ua_prtn_country_clst_osTableAccessor, hourly_ua_prtn_country_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.country eqs country)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
-.and(_.os gte osStart)
-.and(_.os lt osEnd)
+.and(_.operating_system gte operating_systemStart)
+.and(_.operating_system lt operating_systemEnd)
   }
 def query(partner_id_list : List[Int], country_list : List[String], metric_list : List[Int], year_list : List[Int]) : SelectQuery[hourly_ua_prtn_country_clst_osTableAccessor, hourly_ua_prtn_country_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.country in country_list)
@@ -75,14 +75,14 @@ def query(partner_id_list : List[Int], country_list : List[String], metric_list 
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
   }
- def query(partner_id_list : List[Int], country_list : List[String], metric_list : List[Int], year_list : List[Int], hourStart : DateTime, hourEnd : DateTime, osStart : Int, osEnd : Int) : SelectQuery[hourly_ua_prtn_country_clst_osTableAccessor, hourly_ua_prtn_country_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partner_id_list : List[Int], country_list : List[String], metric_list : List[Int], year_list : List[Int], hourStart : DateTime, hourEnd : DateTime, operating_systemStart : Int, operating_systemEnd : Int) : SelectQuery[hourly_ua_prtn_country_clst_osTableAccessor, hourly_ua_prtn_country_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.country in country_list)
 .and(_.metric in metric_list)
 .and(_.year in year_list)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
-.and(_.os gte osStart)
-.and(_.os lt osEnd)
+.and(_.operating_system gte operating_systemStart)
+.and(_.operating_system lt operating_systemEnd)
   }
 
 }
