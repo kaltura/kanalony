@@ -126,6 +126,27 @@ object GenerationTemplates {
                     |
                     |}"""
   }
+
+  case object dbClientFactoryTemplate {
+    val content = """package kanalony.storage
+                |
+                |import kanalony.storage._
+                |import com.websudos.phantom.connectors.KeySpace
+                |import kanalony.storage.generated._
+                |
+                |object DbClientFactory {
+                |
+                |  val connector = ConnectorFactory.connector
+                |
+                |  val session = connector.session
+                |  val keyspace = KeySpace(connector.name)
+                |
+                |  %ACCESSOR_OBJECT_DEFINITION%
+                |
+                |}
+                |"""
+    val accessorObjectDefinitionsPlaceholder = "%ACCESSOR_OBJECT_DEFINITION%"
+  }
 }
 
 trait IColumnDefinitionTemplate {

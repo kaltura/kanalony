@@ -1,8 +1,7 @@
 package kanalony.storage.logic
 
 import com.kaltura.model.entities.Metrics
-import kanalony.storage.api.DbClientFactory
-import scala.collection.GenTraversableOnce
+import kanalony.storage.generated._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -11,6 +10,8 @@ import scala.concurrent.Future
  */
 
 abstract class QueryBase[TReq, TQueryRow] extends IQuery {
+
+  val groupingSeparator = "::"
 
   val dbApi = DbClientFactory
 
@@ -32,7 +33,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     row => {
       var groupValues: List[String] = List()
       headerDimensionIndexes.foreach(i => groupValues = groupValues :+ row(i))
-      groupValues.mkString(":")
+      groupValues.mkString(groupingSeparator)
     }
   }
 
@@ -60,7 +61,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
         var rowData = if (group._1.isEmpty) {
           List()
         } else {
-          group._1.split(':').toList
+          group._1.split(groupingSeparator).toList
         }
         val groupAggregatedValue = getGroupAggregatedValue(group._2).toString
         rowData = rowData :+ groupAggregatedValue

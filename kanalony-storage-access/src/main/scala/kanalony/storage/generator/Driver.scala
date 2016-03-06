@@ -20,5 +20,8 @@ object Driver {
       fs.printToFile(new File(EntityClassGenerator.getEntityName(tm) + ".scala"))(p=>(p.write(generatedEntity)))
       fs.printToFile(new File(TableAccessorGenerator.generateClassName(tm) + ".scala"))(p=>(p.write(generatedTableAcecssor)))
     })
+
+    val dbClientFactory = DbClientFactoryGenerator.generate()
+    fs.printToFile(new File("DbClientFactory.scala"))(p=>(p.write(dbClientFactory)))
   }
 }

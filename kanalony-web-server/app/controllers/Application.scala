@@ -62,7 +62,7 @@ class Application extends Controller {
   }
 
   def execute(queryParams: QueryParams): Future[IQueryResult] = {
-    QueryLocator.locate(queryParams).query(queryParams)
+    QueryExecutor.query(queryParams)
   }
 
   def extractValues[T, E <: Exception](values : List[String], enumConverter : String => T, exceptionCreator : String => E): List[T] = {
@@ -95,7 +95,9 @@ class Application extends Controller {
   def createConstraint(dimension: Dimensions.Value, values: List[String]) : IDimensionConstraint = {
     try {
       dimension match {
-        case Dimensions.partner => new DimensionEqualityConstraint[Int](values.toSet.map { (v: String) => v.toInt })
+        case Dimensions.partner | Dimensions.operatingSystem | Dimensions.browser | Dimensions.device  => {
+          new DimensionEqualityConstraint[Int](values.toSet.map { (v: String) => v.toInt })
+        }
         case _ => new DimensionEqualityConstraint(values.toSet)
       }
     }

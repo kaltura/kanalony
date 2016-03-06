@@ -4,9 +4,9 @@ import kanalony.storage.generated._
 import kanalony.storage.logic._
 import org.joda.time.{DateTime, LocalDate}
 
-class DailyUserActivityPrtnEntryQuery extends DailyQueryBase[HourlyUserActivityPrtnEntryQuery, HourlyUserActivityPrtnEntryParams, hourly_ua_prtn_entryRow, dailyUserActivityPrtnEntryRow, dailyUserActivityPrtnEntryRowAggregationKey] with UserActivityQuery {
+class DailyUserActivityPrtnEntryQuery extends DailyQueryBase[hourly_ua_prtn_entryQuery, hourly_ua_prtn_entryQueryParams, hourly_ua_prtn_entryRow, dailyUserActivityPrtnEntryRow, dailyUserActivityPrtnEntryRowAggregationKey] with UserActivityQuery {
 
-  override def internalQuery: HourlyUserActivityPrtnEntryQuery = Queries.HourlyUserActivityPrtnEntryQuery
+  override def internalQuery = Queries.hourly_ua_prtn_entryQuery
 
   override def countFieldExtractor(row : hourly_ua_prtn_entryRow): Long = { row.value }
 

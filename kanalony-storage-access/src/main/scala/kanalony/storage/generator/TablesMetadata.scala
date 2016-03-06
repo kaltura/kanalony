@@ -111,7 +111,7 @@ object TablesMetadata {
     createTableMetadata("hourly_ua_ptrn_application_clst_playbackcontext", "((partner,application,metric,year),hour,playbackContext),value"),
     createTableMetadata("minutely_ua_prtn_application_playbackcontext", "((partner,application,playbackContext,metric),minute),value"),
     createTableMetadata("hourly_ua_prtn_application_playbackcontext", "((partner,application,playbackContext,metric,year),hour),value"),
-    createTableMetadata("minutely_ua_prtn_entry_application_clst_playbackcontext", "((partner,entry,application,year),minute,playbackContext),value"),
+    createTableMetadata("minutely_ua_prtn_entry_application_clst_playbackcontext", "((partner,entry,application,metric,year),minute,playbackContext),value"),
     createTableMetadata("hourly_ua_prtn_entry_application_clst_playbackcontext", "((partner,entry,application,metric,year),hour,playbackContext),value"),
     createTableMetadata("minutely_ua_prtn_entry_application_playbackcontext", "((partner,entry,application,playbackContext,metric),minute),value"),
     createTableMetadata("hourly_ua_prtn_entry_application_playbackcontext", "((partner,entry,application,playbackContext,metric,year),hour),value"),
@@ -157,47 +157,47 @@ object TablesMetadata {
     createTableMetadata("hourly_ua_prtn_entry_cf1_cf2_cf3", "((partner,entry,cf1,cf2,cf3,metric,year),hour),value")
   )
 
-  def createColumnDefinition(s: String): IColumnDefinition = s match {
-    case "partner" => ColumnDefinition("partner_id", ColumnType.Int)
-    case "entry" => ColumnDefinition("entry_id", ColumnType.String)
-    case "metric" => ColumnDefinition("metric", ColumnType.Int)
-    case "year" => ColumnDefinition("year", ColumnType.Int)
-    case "month" => ColumnDefinition("month", ColumnType.Int)
-    case "country" => ColumnDefinition("country", ColumnType.String)
-    case "city" => ColumnDefinition("city", ColumnType.String)
-    case "os" => ColumnDefinition("os", ColumnType.Int)
-    case "browser" => ColumnDefinition("browser", ColumnType.Int)
-    case "device" => ColumnDefinition("device", ColumnType.Int)
-    case "domain" => ColumnDefinition("domain", ColumnType.String)
-    case "referrer" => ColumnDefinition("referrer", ColumnType.String)
-    case "application" => ColumnDefinition("application", ColumnType.String)
-    case "cf1" => ColumnDefinition("cf1", ColumnType.String)
-    case "cf2" => ColumnDefinition("cf2", ColumnType.String)
-    case "cf3" => ColumnDefinition("cf3", ColumnType.String)
-    case "playbackContext" => ColumnDefinition("playbackContext", ColumnType.String)
-    case "value" => ColumnDefinition("value", ColumnType.Long)
+  def createColumnDefinition(s: String, isInPartitionKey : Boolean, isInClusteringKey : Boolean): IColumnDefinition = s match {
+    case "partner" => ColumnDefinition(ColumnNames.partner_id, ColumnType.Int, isInPartitionKey, isInClusteringKey)
+    case "entry" => ColumnDefinition(ColumnNames.entry_id, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "metric" => ColumnDefinition(ColumnNames.metric, ColumnType.Int, isInPartitionKey, isInClusteringKey)
+    case "year" => ColumnDefinition(ColumnNames.year, ColumnType.Int, isInPartitionKey, isInClusteringKey)
+    case "month" => ColumnDefinition(ColumnNames.month, ColumnType.Int, isInPartitionKey, isInClusteringKey)
+    case "country" => ColumnDefinition(ColumnNames.country, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "city" => ColumnDefinition(ColumnNames.city, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "os" => ColumnDefinition(ColumnNames.operating_system, ColumnType.Int, isInPartitionKey, isInClusteringKey)
+    case "browser" => ColumnDefinition(ColumnNames.browser, ColumnType.Int, isInPartitionKey, isInClusteringKey)
+    case "device" => ColumnDefinition(ColumnNames.device, ColumnType.Int, isInPartitionKey, isInClusteringKey)
+    case "domain" => ColumnDefinition(ColumnNames.domain, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "referrer" => ColumnDefinition(ColumnNames.referrer, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "application" => ColumnDefinition(ColumnNames.application, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "cf1" => ColumnDefinition(ColumnNames.cf1, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "cf2" => ColumnDefinition(ColumnNames.cf2, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "cf3" => ColumnDefinition(ColumnNames.cf3, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "playbackContext" => ColumnDefinition(ColumnNames.playbackContext, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "value" => ColumnDefinition(ColumnNames.value, ColumnType.Long, isInPartitionKey, isInClusteringKey)
   }
 
   def createClusteringColumnDefinition(s: String): IClusteringColumnDefinition = s match {
-    case "hour" => ClusteringColumnDefinition("hour", ColumnType.DateTime, OrderBy.Descending)
-    case "minute" => ClusteringColumnDefinition("minute", ColumnType.DateTime, OrderBy.Descending)
-    case "entry" => ClusteringColumnDefinition("entry_id", ColumnType.String)
-    case "country" => ClusteringColumnDefinition("country", ColumnType.String)
-    case "city" => ClusteringColumnDefinition("city", ColumnType.String)
-    case "device" => ClusteringColumnDefinition("device", ColumnType.Int)
-    case "browser" => ClusteringColumnDefinition("browser", ColumnType.Int)
-    case "os" => ClusteringColumnDefinition("os", ColumnType.Int)
-    case "domain" => ClusteringColumnDefinition("domain", ColumnType.String)
-    case "referrer" => ClusteringColumnDefinition("referrer", ColumnType.String)
-    case "application" => ClusteringColumnDefinition("application", ColumnType.String)
-    case "playbackContext" => ClusteringColumnDefinition("playbackContext", ColumnType.String)
-    case "cf1" => ClusteringColumnDefinition("cf1", ColumnType.String)
-    case "cf2" => ClusteringColumnDefinition("cf2", ColumnType.String)
-    case "cf3" => ClusteringColumnDefinition("cf3", ColumnType.String)
+    case "hour" => ClusteringColumnDefinition(ColumnNames.hour, ColumnType.DateTime, OrderBy.Descending)
+    case "minute" => ClusteringColumnDefinition(ColumnNames.minute, ColumnType.DateTime, OrderBy.Descending)
+    case "entry" => ClusteringColumnDefinition(ColumnNames.entry_id, ColumnType.String)
+    case "country" => ClusteringColumnDefinition(ColumnNames.country, ColumnType.String)
+    case "city" => ClusteringColumnDefinition(ColumnNames.city, ColumnType.String)
+    case "device" => ClusteringColumnDefinition(ColumnNames.device, ColumnType.Int)
+    case "browser" => ClusteringColumnDefinition(ColumnNames.browser, ColumnType.Int)
+    case "os" => ClusteringColumnDefinition(ColumnNames.operating_system, ColumnType.Int)
+    case "domain" => ClusteringColumnDefinition(ColumnNames.domain, ColumnType.String)
+    case "referrer" => ClusteringColumnDefinition(ColumnNames.referrer, ColumnType.String)
+    case "application" => ClusteringColumnDefinition(ColumnNames.application, ColumnType.String)
+    case "playbackContext" => ClusteringColumnDefinition(ColumnNames.playbackContext, ColumnType.String)
+    case "cf1" => ClusteringColumnDefinition(ColumnNames.cf1, ColumnType.String)
+    case "cf2" => ClusteringColumnDefinition(ColumnNames.cf2, ColumnType.String)
+    case "cf3" => ClusteringColumnDefinition(ColumnNames.cf3, ColumnType.String)
   }
 
   def createPartitionKey(partitionKeyColumns: String) : PartitionKey = {
-    PartitionKey(partitionKeyColumns.split(",").map(createColumnDefinition(_)).toList)
+    PartitionKey(partitionKeyColumns.split(",").map(createColumnDefinition(_, true, false)).toList)
   }
 
   def createClusteringKey(clusteringColumns: String) : ClusteringKey = {
@@ -205,7 +205,7 @@ object TablesMetadata {
   }
 
   def createAdditionalColumns(additionalColumns: String) : List[IColumnDefinition] = {
-    additionalColumns.split(",").map(createColumnDefinition(_)).toList
+    additionalColumns.split(",").map(createColumnDefinition(_, false, false)).toList
   }
 
   def createTableMetadata(tableName : String, tableMetadata : String) : TableMetadata = {
