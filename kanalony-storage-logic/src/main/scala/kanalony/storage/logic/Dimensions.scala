@@ -9,6 +9,8 @@ object Dimensions extends Enumeration {
   category,playbackContext,month,day,hour,minute,tenSeconds,streamingProtocol,
   expectedQuality,uiConfID,metric,cf1,cf2,cf3,referrer = Value
 
+  val computedDimensions = Set(day)
+
   implicit def fromColumnName(name : ColumnNames.Value) : Dimensions.Value = name match {
     case ColumnNames.application => Dimensions.application
     case ColumnNames.browser => Dimensions.browser

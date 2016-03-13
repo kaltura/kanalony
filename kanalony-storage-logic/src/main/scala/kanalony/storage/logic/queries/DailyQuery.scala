@@ -83,3 +83,12 @@ class DailyQuery(internalQuery : IQuery) extends IQuery {
     }
   }
 }
+
+object DailyQuery {
+  def getExpandedDimensionInformation(dimInfos : List[QueryDimensionDefinition]): List[QueryDimensionDefinition] = {
+    dimInfos.map {
+      case QueryDimensionDefinition(Dimensions.day, constraint, includeInResult) => QueryDimensionDefinition(Dimensions.hour, constraint, includeInResult)
+      case dimensionDefinition: QueryDimensionDefinition => dimensionDefinition
+    }
+  }
+}

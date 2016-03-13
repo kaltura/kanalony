@@ -16,4 +16,6 @@ object Metrics extends Enumeration {
   uniquePlayerSessionId, uniqueVideos, view, dvrView, peakView,
   peakDvrView, bufferingTime, averageActualBitrate, averageViewDuration,
   estimatedMinutesWatched, loadToPlayTime = Value
+
+  val computedMetrics : Set[Metrics.Value] = Set()
 }
