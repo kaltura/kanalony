@@ -3,8 +3,7 @@ package com.kaltura.aggregations
 
 import java.io.File
 
-import com.kaltura.aggregations.userActivity.hourly._
-import com.kaltura.aggregations.userActivity.minutely.{MinutelyUserActivityByEntry, MinutelyUserActivity}
+import com.kaltura.aggregations.userActivity._
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
@@ -52,7 +51,7 @@ object EventsAggregation extends App with Logging {
       .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
       .set("spark.cassandra.connection.keep_alive_ms","30000")
     val sparkContext = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.batch_duration", "1").toInt))
+    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.batch_duration", "5").toInt))
     ssc.checkpoint(checkpointDirectory)
 
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_aggregations.kafka_brokers", "127.0.0.1:9092")
@@ -65,25 +64,54 @@ object EventsAggregation extends App with Logging {
 
     //aggregators.foreach(aggregate(_, parsedEnrichedEvents))
 
-    HourlyUserActivityByEntry.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByApplication.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByApplication.aggregate(parsedEnrichedEvents)
+    TenSecsUserActivityByApplication.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountry.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCountry.aggregate(parsedEnrichedEvents)
+    TenSecsUserActivityByCountry.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountryBrowser.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCountryBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountryCity.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCountryCity.aggregate(parsedEnrichedEvents)
+    TenSecsUserActivityByCountryCity.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountryOperatingSystem.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCountryOperatingSystem.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCustomVar1.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCustomVar1.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCustomVar2.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCustomVar2.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCustomVar3.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCustomVar3.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCustomVar1CustomVar2.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCustomVar1CustomVar2.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByDevice.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByDevice.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByDomain.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByDomain.aggregate(parsedEnrichedEvents)
+    TenSecsUserActivityByDomain.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByDomainReferrer.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByDomainReferrer.aggregate(parsedEnrichedEvents)
+    TenSecsUserActivityByDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByEntry.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByEntry.aggregate(parsedEnrichedEvents)
-    MinutelyUserActivity.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityPeakAudience.aggregate(parsedEnrichedEvents)
-    HourlyUserActivity.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByCountry.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByCountryCity.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByDevice.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByDomain.aggregate(parsedEnrichedEvents)
-    HourlyUserActivityByDomainReferrer.aggregate(parsedEnrichedEvents)
+    TenSecsUserActivityByEntry.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByOperatingSystem.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-
+    MinutelyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByPlaybackContext.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByPlaybackContext.aggregate(parsedEnrichedEvents)
 
     ssc
   }

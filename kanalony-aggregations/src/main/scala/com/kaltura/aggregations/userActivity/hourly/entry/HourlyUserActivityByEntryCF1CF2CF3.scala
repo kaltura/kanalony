@@ -2,7 +2,7 @@ package com.kaltura.aggregations.userActivity.hourly.entry
 
 import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.IAggregateHourly
-import com.kaltura.aggregations.keys.{UserActivityEntryCF1CF2CF3Key, UserActivityCF1CF2CF3Key}
+import com.kaltura.aggregations.keys.UserActivityEntryCF1CF2CF3Key
 import com.kaltura.aggregations.userActivity.BaseUserActivityAggregation
 import com.kaltura.model.events.EnrichedPlayerEvent
 import kanalony.storage.generated.{hourly_ua_prtn_entry_cf1_cf2_cf3Row, hourly_ua_prtn_cf1_cf2_cf3Row}

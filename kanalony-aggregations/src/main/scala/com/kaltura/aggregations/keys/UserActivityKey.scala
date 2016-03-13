@@ -19,9 +19,9 @@ case class UserActivityCountryBrowserKey(partnerId: Int, metric: Int, time: Date
 case class UserActivityApplicationKey(partnerId: Int, metric: Int, time: DateTime, application: String) extends Serializable
 case class UserActivityPlaybackContextKey(partnerId: Int, metric: Int, time: DateTime, playbackContext: String) extends Serializable
 case class UserActivityApplicationPlaybackContextKey(partnerId: Int, metric: Int, time: DateTime, application: String, playbackContext: String) extends Serializable
-case class UserActivityCFKey(partnerId: Int, metric: Int, time: DateTime, cf: String) extends Serializable
-case class UserActivityCF1CF2Key(partnerId: Int, metric: Int, time: DateTime, cf1: String, cf2: String) extends Serializable
-case class UserActivityCF1CF2CF3Key(partnerId: Int, metric: Int, time: DateTime, cf1: String, cf2: String, cf3: String) extends Serializable
+case class UserActivityCustomVarKey(partnerId: Int, metric: Int, time: DateTime, cv: String) extends Serializable
+case class UserActivityCustomVar1CustomVar2Key(partnerId: Int, metric: Int, time: DateTime, cv1: String, cv2: String) extends Serializable
+case class UserActivityCustomVar1CustomVar2CustomVar3Key(partnerId: Int, metric: Int, time: DateTime, cv1: String, cv2: String, cv3: String) extends Serializable
 
 
 case class UserActivityEntryApplicationKey(partnerId: Int, entryId: String, metric: Int, time: DateTime, application: String) extends Serializable
