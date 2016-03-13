@@ -17,5 +17,5 @@ object Metrics extends Enumeration {
   peakDvrView, bufferingTime, averageActualBitrate, averageViewDuration,
   estimatedMinutesWatched, loadToPlayTime = Value
 
-  val computedMetrics : Set[Metrics.Value] = Set()
+  val computedMetrics : Set[Metrics.Value] = Set(playRatio)
 }
