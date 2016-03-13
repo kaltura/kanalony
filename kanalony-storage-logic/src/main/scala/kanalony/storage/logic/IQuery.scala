@@ -10,8 +10,7 @@ import scala.concurrent.Future
  */
 
 trait IQuery {
-  def tableName : String
   val supportedMetrics : Set[Metrics.Value]
   val dimensionInformation : List[DimensionDefinition]
-  def query(params : QueryParams) : Future[IQueryResult]
+  def query(params : QueryParams) : Future[List[IQueryResult]] // IQueryResult per metric
 }

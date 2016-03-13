@@ -1,5 +1,6 @@
 package kanalony.storage.logic
 
+import com.kaltura.model.entities.Metrics
 import kanalony.storage.logic.queries.model.QueryConstraint
 
 /**
@@ -24,12 +25,11 @@ object QueryLocator {
   }
 
   def calcTableCompatibilityDistance(table: IQuery, queryParams : QueryParams) : Int = {
-
     val constraintDiffSize = tableAndQueryEqualityConstraintsSymmetricDifferenceSize(table, queryParams)
 
-    if (!(table.supportedMetrics contains queryParams.metric) ||
-        !(constraintDiffSize == 0) ||
-        !(tableSupportsAllQueryDimensions(table, queryParams))) {
+    if (queryParams.metrics.toSet.intersect(table.supportedMetrics).isEmpty ||
+      !(constraintDiffSize == 0) ||
+      !(tableSupportsAllQueryDimensions(table, queryParams))) {
       queryIncompatibleScoreThreshold + constraintDiffSize
     }
     else {
@@ -37,13 +37,32 @@ object QueryLocator {
     }
   }
 
-  def locate(queryParams: QueryParams) : IQuery = {
+  def locate(queryParams: QueryParams) : List[(IQuery, List[Metrics.Value])] = {
     val sortedQueries = Queries.queries.map(tq => (tq , calcTableCompatibilityDistance(tq, queryParams))).sortBy(_._2)
-    val potentialQuery = sortedQueries(0)
-    if (potentialQuery._2 >= queryIncompatibleScoreThreshold){
-      val message = "Query not supported. The most similar supported query requires equality constrains on dimensions " + potentialQuery._1.dimensionInformation.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension)
+    var remainingMetricsToCover = queryParams.metrics.toSet
+    var result : List[(IQuery, List[Metrics.Value])] = List()
+    sortedQueries
+      .takeWhile(q => !remainingMetricsToCover.isEmpty && q._2 < queryIncompatibleScoreThreshold)
+      .foreach(q => {
+          val relevantMetricsSupportedByQuery = q._1.supportedMetrics.intersect(remainingMetricsToCover).toList
+          if (!relevantMetricsSupportedByQuery.isEmpty)
+          {
+            result = result :+ (q._1, relevantMetricsSupportedByQuery)
+            remainingMetricsToCover = remainingMetricsToCover -- relevantMetricsSupportedByQuery
+          }
+        })
+
+    if (sortedQueries(0)._2 >= queryIncompatibleScoreThreshold){
+      val message = "Query not supported. The most similar supported query requires equality constrains on dimensions " + sortedQueries(0)._1.dimensionInformation.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension)
       throw new QueryNotSupportedException(message)
     }
-    potentialQuery._1
+
+    if (!remainingMetricsToCover.isEmpty)
+    {
+      val message = s"Query not supported. No query could be found which supports the dimensions supplied and the following metrics: ${remainingMetricsToCover.mkString(",")}"
+      throw new QueryNotSupportedException(message)
+    }
+
+    result
   }
 }
