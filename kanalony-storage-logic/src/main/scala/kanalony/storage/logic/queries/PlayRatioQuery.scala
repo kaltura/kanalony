@@ -23,37 +23,7 @@ class PlayRatioQuery(queryParams : QueryParams) extends IQuery {
   val internalPlayQuery = queryLocationResult.find(_._2 contains(Metrics.play)).get._1
   val internalPlayImpressionQuery = queryLocationResult.find(_._2 contains(Metrics.playImpression)).get._1
 
-
   override val supportedMetrics: Set[Metrics.Value] = Set(Metrics.playRatio)
-
-  def computeResult(playsResult: List[IQueryResult], playImpressionsResult: List[IQueryResult]) = {
-
-    val play = "play"
-    val playImpression = "playImpression"
-    val separator = "::"
-
-    // There should be exactly one QueryResult for a single metric
-    val playsQueryResult = playsResult.head
-    val playImpressionsQueryResult = playImpressionsResult.head
-    val playImpressionRows = playImpressionsQueryResult.rows.map(x => x :+ playImpression)
-    val playRows = playsQueryResult.rows.map(x => x :+ play)
-
-    val combinedRows = (playImpressionRows ::: playRows).groupBy(x => x.take(x.length - 2).mkString(separator))
-    val resultRows = combinedRows.map(kv => {
-      val groupData = kv._1.split(separator).toList
-      val groupMetricValue1 = for {
-        playRow <- kv._2.find(_.last equals play)
-        playValue <- Some(playRow(playRow.length - 2).toDouble)
-        playImpressionRow <- kv._2.find(_.last equals playImpression)
-        playImpressionValue <- Some(playImpressionRow(playImpressionRow.length - 2).toDouble)
-      } yield playValue / playImpressionValue
-
-      groupData :+ groupMetricValue1.getOrElse(0).toString
-    }).toList
-
-    val resultHeaders = playsQueryResult.headers.take(playsQueryResult.headers.length - 1) :+ Metrics.playRatio.toString
-    List(QueryResult(resultHeaders, resultRows))
-  }
 
   override def query(params: QueryParams): Future[List[IQueryResult]] = {
     val playResultFuture = internalPlayQuery.query(QueryParams(params.dimensionDefinitions, List(Metrics.play), params.start, params.end))
@@ -63,6 +33,37 @@ class PlayRatioQuery(queryParams : QueryParams) extends IQuery {
       playsResult <- playResultFuture
       playImpressionsResult <- playImpressionResultFuture
     } yield computeResult(playsResult, playImpressionsResult)
+  }
+
+  def computeResult(playsResult: List[IQueryResult], playImpressionsResult: List[IQueryResult]) = {
+    val play = "play"
+    val playImpression = "playImpression"
+    val separator = "::"
+
+    // There should be exactly one QueryResult for a single metric
+    val playsQueryResult = playsResult.head
+    val playImpressionsQueryResult = playImpressionsResult.head
+
+    // Store the metric name for differentiation after grouping
+    val playImpressionRows = playImpressionsQueryResult.rows.map(x => x :+ playImpression)
+    val playRows = playsQueryResult.rows.map(x => x :+ play)
+
+    // Group by all columns not including the metric name and metric value
+    val combinedRows = (playImpressionRows ::: playRows).groupBy(x => x.take(x.length - 2).mkString(separator))
+    val resultRows = combinedRows.map(kv => {
+      val groupData = kv._1.split(separator).toList
+      val groupMetricValue = for {
+        playRow <- kv._2.find(_.last equals play)
+        playValue <- Some(playRow(playRow.length - 2).toDouble)
+        playImpressionRow <- kv._2.find(_.last equals playImpression)
+        playImpressionValue <- Some(playImpressionRow(playImpressionRow.length - 2).toDouble)
+      } yield playValue / playImpressionValue
+
+      groupData :+ groupMetricValue.getOrElse(0).toString
+    }).toList
+
+    val resultHeaders = playsQueryResult.headers.take(playsQueryResult.headers.length - 1) :+ Metrics.playRatio.toString
+    List(QueryResult(resultHeaders, resultRows))
   }
 
   override val dimensionInformation: List[IDimensionDefinition] = queryParams.dimensionDefinitions

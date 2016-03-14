@@ -1,7 +1,7 @@
 package kanalony.storage.logic
 
 import com.kaltura.model.entities.Metrics
-import kanalony.storage.logic.queries.model.{IQueryDimensionDefinition, QueryDimensionDefinition}
+import kanalony.storage.logic.queries.model._
 import org.joda.time.DateTime
 
 /**

@@ -39,13 +39,12 @@ object QueryLocator {
   }
 
   def locate(queryParams: QueryParams) : List[(IQuery, List[Metrics.Value])] = {
-    val requestedComputedDimensions = Dimensions.computedDimensions.intersect(queryParams.dimensionDefinitions.map(_.dimension).toSet)
+    val requestedComputedDimensions = ComputedDimensions.values.intersect(queryParams.dimensionDefinitions.map(_.dimension).toSet)
     val requestedComputedMetrics = ComputedMetrics.values.intersect(queryParams.metrics.toSet)
 
     val computedMetricQueries = requestedComputedMetrics.toList.flatMap(ComputedMetrics.getQueryCreator(_)(queryParams))
 
-    val nonComputedMetrics = (queryParams.metrics.toSet -- requestedComputedMetrics).toList
-    // TODO: check if using a set instead of a list has a functional impact
+    val nonComputedMetrics = queryParams.metrics.toSet -- requestedComputedMetrics
     val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end)
 
     val nonComputedMetricQueries = if (requestedComputedDimensions.nonEmpty)
