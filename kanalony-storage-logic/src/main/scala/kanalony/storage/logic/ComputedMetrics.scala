@@ -13,6 +13,7 @@ object ComputedMetrics {
       throw new IllegalArgumentException("Only playRatio is currently supported")
     }
     (qp) => {
+      // TODO: pass only metric specific metrics - no need to pass all metrics here...
       val updatedQueryParams = PlayRatioQuery.getExpandedMetricInformation(qp)
       QueryLocator.locate(updatedQueryParams).map(x => (new PlayRatioQuery(x._1), x._2))
     }
