@@ -22,22 +22,22 @@ abstract class UserActivityByEntryDomain extends BaseUserActivityAggregation[Use
 
 object HourlyUserActivityByEntryDomain extends UserActivityByEntryDomain with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_domain" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_clst_domain" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_domain" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_entry_clst_domain" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
 object MinutelyUserActivityByEntryDomain extends UserActivityByEntryDomain with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "minutely_ua_prtn_domain" -> toSomeColumns(columns),
-    "minutely_ua_clst_domain" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_domain" -> toSomeColumns(columns),
+    "minutely_ua_prtn_entry_clst_domain" -> toSomeColumns(columns)
   )
 }
 
 object TenSecsUserActivityByEntryDomain extends UserActivityByEntryDomain with IAggregateTenSecs {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "tensecs_ua_prtn_domain" -> toSomeColumns(columns),
-    "tensecs_ua_clst_domain" -> toSomeColumns(columns)
+    "tensecs_ua_prtn_entry_domain" -> toSomeColumns(columns),
+    "tensecs_ua_prtn_entry_clst_domain" -> toSomeColumns(columns)
   )
 }
 case class EntryDomainRes(partnerId: Int, entryId: String, metric: Int, year: Int, time: DateTime, domain: String, value: Long)

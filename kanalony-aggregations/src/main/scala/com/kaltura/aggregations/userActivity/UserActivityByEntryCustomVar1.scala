@@ -27,24 +27,24 @@ abstract class UserActivityByEntryCustomVar1 extends BaseUserActivityAggregation
 object HourlyUserActivityByEntryCustomVar1 extends UserActivityByEntryCustomVar1 with IAggregateHourly {
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_cv1" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_clst_cv1" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_cv1" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_entry_clst_cv1" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
 object MinutelyUserActivityByEntryCustomVar1 extends UserActivityByEntryCustomVar1 with IAggregateMinutely {
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "minutely_ua_prtn_cv1" -> toSomeColumns(columns),
-    "minutely_ua_clst_cv1" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_cv1" -> toSomeColumns(columns),
+    "minutely_ua_prtn_entry_clst_cv1" -> toSomeColumns(columns)
   )
 }
 
 object TenSecsUserActivityByEntryCustomVar1 extends UserActivityByEntryCustomVar1 with IAggregateTenSecs {
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "tensecs_ua_prtn_cv1" -> toSomeColumns(columns),
-    "tensecs_ua_clst_cv1" -> toSomeColumns(columns)
+    "tensecs_ua_prtn_entry_cv1" -> toSomeColumns(columns),
+    "tensecs_ua_prtn_entry_clst_cv1" -> toSomeColumns(columns)
   )
 }
 

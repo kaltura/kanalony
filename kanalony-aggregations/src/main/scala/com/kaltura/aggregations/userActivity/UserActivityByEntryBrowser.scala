@@ -27,22 +27,22 @@ abstract class UserActivityByEntryBrowser extends BaseUserActivityAggregation[Us
 
 object HourlyUserActivityByEntryBrowser extends UserActivityByEntryBrowser with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_browser" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_clst_browser" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_browser" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_entry_clst_browser" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
 object MinutelyUserActivityByEntryBrowser extends UserActivityByEntryBrowser with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "minutely_ua_prtn_browser" -> toSomeColumns(columns),
-    "minutely_ua_clst_browser" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_browser" -> toSomeColumns(columns),
+    "minutely_ua_prtn_entry_clst_browser" -> toSomeColumns(columns)
   )
 }
 
 object TenSecsUserActivityByEntryBrowser extends UserActivityByEntryBrowser with IAggregateTenSecs {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "tensecs_ua_prtn_browser" -> toSomeColumns(columns),
-    "tensecs_ua_clst_browser" -> toSomeColumns(columns)
+    "tensecs_ua_prtn_entrybrowser" -> toSomeColumns(columns),
+    "tensecs_ua_prtn_entry_clst_browser" -> toSomeColumns(columns)
   )
 }
 case class EntryBrowserRes(partnerId: Int, entryId: String, metric: Int, year: Int, time: DateTime, browser: Int, value: Long)

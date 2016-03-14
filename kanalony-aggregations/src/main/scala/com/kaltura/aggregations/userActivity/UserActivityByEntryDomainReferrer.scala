@@ -22,25 +22,25 @@ abstract class UserActivityByEntryDomainReferrer extends BaseUserActivityAggrega
 
 object HourlyUserActivityByEntryDomainReferrer extends UserActivityByEntryDomainReferrer with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_referrer" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_clst_referrer" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_domain_clst_referrer" -> toSomeColumns(columns :+ ("year", "year") :+ ("domain", "domain"))
+    "hourly_ua_prtn_entry_referrer" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_entry_clst_referrer" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_entry_domain_clst_referrer" -> toSomeColumns(columns :+ ("year", "year") :+ ("domain", "domain"))
   )
 }
 
 object MinutelyUserActivityByEntryDomainReferrer extends UserActivityByEntryDomainReferrer with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "minutely_ua_prtn_referrer" -> toSomeColumns(columns),
-    "minutely_ua_clst_referrer" -> toSomeColumns(columns),
-    "minutely_ua_prtn_domain_clst_referrer" -> toSomeColumns(columns :+ ("domain", "domain"))
+    "minutely_ua_prtn_entry_referrer" -> toSomeColumns(columns),
+    "minutely_ua_prtn_entry_clst_referrer" -> toSomeColumns(columns),
+    "minutely_ua_prtn_entry_domain_clst_referrer" -> toSomeColumns(columns :+ ("domain", "domain"))
   )
 }
 
 object TenSecsUserActivityByEntryDomainReferrer extends UserActivityByEntryDomainReferrer with IAggregateTenSecs {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "tensecs_ua_prtn_referrer" -> toSomeColumns(columns),
-    "tensecs_ua_clst_referrer" -> toSomeColumns(columns),
-    "tensecs_ua_prtn_domain_clst_referrer" -> toSomeColumns(columns :+ ("domain", "domain"))
+    "tensecs_ua_prtn_entry_referrer" -> toSomeColumns(columns),
+    "tensecs_ua_prtn_entry_clst_referrer" -> toSomeColumns(columns),
+    "tensecs_ua_prtn_entry_domain_clst_referrer" -> toSomeColumns(columns :+ ("domain", "domain"))
   )
 }
 

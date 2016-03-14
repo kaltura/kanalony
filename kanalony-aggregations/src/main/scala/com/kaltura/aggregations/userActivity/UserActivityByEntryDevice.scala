@@ -25,22 +25,22 @@ abstract class UserActivityByEntryDevice extends BaseUserActivityAggregation[Use
 
 object HourlyUserActivityByEntryDevice extends UserActivityByEntryDevice with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_device" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_clst_device" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_device" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_entry_clst_device" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
 object MinutelyUserActivityByEntryDevice extends UserActivityByEntryDevice with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "minutely_ua_prtn_device" -> toSomeColumns(columns),
-    "minutely_ua_clst_device" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_device" -> toSomeColumns(columns),
+    "minutely_ua_prtn_entry_clst_device" -> toSomeColumns(columns)
   )
 }
 
 object TenSecsUserActivityByEntryDevice extends UserActivityByEntryDevice with IAggregateTenSecs {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "tensecs_ua_prtn_device" -> toSomeColumns(columns),
-    "tensecs_ua_clst_device" -> toSomeColumns(columns)
+    "tensecs_ua_prtn_entry_device" -> toSomeColumns(columns),
+    "tensecs_ua_prtn_entry_clst_device" -> toSomeColumns(columns)
   )
 }
 case class EntryDeviceRes(partnerId: Int, entryId: String, metric: Int, year: Int, time: DateTime, device: Int, value: Long)

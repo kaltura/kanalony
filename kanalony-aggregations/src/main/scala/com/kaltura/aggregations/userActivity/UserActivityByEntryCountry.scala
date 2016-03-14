@@ -25,22 +25,22 @@ abstract class UserActivityByEntryCountry extends BaseUserActivityAggregation[Us
 
 object HourlyUserActivityByEntryCountry extends UserActivityByEntryCountry with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_country" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_clst_country" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_country" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_entry_clst_country" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
 object MinutelyUserActivityByEntryCountry extends UserActivityByEntryCountry with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "minutely_ua_prtn_country" -> toSomeColumns(columns),
-    "minutely_ua_clst_country" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_country" -> toSomeColumns(columns),
+    "minutely_ua_prtn_entry_clst_country" -> toSomeColumns(columns)
   )
 }
 
 object TenSecsUserActivityByEntryCountry extends UserActivityByEntryCountry with IAggregateTenSecs {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "tensecs_ua_prtn_country" -> toSomeColumns(columns),
-    "tensecs_ua_clst_country" -> toSomeColumns(columns)
+    "tensecs_ua_prtn_entry_country" -> toSomeColumns(columns),
+    "tensecs_ua_prtn_entry_clst_country" -> toSomeColumns(columns)
   )
 }
 

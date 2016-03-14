@@ -26,22 +26,22 @@ abstract class UserActivityByEntryDeviceOperatingSystem extends BaseUserActivity
 
 object HourlyUserActivityByEntryDeviceOperatingSystem extends UserActivityByEntryDeviceOperatingSystem with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "hourly_ua_prtn_device_os" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_device_clst_os" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_device_os" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_entry_device_clst_os" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
 object MinutelyUserActivityByEntryDeviceOperatingSystem extends UserActivityByEntryDeviceOperatingSystem with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "minutely_ua_prtn_device_os" -> toSomeColumns(columns),
-    "minutely_ua_prtn_device_clst_os" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_device_os" -> toSomeColumns(columns),
+    "minutely_ua_prtn_entry_device_clst_os" -> toSomeColumns(columns)
   )
 }
 
 object TenSecsUserActivityByEntryDeviceOperatingSystem extends UserActivityByEntryDeviceOperatingSystem with IAggregateTenSecs {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "tensecs_ua_prtn_device_os" -> toSomeColumns(columns),
-    "tensecs_ua_prtn_device_clst_os" -> toSomeColumns(columns)
+    "tensecs_ua_prtn_entry_device_os" -> toSomeColumns(columns),
+    "tensecs_ua_prtn_entry_device_clst_os" -> toSomeColumns(columns)
   )
 }
 case class EntryDeviceOperatingSystemRes(partnerId: Int, entryId: String, metric: Int, year: Int, time: DateTime, device: Int, operatingSystem: Int, value: Long)
