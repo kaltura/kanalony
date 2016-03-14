@@ -2,7 +2,7 @@ package kanalony.storage.logic.queries
 
 import com.kaltura.model.entities.Metrics
 import kanalony.storage.logic._
-import kanalony.storage.logic.queries.model.{QueryDimensionDefinition, DimensionDefinition}
+import kanalony.storage.logic.queries.model._
 import org.joda.time.DateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -12,10 +12,25 @@ import scala.concurrent.Future
  * Created by elad.benedict on 3/7/2016.
  */
 
-class DailyQuery(internalQuery : IQuery) extends IQuery {
+class DailyQuery(queryParams: QueryParams) extends IQuery {
+
+  if (!queryParams.dimensionDefinitions.map(_.dimension).contains(Dimensions.day))
+  {
+    throw new IllegalArgumentException("DailyQuery expects query params with Dimensions.day")
+  }
+
+  val updatedQueryParams = convertQueryParams(queryParams)
+  val queryLocationResult = QueryLocator.locate(updatedQueryParams)
+
+  if (queryLocationResult.length > 1)
+  {
+    throw new IllegalArgumentException("A daily query should be mapped to exactly one hourly table")
+  }
+
+  val query = queryLocationResult.head._1
 
   val separator = "::"
-  override val supportedMetrics: Set[Metrics.Value] = internalQuery.supportedMetrics
+  override val supportedMetrics: Set[Metrics.Value] = query.supportedMetrics
 
   def getDailyGroupByKey(headers : List[String]) : (List[String]) => String = {
 
@@ -58,28 +73,25 @@ class DailyQuery(internalQuery : IQuery) extends IQuery {
   override def query(params: QueryParams): Future[List[IQueryResult]] = {
 
     // Remove the day dimension definition and replace with an hour dimension definition
+    // (while keeping the same order of dimensions)
     val internalQueryDimensionDefinitions = params.dimensionDefinitions.map(dimDef => {
-      if (dimDef.dimension.equals(Dimensions.day))
-      {
-        new QueryDimensionDefinition(Dimensions.hour, dimDef.constraint, true)
-      }
-      else
-      {
-        dimDef
-      }
+      if (dimDef.dimension.equals(Dimensions.day)) { new QueryDimensionDefinition(Dimensions.hour, dimDef.constraint, true) } // Hour must be included in result for aggregation
+      else { dimDef }
     })
 
     val internalQueryParams = QueryParams(internalQueryDimensionDefinitions, params.metrics, params.start, params.end)
+    query.query(internalQueryParams)
+         .map(qrList => qrList.map(aggregateByDay))
 
-    internalQuery
-      .query(internalQueryParams)
-      .map(qrList => qrList.map(aggregateByDay))
   }
 
-  override val dimensionInformation: List[DimensionDefinition] = {
-    internalQuery.dimensionInformation.map {
-      case DimensionDefinition(Dimensions.hour, constraint) => DimensionDefinition(Dimensions.day, constraint)
-      case dimensionDefinition: DimensionDefinition => dimensionDefinition
+  override val dimensionInformation: List[IDimensionDefinition] = queryParams.dimensionDefinitions
+
+  private def convertQueryParams(queryParams : QueryParams): QueryParams = {
+    val dimDefs = queryParams.dimensionDefinitions.map {
+      case QueryDimensionDefinition(Dimensions.day, constraint, includeInResult) => QueryDimensionDefinition(Dimensions.hour, constraint, includeInResult)
+      case dimensionDefinition: QueryDimensionDefinition => dimensionDefinition
     }
+    QueryParams(dimDefs, queryParams.metrics, queryParams.start, queryParams.end)
   }
 }
