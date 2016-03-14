@@ -40,27 +40,24 @@ object QueryLocator {
 
   def locate(queryParams: QueryParams) : List[(IQuery, List[Metrics.Value])] = {
     val requestedComputedDimensions = Dimensions.computedDimensions.intersect(queryParams.dimensionDefinitions.map(_.dimension).toSet)
-    val requestedComputedMetrics = Metrics.computedMetrics.intersect(queryParams.metrics.toSet)
+    val requestedComputedMetrics = ComputedMetrics.values.intersect(queryParams.metrics.toSet)
 
-    // Create a query for the computed metrics (locates relevant internal query recursively)
-    var res = requestedComputedMetrics.toList.flatMap(ComputedMetrics.getQueryCreator(_)(queryParams))
+    val computedMetricQueries = requestedComputedMetrics.toList.flatMap(ComputedMetrics.getQueryCreator(_)(queryParams))
 
     val nonComputedMetrics = (queryParams.metrics.toSet -- requestedComputedMetrics).toList
     // TODO: check if using a set instead of a list has a functional impact
     val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end)
 
-    res = res ::: nonComputedMetrics.flatMap(m => {
-      if (requestedComputedDimensions.nonEmpty)
-      {
-        // Create a query for the computed dimension (locates relevant internal queries recursively)
-        ComputedDimensions.getQueryCreator(requestedComputedDimensions.head)(updatedQueryParams)
-      }
-      else {
-        locateDirectQueries(updatedQueryParams)
-      }
-    })
+    val nonComputedMetricQueries = if (requestedComputedDimensions.nonEmpty)
+    {
+      // Create a query for the computed dimension (locates relevant internal queries recursively)
+      ComputedDimensions.getQueryCreator(requestedComputedDimensions.head)(updatedQueryParams)
+    }
+    else {
+      locateDirectQueries(updatedQueryParams)
+    }
 
-    res
+    computedMetricQueries ::: nonComputedMetricQueries
   }
 
   def locateDirectQueries(queryParams: QueryParams) : List[(IQuery, List[Metrics.Value])] = {

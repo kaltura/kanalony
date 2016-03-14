@@ -7,15 +7,20 @@ import kanalony.storage.logic.queries.PlayRatioQuery
  * Created by elad.benedict on 3/7/2016.
  */
 object ComputedMetrics {
+
+  private val metrics = Map((Metrics.playRatio, playRatioQueryCreator))
+
+  val values = metrics.keys.toSet
+
   def getQueryCreator(value: Metrics.Value): (QueryParams) => List[(IQuery, List[Metrics.Value])] = {
-    if (value != Metrics.playRatio)
+    if (!values.contains(value))
     {
-      throw new IllegalArgumentException("Only playRatio is currently supported")
+      throw new IllegalArgumentException(s"Unsupported computed metric ${value}")
     }
-    (qp) => {
-      // TODO: pass only metric specific metrics - no need to pass all metrics here...
-      val updatedQueryParams = PlayRatioQuery.getExpandedMetricInformation(qp)
-      QueryLocator.locate(updatedQueryParams).map(x => (new PlayRatioQuery(x._1), x._2))
-    }
+    metrics(value)
+  }
+
+  def playRatioQueryCreator: (QueryParams) => List[(IQuery, List[Metrics.Value])] = {
+    (qp) => List((new PlayRatioQuery(qp), List(Metrics.playRatio)))
   }
 }

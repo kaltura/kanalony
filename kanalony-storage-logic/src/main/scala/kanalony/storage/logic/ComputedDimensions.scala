@@ -8,15 +8,20 @@ import kanalony.storage.logic.queries.model.QueryDimensionDefinition
  * Created by elad.benedict on 3/7/2016.
  */
 object ComputedDimensions {
+
+  private val dimensions = Map((Dimensions.day, dailyQueryCreator))
+
+  val values = dimensions.keys.toSet
+
   def getQueryCreator(value: Dimensions.Value): (QueryParams) => List[(IQuery, List[Metrics.Value])] = {
-    if (value != Dimensions.day)
+    if (!values.contains(value))
     {
-      throw new IllegalArgumentException("Only day is currently supported")
+      throw new IllegalArgumentException(s"Unsupported computed dimension ${value}")
     }
-    (qp) => {
-      val updatedDimensionInformation = DailyQuery.getExpandedDimensionInformation(qp.dimensionDefinitions)
-      val updatedQueryParams = QueryParams(updatedDimensionInformation, qp.metrics, qp.start, qp.end)
-      QueryLocator.locate(updatedQueryParams).map(x => (new DailyQuery(x._1), x._2))
-    }
+    dimensions(value)
+  }
+
+  def dailyQueryCreator : (QueryParams) => List[(IQuery, List[Metrics.Value])] = {
+    (qp) => List((new DailyQuery(qp), qp.metrics))
   }
 }
