@@ -17,7 +17,7 @@ abstract class UserActivityByCustomVar3 extends BaseUserActivityAggregation[User
     (getAggrTimeUnit,"time"),
     ("value","value"))
 
-  override def aggKey(e: EnrichedPlayerEvent): UserActivityCustomVarKey = UserActivityCustomVarKey(e.partnerId, e.eventType, getAggrTime(e.eventTime), e.customVar2)
+  override def aggKey(e: EnrichedPlayerEvent): UserActivityCustomVarKey = UserActivityCustomVarKey(e.partnerId, e.eventType, getAggrTime(e.eventTime), e.customVar3)
   override def toRow(pair: (UserActivityCustomVarKey, Long)): PartnerCustomVar3 = PartnerCustomVar3(pair._1.partnerId, pair._1.cv, pair._1.metric, pair._1.time.getYear, pair._1.time, pair._2)
 
 

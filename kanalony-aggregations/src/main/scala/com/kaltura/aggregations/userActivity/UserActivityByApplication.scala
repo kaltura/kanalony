@@ -10,7 +10,7 @@ import org.joda.time.DateTime
 /**
  * Created by orlylampert on 3/2/16.
  */
-abstract class UserActivityByApplication extends BaseUserActivityAggregation[UserActivityApplicationKey, EntryApplicationRes] with IAggregate with Serializable{
+abstract class UserActivityByApplication extends BaseUserActivityAggregation[UserActivityApplicationKey, PartnerApplicationRes] with IAggregate with Serializable{
   val columns: List[(String, String)] = List[(String, String)](
     ("partner_id","partner_id"),
     ("application","application"),
@@ -20,7 +20,7 @@ abstract class UserActivityByApplication extends BaseUserActivityAggregation[Use
 
 
   override def aggKey(e: EnrichedPlayerEvent): UserActivityApplicationKey = UserActivityApplicationKey(e.partnerId, e.eventType, getAggrTime(e.eventTime), e.application)
-  override def toRow(pair: (UserActivityApplicationKey, Long)): EntryApplicationRes = EntryApplicationRes(partnerId = pair._1.partnerId, application = pair._1.application, metric = pair._1.metric, year = pair._1.time.getYear, time = pair._1.time, value = pair._2)
+  override def toRow(pair: (UserActivityApplicationKey, Long)): PartnerApplicationRes = PartnerApplicationRes(partnerId = pair._1.partnerId, application = pair._1.application, metric = pair._1.metric, year = pair._1.time.getYear, time = pair._1.time, value = pair._2)
 
 }
 
@@ -46,4 +46,4 @@ object TenSecsUserActivityByApplication extends UserActivityByApplication with I
   )
 }
 
-case class EntryApplicationRes(partnerId: Int, metric: Int, year: Int, time: DateTime, application: String, value: Long)
+case class PartnerApplicationRes(partnerId: Int, metric: Int, year: Int, time: DateTime, application: String, value: Long)

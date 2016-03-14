@@ -6,7 +6,7 @@ import com.kaltura.aggregations.keys.UserActivityPlaybackContextKey
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.joda.time.DateTime
 
-abstract class UserActivityByPlaybackContext extends BaseUserActivityAggregation[UserActivityPlaybackContextKey, EntryPlaybackContextRes] with IAggregate with Serializable{
+abstract class UserActivityByPlaybackContext extends BaseUserActivityAggregation[UserActivityPlaybackContextKey, PartnerPlaybackContextRes] with IAggregate with Serializable{
   val columns: List[(String, String)] = List[(String, String)](
     ("partner_id","partnerId"),
     ("playback_context","playbackContext"),
@@ -16,7 +16,7 @@ abstract class UserActivityByPlaybackContext extends BaseUserActivityAggregation
 
 
   override def aggKey(e: EnrichedPlayerEvent): UserActivityPlaybackContextKey = UserActivityPlaybackContextKey(e.partnerId, e.eventType, getAggrTime(e.eventTime), e.playbackContext)
-  override def toRow(pair: (UserActivityPlaybackContextKey, Long)): EntryPlaybackContextRes = EntryPlaybackContextRes(partnerId = pair._1.partnerId, playbackContext = pair._1.playbackContext, metric = pair._1.metric, year = pair._1.time.getYear, time = pair._1.time, value = pair._2)
+  override def toRow(pair: (UserActivityPlaybackContextKey, Long)): PartnerPlaybackContextRes = PartnerPlaybackContextRes(partnerId = pair._1.partnerId, playbackContext = pair._1.playbackContext, metric = pair._1.metric, year = pair._1.time.getYear, time = pair._1.time, value = pair._2)
 
 }
 
@@ -42,4 +42,4 @@ object TenSecsUserActivityByPlaybackContext extends UserActivityByPlaybackContex
   )
 }
 
-case class EntryPlaybackContextRes(partnerId: Int, metric: Int, year: Int, time: DateTime, playbackContext: String, value: Long)
+case class PartnerPlaybackContextRes(partnerId: Int, metric: Int, year: Int, time: DateTime, playbackContext: String, value: Long)
