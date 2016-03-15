@@ -26,14 +26,17 @@ abstract class UserActivityByEntryApplicationPlaybackContext extends BaseUserAct
 object HourlyUserActivityByEntryApplicationPlaybackContext extends UserActivityByEntryApplicationPlaybackContext with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_app_clst_playback_context" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_app_playback_context" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_app_playback_context" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_app_playback_context_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
+
   )
 }
 
 object MinutelyUserActivityByEntryApplicationPlaybackContext extends UserActivityByEntryApplicationPlaybackContext with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_app_clst_playback_context" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_app_playback_context" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_app_playback_context" -> toSomeColumns(columns),
+    "minutely_ua_prtn_app_playback_context_clst_entry" -> toSomeColumns(columns)
   )
 }
 

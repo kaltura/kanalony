@@ -2,9 +2,8 @@ package com.kaltura.aggregations.userActivity
 
 import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.{IAggregateTenSecs, IAggregateMinutely, IAggregate, IAggregateHourly}
-import com.kaltura.aggregations.keys.{UserActivityEntryApplicationKey, UserActivityApplicationKey}
+import com.kaltura.aggregations.keys.UserActivityEntryApplicationKey
 import com.kaltura.model.events.EnrichedPlayerEvent
-import kanalony.storage.generated.hourly_ua_prtn_applicationRow
 import org.joda.time.DateTime
 
 /**
@@ -29,14 +28,18 @@ abstract class UserActivityByEntryApplication extends BaseUserActivityAggregatio
 object HourlyUserActivityByEntryApplication extends UserActivityByEntryApplication with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_app" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_clst_app" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_clst_app" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_app_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
+
   )
 }
 
 object MinutelyUserActivityByEntryApplication extends UserActivityByEntryApplication with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_app" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_clst_app" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_clst_app" -> toSomeColumns(columns),
+    "minutely_ua_prtn_app_clst_entry" -> toSomeColumns(columns)
+
   )
 }
 

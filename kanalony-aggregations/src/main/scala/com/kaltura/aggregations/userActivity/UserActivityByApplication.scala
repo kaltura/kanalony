@@ -4,7 +4,6 @@ import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.{IAggregateTenSecs, IAggregateMinutely, IAggregate, IAggregateHourly}
 import com.kaltura.aggregations.keys.UserActivityApplicationKey
 import com.kaltura.model.events.EnrichedPlayerEvent
-import kanalony.storage.generated.hourly_ua_prtn_applicationRow
 import org.joda.time.DateTime
 
 /**

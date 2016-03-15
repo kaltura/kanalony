@@ -1,6 +1,7 @@
 package com.kaltura.aggregations.userActivity
 
 import com.datastax.spark.connector.{SomeColumns, _}
+import com.kaltura.aggregations.userActivity.HourlyUserActivityByEntryBrowser._
 import com.kaltura.aggregations.{IAggregateMinutely, IAggregateTenSecs, IAggregate, IAggregateHourly}
 import com.kaltura.aggregations.keys.{UserActivityEntryCountryKey, UserActivityCountryKey}
 import com.kaltura.model.events.EnrichedPlayerEvent
@@ -26,14 +27,18 @@ abstract class UserActivityByEntryCountry extends BaseUserActivityAggregation[Us
 object HourlyUserActivityByEntryCountry extends UserActivityByEntryCountry with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_country" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_clst_country" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_clst_country" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_country_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
+
   )
 }
 
 object MinutelyUserActivityByEntryCountry extends UserActivityByEntryCountry with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_country" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_clst_country" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_clst_country" -> toSomeColumns(columns),
+    "minutely_ua_prtn_country_clst_entry" -> toSomeColumns(columns)
+
   )
 }
 

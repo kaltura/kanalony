@@ -25,14 +25,17 @@ abstract class UserActivityByEntryOperatingSystem extends BaseUserActivityAggreg
 object HourlyUserActivityByEntryOperatingSystem extends UserActivityByEntryOperatingSystem with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_os" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_clst_os" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_clst_os" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_os_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
 object MinutelyUserActivityByEntryOperatingSystem extends UserActivityByEntryOperatingSystem with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_os" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_clst_os" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_clst_os" -> toSomeColumns(columns),
+    "minutely_ua_prtn_os_clst_entry" -> toSomeColumns(columns)
+
   )
 }
 

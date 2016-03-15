@@ -28,7 +28,9 @@ object HourlyUserActivityByEntryCustomVar1 extends UserActivityByEntryCustomVar1
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_cv1" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_clst_cv1" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_clst_cv1" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_cv1_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
+
   )
 }
 
@@ -36,7 +38,8 @@ object MinutelyUserActivityByEntryCustomVar1 extends UserActivityByEntryCustomVa
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_cv1" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_clst_cv1" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_clst_cv1" -> toSomeColumns(columns),
+    "minutely_ua_prtn_cv1_clst_entry" -> toSomeColumns(columns)
   )
 }
 

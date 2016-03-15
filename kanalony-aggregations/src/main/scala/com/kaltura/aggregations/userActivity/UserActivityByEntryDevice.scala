@@ -26,14 +26,17 @@ abstract class UserActivityByEntryDevice extends BaseUserActivityAggregation[Use
 object HourlyUserActivityByEntryDevice extends UserActivityByEntryDevice with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_device" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_clst_device" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_clst_device" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_device_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
 object MinutelyUserActivityByEntryDevice extends UserActivityByEntryDevice with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_device" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_clst_device" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_clst_device" -> toSomeColumns(columns),
+    "minutely_ua_prtn_device_clst_entry" -> toSomeColumns(columns)
+
   )
 }
 

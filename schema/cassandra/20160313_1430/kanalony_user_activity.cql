@@ -1990,7 +1990,6 @@ CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_entry_clst_cv
     PRIMARY KEY ((partner_id, entry_id, metric), minute, custom_var3)
 ) WITH CLUSTERING ORDER BY (minute DESC, custom_var3 ASC);
 
-****************
 CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_entry_clst_cv2 (
     partner_id int,
     entry_id text,
@@ -2088,4 +2087,453 @@ CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_entry_app (
     value bigint,
     PRIMARY KEY ((partner_id, entry_id, application, metric, year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_category (
+    partner_id int,
+    category text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, category, metric, year), hour)
+) WITH CLUSTERING ORDER BY (hour DESC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_clst_category (
+    partner_id int,
+    metric int,
+    year int,
+    hour timestamp,
+    category text,
+    value bigint,
+    PRIMARY KEY ((partner_id, metric, year), hour, category)
+) WITH CLUSTERING ORDER BY (hour DESC, category ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_category (
+    partner_id int,
+    category text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, category, metric), minute)
+) WITH CLUSTERING ORDER BY (minute DESC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_clst_category (
+    partner_id int,
+    metric int,
+    minute timestamp,
+    category text,
+    value bigint,
+    PRIMARY KEY ((partner_id, metric), minute, category)
+) WITH CLUSTERING ORDER BY (minute DESC, category ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.tensecs_ua_prtn_category (
+    partner_id int,
+    category text,
+    metric int,
+    tensecs timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, category, metric), tensecs)
+) WITH CLUSTERING ORDER BY (tensecs DESC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.tensecs_ua_clst_category (
+    partner_id int,
+    metric int,
+    tensecs timestamp,
+    category text,
+    value bigint,
+    PRIMARY KEY ((partner_id, metric), tensecs, category)
+) WITH CLUSTERING ORDER BY (tensecs DESC, category ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_category_clst_entry (
+    partner_id int,
+    entry_id text,
+    category text,
+    metric int,
+    month int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, category, month, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_category_clst_entry (
+    partner_id int,
+    entry_id text,
+    category text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, category, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_app_clst_entry (
+    partner_id int,
+    entry_id text,
+    application text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, application, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_app_clst_entry (
+    partner_id int,
+    entry_id text,
+    application text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, application, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_app_playback_context_clst_entry (
+    partner_id int,
+    entry_id text,
+    application text,
+    playback_context text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, application, playback_context, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_app_playback_context_clst_entry (
+    partner_id int,
+    entry_id text,
+    application text,
+    playback_context text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, application, playback_context, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_browser_clst_entry (
+    partner_id int,
+    entry_id text,
+    browser int,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, browser, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_browser_clst_entry (
+    partner_id int,
+    entry_id text,
+    browser int,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, browser, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_country_clst_entry (
+    partner_id int,
+    entry_id text,
+    country text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, country, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_country_clst_entry (
+    partner_id int,
+    entry_id text,
+    country text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, country, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_country_city_clst_entry (
+    partner_id int,
+    entry_id text,
+    country text,
+    city text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, country, city, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_country_city_clst_entry (
+    partner_id int,
+    entry_id text,
+    country text,
+    city text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, country, city, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_cv1_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var1 text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var1, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_cv1_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var1 text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var1, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_cv2_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var2 text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var2, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_cv2_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var2 text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var2, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_cv3_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var3 text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var3, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_cv3_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var3 text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var3, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_cv1_cv2_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var1 text,
+    custom_var2 text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var1, custom_var2, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_cv1_cv2_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var1 text,
+    custom_var2 text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var1, custom_var2, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_cv1_cv2_cv3_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var1 text,
+    custom_var2 text,
+    custom_var3 text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var1, custom_var2, custom_var3, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_cv1_cv2_cv3_clst_entry (
+    partner_id int,
+    entry_id text,
+    custom_var1 text,
+    custom_var2 text,
+    custom_var3 text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, custom_var1, custom_var2, custom_var3, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_device_clst_entry (
+    partner_id int,
+    entry_id text,
+    device int,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, device, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_device_clst_entry (
+    partner_id int,
+    entry_id text,
+    device int,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, device, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_device_os_clst_entry (
+    partner_id int,
+    entry_id text,
+    device text,
+    operating_system text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, device, operating_system, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_device_os_clst_entry (
+    partner_id int,
+    entry_id text,
+    device text,
+    operating_system text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, device, operating_system, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_domain_clst_entry (
+    partner_id int,
+    entry_id text,
+    domain text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, domain, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_domain_clst_entry (
+    partner_id int,
+    entry_id text,
+    domain text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, domain, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_referrer_clst_entry (
+    partner_id int,
+    entry_id text,
+    referrer text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, referrer, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_referrer_clst_entry (
+    partner_id int,
+    entry_id text,
+    referrer text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, referrer, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_os_clst_entry (
+    partner_id int,
+    entry_id text,
+    operating_system int,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, operating_system, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_os_clst_entry (
+    partner_id int,
+    entry_id text,
+    operating_system int,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, operating_system, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_os_browser_clst_entry (
+    partner_id int,
+    entry_id text,
+    operating_system text,
+    browser text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, operating_system, browser, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_os_browser_clst_entry (
+    partner_id int,
+    entry_id text,
+    operating_system text,
+    browser text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, operating_system, browser, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.hourly_ua_prtn_playback_context_clst_entry (
+    partner_id int,
+    entry_id text,
+    playback_context text,
+    metric int,
+    year int,
+    hour timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, playback_context, year, metric), hour, entry_id)
+) WITH CLUSTERING ORDER BY (hour DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_playback_context_clst_entry (
+    partner_id int,
+    entry_id text,
+    playback_context text,
+    metric int,
+    minute timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, playback_context, metric), minute, entry_id)
+) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
 

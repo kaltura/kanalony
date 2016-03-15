@@ -28,14 +28,18 @@ abstract class UserActivityByEntryBrowser extends BaseUserActivityAggregation[Us
 object HourlyUserActivityByEntryBrowser extends UserActivityByEntryBrowser with IAggregateHourly {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_browser" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_clst_browser" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_clst_browser" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_browser_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
+
   )
 }
 
 object MinutelyUserActivityByEntryBrowser extends UserActivityByEntryBrowser with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_browser" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_clst_browser" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_clst_browser" -> toSomeColumns(columns),
+    "minutely_ua_prtn_browser_clst_entry" -> toSomeColumns(columns)
+
   )
 }
 

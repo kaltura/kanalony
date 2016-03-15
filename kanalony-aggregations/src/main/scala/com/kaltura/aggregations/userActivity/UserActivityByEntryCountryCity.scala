@@ -26,7 +26,8 @@ object HourlyUserActivityByEntryCountryCity extends UserActivityByEntryCountryCi
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_country_city" -> toSomeColumns(columns :+ ("year", "year")),
     "hourly_ua_prtn_entry_clst_country_city" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_country_clst_city" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_country_clst_city" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_country_city_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
@@ -34,7 +35,8 @@ object MinutelyUserActivityByEntryCountryCity extends UserActivityByEntryCountry
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_country_city" -> toSomeColumns(columns),
     "minutely_ua_prtn_entry_clst_country_city" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_country_clst_city" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_country_clst_city" -> toSomeColumns(columns),
+    "minutely_ua_prtn_country_city_clst_entry" -> toSomeColumns(columns)
 
   )
 }

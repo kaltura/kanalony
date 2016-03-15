@@ -24,7 +24,8 @@ object HourlyUserActivityByEntryDomainReferrer extends UserActivityByEntryDomain
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_referrer" -> toSomeColumns(columns :+ ("year", "year")),
     "hourly_ua_prtn_entry_clst_referrer" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_domain_clst_referrer" -> toSomeColumns(columns :+ ("year", "year") :+ ("domain", "domain"))
+    "hourly_ua_prtn_entry_domain_clst_referrer" -> toSomeColumns(columns :+ ("year", "year") :+ ("domain", "domain")),
+    "hourly_ua_prtn_referrer_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
@@ -32,7 +33,8 @@ object MinutelyUserActivityByEntryDomainReferrer extends UserActivityByEntryDoma
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_referrer" -> toSomeColumns(columns),
     "minutely_ua_prtn_entry_clst_referrer" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_domain_clst_referrer" -> toSomeColumns(columns :+ ("domain", "domain"))
+    "minutely_ua_prtn_entry_domain_clst_referrer" -> toSomeColumns(columns :+ ("domain", "domain")),
+    "minutely_ua_prtn_referrer_clst_entry" -> toSomeColumns(columns)
   )
 }
 

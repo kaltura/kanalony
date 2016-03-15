@@ -1,6 +1,8 @@
 package com.kaltura.aggregations.userActivity
 
 import com.datastax.spark.connector.{SomeColumns, _}
+import com.kaltura.aggregations.userActivity.HourlyUserActivityByEntryCustomVar1._
+import com.kaltura.aggregations.userActivity.MinutelyUserActivityByEntryCustomVar1._
 import com.kaltura.aggregations.{IAggregateTenSecs, IAggregateMinutely, IAggregate, IAggregateHourly}
 import com.kaltura.aggregations.keys.{UserActivityEntryCustomVarKey, UserActivityCustomVarKey}
 import com.kaltura.model.events.EnrichedPlayerEvent
@@ -28,7 +30,8 @@ object HourlyUserActivityByEntryCustomVar3 extends UserActivityByEntryCustomVar3
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_cv3" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_entry_clst_cv3" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_entry_clst_cv3" -> toSomeColumns(columns :+ ("year", "year")),
+    "hourly_ua_prtn_cv3_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
   )
 }
 
@@ -36,7 +39,8 @@ object MinutelyUserActivityByEntryCustomVar3 extends UserActivityByEntryCustomVa
 
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_cv3" -> toSomeColumns(columns),
-    "minutely_ua_prtn_entry_clst_cv3" -> toSomeColumns(columns)
+    "minutely_ua_prtn_entry_clst_cv3" -> toSomeColumns(columns),
+    "minutely_ua_prtn_cv3_clst_entry" -> toSomeColumns(columns)
   )
 }
 
