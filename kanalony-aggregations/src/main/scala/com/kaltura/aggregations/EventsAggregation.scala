@@ -71,6 +71,8 @@ object EventsAggregation extends App with Logging {
     MinutelyUserActivityByApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByCategory.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByCategory.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByCountry.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByCountry.aggregate(parsedEnrichedEvents)
     TenSecsUserActivityByCountry.aggregate(parsedEnrichedEvents)
@@ -120,6 +122,7 @@ object EventsAggregation extends App with Logging {
     MinutelyUserActivityByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByEntryBrowser.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByEntryBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByEntryCategory.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByEntryCountry.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByEntryCountry.aggregate(parsedEnrichedEvents)
     TenSecsUserActivityByEntryCountry.aggregate(parsedEnrichedEvents)
@@ -152,7 +155,6 @@ object EventsAggregation extends App with Logging {
     MinutelyUserActivityByEntryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByEntryPlaybackContext.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByEntryPlaybackContext.aggregate(parsedEnrichedEvents)
-
     ssc
   }
 
