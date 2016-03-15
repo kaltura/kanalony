@@ -24,7 +24,7 @@ object QueryExecutor {
 
   def combineMetrics(resultMetrics: List[Metrics.Value]): (String, Iterable[(List[String], String)]) => List[String] = {
     (groping, rowsWithSameMetric) => {
-      var resultantRow = groping.split(groupingSeparator).toList
+      var resultantRow = if (groping equals "") { List() } else { groping.split(groupingSeparator).toList }
       resultMetrics.foreach(metric => {
         rowsWithSameMetric
           .find(_._2 eq metric.toString)

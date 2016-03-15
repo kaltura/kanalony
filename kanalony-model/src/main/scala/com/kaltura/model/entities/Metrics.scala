@@ -16,4 +16,5 @@ object Metrics extends Enumeration {
   uniquePlayerSessionId, uniqueVideos, view, dvrView, peakView,
   peakDvrView, bufferingTime, averageActualBitrate, averageViewDuration,
   estimatedMinutesWatched, loadToPlayTime = Value
+  val tenSecsViewed = Value(99) // TODO: move to another enum
 }

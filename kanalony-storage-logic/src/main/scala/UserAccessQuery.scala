@@ -10,5 +10,5 @@ trait UserActivityQuery extends IQuery{
     Metrics.playThrough75,Metrics.playThrough100,Metrics.averageViewDropOff,
     Metrics.segmentsWatched,Metrics.percentageWatched,Metrics.view,Metrics.dvrView,Metrics.peakView,
     Metrics.peakDvrView,Metrics.bufferingTime,Metrics.averageActualBitrate,
-    Metrics.loadToPlayTime)
+    Metrics.loadToPlayTime, Metrics.tenSecsViewed)
 }
