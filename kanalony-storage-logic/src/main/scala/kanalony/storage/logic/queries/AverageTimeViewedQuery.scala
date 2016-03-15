@@ -13,6 +13,7 @@ class AverageTimeViewedQuery(queryParams: QueryParams) extends ComputedQuery(Int
   override def computeValue(groupMetricsValues: List[SingleMetricValue]): Double = {
     val estimatedMinutesWatched = groupMetricsValues.find(_.metric == InternalMetrics.estimatedMinutesWatched).get.value
     val plays = groupMetricsValues.find(_.metric == InternalMetrics.play).get.value
-    estimatedMinutesWatched/60/plays
+    if (plays == 0) { 0 }
+    else { estimatedMinutesWatched/60/plays }
   }
 }
