@@ -1,6 +1,6 @@
 package controllers
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.{InternalMetrics, Metrics}
 import kanalony.storage.logic.queries.model._
 import kanalony.storage.logic._
 import model._
@@ -9,7 +9,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import model.Implicits._
 import play.api.mvc._
 import argonaut._
-import Argonaut._
 import scala.concurrent._
 
 class Application extends Controller {
@@ -80,8 +79,9 @@ class Application extends Controller {
     }
   }
 
-  def extractMetrics(metrics : List[String]): List[Metrics.Value] = {
-    extractValues(metrics, Metrics.withName(_), metric => new InvalidMetricsException(s"Metric $metric not supported"))
+  def extractMetrics(metrics : List[String]): List[InternalMetrics.Value] = {
+    val externallyAvailableMetrics = extractValues(metrics, Metrics.withName(_), metric => new InvalidMetricsException(s"Metric $metric not supported"))
+    externallyAvailableMetrics.map(m => InternalMetrics.withName(m.toString))
   }
 
   def extractDimension(dimension : String): Dimensions.Value = {

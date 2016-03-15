@@ -1,6 +1,6 @@
 package kanalony.storage.logic.queries
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
 import kanalony.storage.logic._
 import kanalony.storage.logic.queries.model.IDimensionDefinition
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -11,7 +11,7 @@ import scala.concurrent.Future
  */
 class EstimatedMinutesWatchedQuery(queryParams: QueryParams) extends IQuery {
 
-  if (!queryParams.metrics.contains(Metrics.estimatedMinutesWatched))
+  if (!queryParams.metrics.contains(InternalMetrics.estimatedMinutesWatched))
   {
     throw new IllegalArgumentException("EstimatedMinutesWatchedQuery expects query params with Metrics.estimatedMinutesWatched")
   }
@@ -19,16 +19,16 @@ class EstimatedMinutesWatchedQuery(queryParams: QueryParams) extends IQuery {
   val updatedQueryParams = convertQueryParams(queryParams)
   val query = QueryLocator.locate(updatedQueryParams).head._1
 
-  override val supportedMetrics: Set[Metrics.Value] = Set(Metrics.estimatedMinutesWatched)
+  override val supportedMetrics: Set[InternalMetrics.Value] = Set(InternalMetrics.estimatedMinutesWatched)
 
   override def query(params: QueryParams): Future[List[IQueryResult]] = {
-    query.query(QueryParams(params.dimensionDefinitions, List(Metrics.tenSecsViewed), params.start, params.end))
+    query.query(QueryParams(params.dimensionDefinitions, List(InternalMetrics.tenSecsViewed), params.start, params.end))
          .map(_.map(convertToMinutes))
   }
 
   def convertToMinutes: (IQueryResult) => IQueryResult = {
     qr => {
-      val resultHeaders = qr.headers.take(qr.headers.length - 1) :+ Metrics.estimatedMinutesWatched.toString
+      val resultHeaders = qr.headers.take(qr.headers.length - 1) :+ InternalMetrics.estimatedMinutesWatched.toString
       val rows = qr.rows.map(convertRowToMinutes)
       QueryResult(resultHeaders, rows)
     }
@@ -44,6 +44,6 @@ class EstimatedMinutesWatchedQuery(queryParams: QueryParams) extends IQuery {
   override val dimensionInformation: List[IDimensionDefinition] = queryParams.dimensionDefinitions
 
   private def convertQueryParams(queryParams : QueryParams): QueryParams = {
-    QueryParams(queryParams.dimensionDefinitions, List(Metrics.tenSecsViewed), queryParams.start, queryParams.end)
+    QueryParams(queryParams.dimensionDefinitions, List(InternalMetrics.tenSecsViewed), queryParams.start, queryParams.end)
   }
 }

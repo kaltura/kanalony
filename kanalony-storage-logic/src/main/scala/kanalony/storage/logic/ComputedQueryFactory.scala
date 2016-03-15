@@ -1,13 +1,13 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
 
 /**
  * Created by elad.benedict on 3/7/2016.
  */
 
 abstract class ComputedQueryFactory[T] {
-  type QueryCreator = (QueryParams) => List[(IQuery, List[Metrics.Value])]
+  type QueryCreator = (QueryParams) => List[(IQuery, List[InternalMetrics.Value])]
   protected val queryCreatorGetter : Map[T,QueryCreator]
   def getErrorMessage(value : T) : String
 

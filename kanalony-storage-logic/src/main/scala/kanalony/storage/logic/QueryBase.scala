@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
 import kanalony.storage.generated._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -54,7 +54,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
     queryResult => {
       val headerDimensionIndexes = getGroupDimensionIndexes(queryResult)
-      val resultHeaders = resultDimensions.map(_.toString) :+ Metrics(metric).toString
+      val resultHeaders = resultDimensions.map(_.toString) :+ InternalMetrics(metric).toString
       val groupedData = queryResult.rows.groupBy(getGroupByKey(headerDimensionIndexes))
 
       val resultRows = groupedData.toList.map((group: (String, List[List[String]])) => {

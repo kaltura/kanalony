@@ -1,6 +1,6 @@
 package kanalony.storage.logic.queries
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
 import kanalony.storage.logic._
 import kanalony.storage.logic.queries.model._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -11,7 +11,7 @@ import scala.concurrent.Future
  */
 class PlayRatioQuery(queryParams : QueryParams) extends IQuery {
 
-  if (!queryParams.metrics.contains(Metrics.playRatio))
+  if (!queryParams.metrics.contains(InternalMetrics.playRatio))
   {
     throw new IllegalArgumentException("PlayRatioQuery expects query params with Metrics.playRatio")
   }
@@ -20,14 +20,14 @@ class PlayRatioQuery(queryParams : QueryParams) extends IQuery {
   val queryLocationResult = QueryLocator.locate(updatedQueryParams)
 
   // All requested metrics must be available - otherwise QueryLocator would throw an exception
-  val internalPlayQuery = queryLocationResult.find(_._2 contains(Metrics.play)).get._1
-  val internalPlayImpressionQuery = queryLocationResult.find(_._2 contains(Metrics.playImpression)).get._1
+  val internalPlayQuery = queryLocationResult.find(_._2 contains(InternalMetrics.play)).get._1
+  val internalPlayImpressionQuery = queryLocationResult.find(_._2 contains(InternalMetrics.playImpression)).get._1
 
-  override val supportedMetrics: Set[Metrics.Value] = Set(Metrics.playRatio)
+  override val supportedMetrics: Set[InternalMetrics.Value] = Set(InternalMetrics.playRatio)
 
   override def query(params: QueryParams): Future[List[IQueryResult]] = {
-    val playResultFuture = internalPlayQuery.query(QueryParams(params.dimensionDefinitions, List(Metrics.play), params.start, params.end))
-    val playImpressionResultFuture = internalPlayImpressionQuery.query(QueryParams(params.dimensionDefinitions, List(Metrics.playImpression), params.start, params.end))
+    val playResultFuture = internalPlayQuery.query(QueryParams(params.dimensionDefinitions, List(InternalMetrics.play), params.start, params.end))
+    val playImpressionResultFuture = internalPlayImpressionQuery.query(QueryParams(params.dimensionDefinitions, List(InternalMetrics.playImpression), params.start, params.end))
 
     for {
       playsResult <- playResultFuture
@@ -62,14 +62,14 @@ class PlayRatioQuery(queryParams : QueryParams) extends IQuery {
       groupData :+ groupMetricValue.getOrElse(0).toString
     }).toList
 
-    val resultHeaders = playsQueryResult.headers.take(playsQueryResult.headers.length - 1) :+ Metrics.playRatio.toString
+    val resultHeaders = playsQueryResult.headers.take(playsQueryResult.headers.length - 1) :+ InternalMetrics.playRatio.toString
     List(QueryResult(resultHeaders, resultRows))
   }
 
   override val dimensionInformation: List[IDimensionDefinition] = queryParams.dimensionDefinitions
 
   private def convertQueryParams(queryParams : QueryParams): QueryParams = {
-    QueryParams(queryParams.dimensionDefinitions, List(Metrics.play, Metrics.playImpression), queryParams.start, queryParams.end)
+    QueryParams(queryParams.dimensionDefinitions, List(InternalMetrics.play, InternalMetrics.playImpression), queryParams.start, queryParams.end)
   }
 }
 
