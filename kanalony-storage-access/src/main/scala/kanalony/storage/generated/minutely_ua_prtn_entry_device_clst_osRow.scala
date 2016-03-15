@@ -5,5 +5,5 @@ entry_id:String,
 device:Int,
 metric:Int,
 minute:DateTime,
-os:Int,
+operating_system:Int,
 value:Long)
