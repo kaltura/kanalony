@@ -17,6 +17,5 @@ object InternalMetrics extends Enumeration {
   peakDvrView, bufferingTime, averageActualBitrate, averageViewDuration,
   estimatedMinutesWatched, loadToPlayTime = Value
   val tenSecsViewed = Value(99)
+  val actualBitrate = Value(1000)
 }
-
-

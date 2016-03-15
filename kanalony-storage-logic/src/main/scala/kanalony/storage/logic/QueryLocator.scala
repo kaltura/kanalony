@@ -47,6 +47,11 @@ object QueryLocator {
     val nonComputedMetrics = queryParams.metrics.toSet -- requestedComputedMetrics
     val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end)
 
+    if (nonComputedMetrics.isEmpty)
+    {
+      return computedMetricQueries
+    }
+
     val nonComputedMetricQueries = if (requestedComputedDimensions.nonEmpty)
     {
       // Create a query for the computed dimension (locates relevant internal queries recursively)
