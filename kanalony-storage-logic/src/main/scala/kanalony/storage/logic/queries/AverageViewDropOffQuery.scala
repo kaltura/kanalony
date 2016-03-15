@@ -16,6 +16,7 @@ class AverageViewDropOffQuery(queryParams: QueryParams) extends ComputedQuery(In
     val playThrough50 = groupMetricsValues.find(_.metric == InternalMetrics.playThrough50).get.value
     val playThrough75 = groupMetricsValues.find(_.metric == InternalMetrics.playThrough75).get.value
     val playThrough100 = groupMetricsValues.find(_.metric == InternalMetrics.playThrough100).get.value
-    (0.25*playThrough25 + 0.25*playThrough50 + 0.25*playThrough75 + 0.25*playThrough100) / plays
+    if (plays == 0) { 0 }
+    else { (0.25*playThrough25 + 0.25*playThrough50 + 0.25*playThrough75 + 0.25*playThrough100) / plays }
   }
 }
