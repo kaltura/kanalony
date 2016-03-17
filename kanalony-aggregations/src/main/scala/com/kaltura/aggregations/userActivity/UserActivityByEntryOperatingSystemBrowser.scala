@@ -5,7 +5,7 @@ import com.kaltura.aggregations.{IAggregateTenSecs, IAggregateMinutely, IAggrega
 import com.kaltura.aggregations.keys.{UserActivityEntryOperatingSystemBrowserKey, UserActivityOperatingSystemBrowserKey}
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.joda.time.DateTime
-
+import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
 
 abstract class UserActivityByEntryOperatingSystemBrowser extends BaseUserActivityAggregation[UserActivityEntryOperatingSystemBrowserKey, EntryOperatingSystemBrowserRes] with IAggregate with Serializable {
 
@@ -19,7 +19,7 @@ abstract class UserActivityByEntryOperatingSystemBrowser extends BaseUserActivit
     ("value","value"))
 
   override def aggKey(e: EnrichedPlayerEvent): UserActivityEntryOperatingSystemBrowserKey = UserActivityEntryOperatingSystemBrowserKey(e.partnerId, e.entryId, e.eventType, getAggrTime(e.eventTime), e.userAgent.operatingSystem.id, e.userAgent.browser.id)
-  override def toRow(pair: (UserActivityEntryOperatingSystemBrowserKey, Long)): EntryOperatingSystemBrowserRes = EntryOperatingSystemBrowserRes(partnerId = pair._1.partnerId, entryId = pair._1.entryId, operatingSystem = pair._1.operatingSystem, browser = pair._1.browser, metric = pair._1.metric, year = pair._1.time.getYear, time = pair._1.time, value = pair._2)
+  override def toRow(pair: (UserActivityEntryOperatingSystemBrowserKey, Long)): EntryOperatingSystemBrowserRes = EntryOperatingSystemBrowserRes(partnerId = pair._1.partnerId, entryId = pair._1.entryId, operatingSystem = pair._1.operatingSystem, browser = pair._1.browser, metric = pair._1.metric, year = pair._1.time getYear, month = pair._1.time getYearMonth, day = pair._1.time getYearMonthDay, time = pair._1.time, value = pair._2)
 
 }
 
@@ -27,7 +27,7 @@ object HourlyUserActivityByEntryOperatingSystemBrowser extends UserActivityByEnt
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "hourly_ua_prtn_entry_os_browser" -> toSomeColumns(columns :+ ("year", "year")),
     "hourly_ua_prtn_entry_os_clst_browser" -> toSomeColumns(columns :+ ("year", "year")),
-    "hourly_ua_prtn_os_browser_clst_entry" -> toSomeColumns(columns :+ ("year", "year"))
+    "hourly_ua_prtn_os_browser_clst_entry" -> toSomeColumns(columns :+ ("month", "month"))
   )
 }
 
@@ -35,7 +35,7 @@ object MinutelyUserActivityByEntryOperatingSystemBrowser extends UserActivityByE
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_ua_prtn_entry_os_browser" -> toSomeColumns(columns),
     "minutely_ua_prtn_entry_os_clst_browser" -> toSomeColumns(columns),
-    "minutely_ua_prtn_os_browser_clst_entry" -> toSomeColumns(columns)
+    "minutely_ua_prtn_os_browser_clst_entry" -> toSomeColumns(columns :+ ("day", "day"))
   )
 }
 
@@ -46,5 +46,5 @@ object TenSecsUserActivityByEntryOperatingSystemBrowser extends UserActivityByEn
   )
 }
 
-case class EntryOperatingSystemBrowserRes(partnerId: Int, entryId: String, metric: Int, year: Int, time: DateTime, operatingSystem: Int, browser: Int, value: Long)
+case class EntryOperatingSystemBrowserRes(partnerId: Int, entryId: String, metric: Int, year: Int, month: Int, day: Int, time: DateTime, operatingSystem: Int, browser: Int, value: Long)
 

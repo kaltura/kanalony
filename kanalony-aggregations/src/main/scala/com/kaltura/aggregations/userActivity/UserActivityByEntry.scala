@@ -5,6 +5,7 @@ import com.kaltura.aggregations.{IAggregateTenSecs, IAggregateMinutely, IAggrega
 import com.kaltura.aggregations.keys.UserActivityEntryKey
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.joda.time.DateTime
+import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
 
 abstract class UserActivityByEntry extends BaseUserActivityAggregation[UserActivityEntryKey, PartnerEntryRes] with IAggregate with Serializable {
 
@@ -17,7 +18,7 @@ abstract class UserActivityByEntry extends BaseUserActivityAggregation[UserActiv
 
   // TODO - dropped month column temporarily
   override def aggKey(e: EnrichedPlayerEvent): UserActivityEntryKey = UserActivityEntryKey(e.partnerId, e.entryId, e.eventType, getAggrTime(e.eventTime))
-  override def toRow(pair: (UserActivityEntryKey, Long)): PartnerEntryRes = PartnerEntryRes(partnerId = pair._1.partnerId, entryId = pair._1.entryId, metric = pair._1.metric, month = (pair._1.time.getYear*100 + pair._1.time.getMonthOfYear),day = (pair._1.time.getYear*100 + pair._1.time.getMonthOfYear)*100 + pair._1.time.getDayOfWeek, time = pair._1.time, value = pair._2)
+  override def toRow(pair: (UserActivityEntryKey, Long)): PartnerEntryRes = PartnerEntryRes(partnerId = pair._1.partnerId, entryId = pair._1.entryId, metric = pair._1.metric, month = pair._1.time getYearMonth ,day = pair._1.time getYearMonthDay, time = pair._1.time, value = pair._2)
 }
 
 object HourlyUserActivityByEntry extends UserActivityByEntry with IAggregateHourly {
