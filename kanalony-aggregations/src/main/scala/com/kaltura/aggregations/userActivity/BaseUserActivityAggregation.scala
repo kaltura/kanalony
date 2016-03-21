@@ -53,6 +53,11 @@ abstract class BaseUserActivityAggregation[AggKey:ClassTag, AggRes:TypeTag :Clas
     save(prepareForSave(aggregatedEvents))
   }
 
+  def toSomeColumns( columnNames: List[(String, String)] ) : SomeColumns =
+  {
+    SomeColumns(columnNames.map(x => x._1 as x._2 ): _*)
+  }
+
 }
 
 

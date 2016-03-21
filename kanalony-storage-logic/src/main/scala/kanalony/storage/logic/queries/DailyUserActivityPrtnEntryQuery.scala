@@ -15,7 +15,7 @@ class DailyUserActivityPrtnEntryQuery extends DailyQueryBase[HourlyUserActivityP
   }
 
   override def getDailyGroupByKey(row: hourly_ua_prtn_entryRow): dailyUserActivityPrtnEntryRowAggregationKey = {
-    dailyUserActivityPrtnEntryRowAggregationKey(row.partner_id, row.entry_id, row.metric, row.year, row.metric, row.hour.toLocalDate)
+    dailyUserActivityPrtnEntryRowAggregationKey(row.partner_id, row.entry_id, row.metric, row.month, row.metric, row.hour.toLocalDate)
   }
 
   override def queryRowCreator(t : (dailyUserActivityPrtnEntryRowAggregationKey, Long)): dailyUserActivityPrtnEntryRow = {

@@ -10,7 +10,7 @@ abstract class minutely_ua_clst_osTableAccessor extends CassandraTable[minutely_
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object metric extends IntColumn(this)with PartitionKey[Int]
 object minute extends DateTimeColumn(this)with ClusteringOrder[DateTime] with Descending
-object os extends IntColumn(this)with ClusteringOrder[Int] with Ascending
+object operating_system extends IntColumn(this)with ClusteringOrder[Int] with Ascending
 object value extends LongColumn(this)
 
 
@@ -21,7 +21,7 @@ object value extends LongColumn(this)
       partner_id(row), 
 metric(row), 
 minute(row), 
-os(row), 
+operating_system(row), 
 value(row)
     )
   }
@@ -30,7 +30,7 @@ value(row)
     insert.value(_.partner_id, entity.partner_id)
 .value(_.metric, entity.metric)
 .value(_.minute, entity.minute)
-.value(_.os, entity.os)
+.value(_.operating_system, entity.operating_system)
 .value(_.value, entity.value)
 
       .future()
@@ -44,12 +44,12 @@ value(row)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
- def query(partner_id : Int, metric : Int, minuteStart : DateTime, minuteEnd : DateTime, osStart : Int, osEnd : Int) : SelectQuery[minutely_ua_clst_osTableAccessor, minutely_ua_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partner_id : Int, metric : Int, minuteStart : DateTime, minuteEnd : DateTime, operating_systemStart : Int, operating_systemEnd : Int) : SelectQuery[minutely_ua_clst_osTableAccessor, minutely_ua_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partner_id).and(_.metric eqs metric)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
-.and(_.os gte osStart)
-.and(_.os lt osEnd)
+.and(_.operating_system gte operating_systemStart)
+.and(_.operating_system lt operating_systemEnd)
   }
 def query(partner_id_list : List[Int], metric_list : List[Int]) : SelectQuery[minutely_ua_clst_osTableAccessor, minutely_ua_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
@@ -59,12 +59,12 @@ def query(partner_id_list : List[Int], metric_list : List[Int]) : SelectQuery[mi
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
   }
- def query(partner_id_list : List[Int], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime, osStart : Int, osEnd : Int) : SelectQuery[minutely_ua_clst_osTableAccessor, minutely_ua_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partner_id_list : List[Int], metric_list : List[Int], minuteStart : DateTime, minuteEnd : DateTime, operating_systemStart : Int, operating_systemEnd : Int) : SelectQuery[minutely_ua_clst_osTableAccessor, minutely_ua_clst_osRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partner_id_list).and(_.metric in metric_list)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
-.and(_.os gte osStart)
-.and(_.os lt osEnd)
+.and(_.operating_system gte operating_systemStart)
+.and(_.operating_system lt operating_systemEnd)
   }
 
 }
