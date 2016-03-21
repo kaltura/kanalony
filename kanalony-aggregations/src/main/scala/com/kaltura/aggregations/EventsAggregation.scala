@@ -112,9 +112,11 @@ object EventsAggregation extends App with Logging {
     MinutelyUserActivityByOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    HourlyUserActivityByPartner.aggregate(parsedEnrichedEvents)
+    MinutelyUserActivityByPartner.aggregate(parsedEnrichedEvents)
+    TenSecsUserActivityByPartner.aggregate(parsedEnrichedEvents)
     HourlyUserActivityByPlaybackContext.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByPlaybackContext.aggregate(parsedEnrichedEvents)
-
     HourlyUserActivityByEntryApplication.aggregate(parsedEnrichedEvents)
     MinutelyUserActivityByEntryApplication.aggregate(parsedEnrichedEvents)
     TenSecsUserActivityByEntryApplication.aggregate(parsedEnrichedEvents)

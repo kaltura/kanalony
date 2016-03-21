@@ -2552,6 +2552,14 @@ CREATE TABLE IF NOT EXISTS kanalony_user_activity.minutely_ua_prtn_playback_cont
     day int,
     minute timestamp,
     value bigint,
-    PRIMARY KEY ((partner_id, playback_context, day, metric), minute, entry_id)
+    PRIMARY KEY ((partner_id, playback_context, day , metric), minute, entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC, entry_id ASC);
+
+CREATE TABLE IF NOT EXISTS kanalony_user_activity.tensecs_ua (
+    partner_id int,
+    metric int,
+    tensecs timestamp,
+    value bigint,
+    PRIMARY KEY ((partner_id, metric), tensecs)
+) WITH CLUSTERING ORDER BY (tensecs DESC);
 
