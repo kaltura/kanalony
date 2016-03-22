@@ -1,6 +1,7 @@
 package kanalony.storage.logic
 
 import com.kaltura.model.entities.InternalMetrics
+import kanalony.storage.DbClientFactory
 import kanalony.storage.generated._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

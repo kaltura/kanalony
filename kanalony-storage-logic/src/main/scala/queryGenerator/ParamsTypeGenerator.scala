@@ -3,20 +3,15 @@ package queryGenerator
 import kanalony.storage.generator._
 import org.joda.time.DateTime
 
-/**
- * Created by elad.benedict on 2/29/2016.
- */
-
 object ParamsTypeGenerator {
 
   def apply() = new ParamsTypeGenerator()
   def getClassName(tableName : String) = s"${tableName}QueryParams"
 
   def getParamName(colDef : IColumnExtendedDefinition) = {
-    // TODO: Extract to column specific logic if additional inferred column kinds will be supported
     if (colDef.inferred)
     {
-      "years"
+      RowBreakerFactory.getBreaker(colDef.name).partitionKeyParamName
     }
     else {
       QueryMethodsGenerator.getListParamName(colDef)
@@ -30,15 +25,13 @@ case class ImplicitColumnInferrer(cols : List[IColumnExtendedDefinition]) {
       return ""
     }
 
-    if (cols.length != 1 || cols.head.name.toString != "year")
+    if (cols.length != 1)
     {
-      throw new IllegalArgumentException("Only 'year' is currently supported")
+      throw new IllegalArgumentException("Only a single inferred column is supported")
     }
-    else
-    {
-      // TODO: Likewise (Extract to column specific logic if additional inferred column kinds will be supported)
-      "extends IYearlyPartitionedQueryParams"
-    }
+
+    val implementingTraitName = RowBreakerFactory.getBreaker(cols.head.name).implementingTrait
+    s"extends ${implementingTraitName}"
   }
 }
 

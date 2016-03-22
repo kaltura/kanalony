@@ -1,9 +1,9 @@
-package kanalony.storage.logic.queries
+package kanalony.storage.logic.generated
 
     import kanalony.storage.generated._
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
-    import DbClientFactory._
+    import kanalony.storage.DbClientFactory._
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
@@ -14,7 +14,7 @@ package kanalony.storage.logic.queries
       }
 
       private[logic] override def executeQuery(params: minutely_ua_clst_entryQueryParams): Future[List[minutely_ua_clst_entryRow]] = {
-        val rawQueryResult = minutely_ua_clst_entryTableAccessor.query(params.partner_id_list,params.metric_list,params.startTime,params.endTime)
+        val rawQueryResult = minutely_ua_clst_entryTableAccessor.query(params.partner_id_list,params.days,params.metric_list,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
       }
@@ -38,4 +38,4 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override private[logic] def extractMetric(row: minutely_ua_clst_entryRow): Int = row.metric
     }
 
-case class minutely_ua_clst_entryQueryParams(startTime : DateTime, endTime : DateTime, partner_id_list : List[Int], metric_list : List[Int]) 
+case class minutely_ua_clst_entryQueryParams(startTime : DateTime, endTime : DateTime, partner_id_list : List[Int], metric_list : List[Int]) extends IDailyPartitionedQueryParams

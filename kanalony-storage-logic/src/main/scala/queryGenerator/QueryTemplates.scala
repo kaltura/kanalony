@@ -21,12 +21,12 @@ object QueryTemplates {
     val equalityConstraintColumnsNotIncludingMetricEnumValuesPlaceholder = "%EQUALITY_CONS_DIMS_WITHOUT_METRIC_ENUM_VALUES%"
 
     val content =
-      """package kanalony.storage.logic.queries
+      """package kanalony.storage.logic.generated
 
     import kanalony.storage.generated._
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
-    import kanalony.storage.api.DbClientFactory._
+    import kanalony.storage.DbClientFactory._
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
@@ -67,7 +67,7 @@ object QueryTemplates {
   }
 
   object QueryListTemplate {
-    val content = """package kanalony.storage.logic
+    val content = """package kanalony.storage.logic.generated
                     |
                     |import kanalony.storage.logic.queries._
                     |import kanalony.storage.logic._
