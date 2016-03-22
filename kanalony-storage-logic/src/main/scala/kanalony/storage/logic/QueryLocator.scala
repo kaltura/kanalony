@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
 import kanalony.storage.logic.queries.DailyQuery
 import kanalony.storage.logic.queries.model.QueryConstraint
 
@@ -38,7 +38,7 @@ object QueryLocator {
     }
   }
 
-  def locate(queryParams: QueryParams) : List[(IQuery, List[Metrics.Value])] = {
+  def locate(queryParams: QueryParams) : List[(IQuery, List[InternalMetrics.Value])] = {
     val requestedComputedDimensions = ComputedDimensions.values.intersect(queryParams.dimensionDefinitions.map(_.dimension).toSet)
     val requestedComputedMetrics = ComputedMetrics.values.intersect(queryParams.metrics.toSet)
 
@@ -46,6 +46,11 @@ object QueryLocator {
 
     val nonComputedMetrics = queryParams.metrics.toSet -- requestedComputedMetrics
     val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end)
+
+    if (nonComputedMetrics.isEmpty)
+    {
+      return computedMetricQueries
+    }
 
     val nonComputedMetricQueries = if (requestedComputedDimensions.nonEmpty)
     {
@@ -59,10 +64,10 @@ object QueryLocator {
     computedMetricQueries ::: nonComputedMetricQueries
   }
 
-  def locateDirectQueries(queryParams: QueryParams) : List[(IQuery, List[Metrics.Value])] = {
+  def locateDirectQueries(queryParams: QueryParams) : List[(IQuery, List[InternalMetrics.Value])] = {
     val sortedQueries = Queries.queries.map(tq => (tq , calcTableCompatibilityDistance(tq, queryParams))).sortBy(_._2)
     var remainingMetricsToCover = queryParams.metrics.toSet
-    var result : List[(IQuery, List[Metrics.Value])] = List()
+    var result : List[(IQuery, List[InternalMetrics.Value])] = List()
     sortedQueries
       .takeWhile(q => !remainingMetricsToCover.isEmpty && q._2 < queryIncompatibleScoreThreshold)
       .foreach(q => {

@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
 import kanalony.storage.generated._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -54,7 +54,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
     queryResult => {
       val headerDimensionIndexes = getGroupDimensionIndexes(queryResult)
-      val resultHeaders = resultDimensions.map(_.toString) :+ Metrics(metric).toString
+      val resultHeaders = resultDimensions.map(_.toString) :+ InternalMetrics(metric).toString
       val groupedData = queryResult.rows.groupBy(getGroupByKey(headerDimensionIndexes))
 
       val resultRows = groupedData.toList.map((group: (String, List[List[String]])) => {
@@ -78,13 +78,21 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
   def processMetric(params: QueryParams): (Map[Int, List[TQueryRow]]) => List[QueryResult] = {
     // For each (group of rows with the same) metric
-    x => x.map((kvp: (Int, List[TQueryRow])) => {
-      // Turn to QueryResult
-      val processedRows = kvp._2.map(row => getResultRow(row))
-      val queryResult = QueryResult(getResultHeaders(), processedRows)
-      // Group by requested dimensions and aggregate
-      groupAndAggregate(params, kvp._1)(queryResult) // => Iterable[QueryResult]
-    }).toList
+    x => {
+      if (x.isEmpty)
+      {
+        List(QueryResult(getResultHeaders(), List()))
+      }
+      else {
+        x.map((kvp: (Int, List[TQueryRow])) => {
+          // Turn to QueryResult
+          val processedRows = kvp._2.map(row => getResultRow(row))
+          val queryResult = QueryResult(getResultHeaders(), processedRows)
+          // Group by requested dimensions and aggregate
+          groupAndAggregate(params, kvp._1)(queryResult) // => Iterable[QueryResult]
+        }).toList
+      }
+    }
   }
 
   def query(params: QueryParams): Future[List[IQueryResult]] = {

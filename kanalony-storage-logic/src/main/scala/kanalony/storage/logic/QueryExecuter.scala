@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -22,9 +22,9 @@ object QueryExecutor {
           .map(x => combineResults(qp)(x))
   }
 
-  def combineMetrics(resultMetrics: List[Metrics.Value]): (String, Iterable[(List[String], String)]) => List[String] = {
+  def combineMetrics(resultMetrics: List[InternalMetrics.Value]): (String, Iterable[(List[String], String)]) => List[String] = {
     (groping, rowsWithSameMetric) => {
-      var resultantRow = groping.split(groupingSeparator).toList
+      var resultantRow = if (groping equals "") { List() } else { groping.split(groupingSeparator).toList }
       resultMetrics.foreach(metric => {
         rowsWithSameMetric
           .find(_._2 eq metric.toString)
