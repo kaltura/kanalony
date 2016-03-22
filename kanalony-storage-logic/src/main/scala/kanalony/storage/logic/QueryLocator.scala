@@ -1,6 +1,8 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
+import kanalony.storage.logic.generated.Queries
+import kanalony.storage.logic.queries.DailyQuery
 import kanalony.storage.logic.queries.model.QueryConstraint
 
 /**
@@ -37,20 +39,46 @@ object QueryLocator {
     }
   }
 
-  def locate(queryParams: QueryParams) : List[(IQuery, List[Metrics.Value])] = {
+  def locate(queryParams: QueryParams) : List[(IQuery, List[InternalMetrics.Value])] = {
+    val requestedComputedDimensions = ComputedDimensions.values.intersect(queryParams.dimensionDefinitions.map(_.dimension).toSet)
+    val requestedComputedMetrics = ComputedMetrics.values.intersect(queryParams.metrics.toSet)
+
+    val computedMetricQueries = requestedComputedMetrics.toList.flatMap(ComputedMetrics.getQueryCreator(_)(queryParams))
+
+    val nonComputedMetrics = queryParams.metrics.toSet -- requestedComputedMetrics
+    val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end)
+
+    if (nonComputedMetrics.isEmpty)
+    {
+      return computedMetricQueries
+    }
+
+    val nonComputedMetricQueries = if (requestedComputedDimensions.nonEmpty)
+    {
+      // Create a query for the computed dimension (locates relevant internal queries recursively)
+      ComputedDimensions.getQueryCreator(requestedComputedDimensions.head)(updatedQueryParams)
+    }
+    else {
+      locateDirectQueries(updatedQueryParams)
+    }
+
+    computedMetricQueries ::: nonComputedMetricQueries
+  }
+
+  def locateDirectQueries(queryParams: QueryParams) : List[(IQuery, List[InternalMetrics.Value])] = {
     val sortedQueries = Queries.queries.map(tq => (tq , calcTableCompatibilityDistance(tq, queryParams))).sortBy(_._2)
     var remainingMetricsToCover = queryParams.metrics.toSet
-    var result : List[(IQuery, List[Metrics.Value])] = List()
+    var result : List[(IQuery, List[InternalMetrics.Value])] = List()
     sortedQueries
       .takeWhile(q => !remainingMetricsToCover.isEmpty && q._2 < queryIncompatibleScoreThreshold)
       .foreach(q => {
-          val relevantMetricsSupportedByQuery = q._1.supportedMetrics.intersect(remainingMetricsToCover).toList
-          if (!relevantMetricsSupportedByQuery.isEmpty)
-          {
-            result = result :+ (q._1, relevantMetricsSupportedByQuery)
-            remainingMetricsToCover = remainingMetricsToCover -- relevantMetricsSupportedByQuery
-          }
-        })
+      val relevantMetricsSupportedByQuery = q._1.supportedMetrics.intersect(remainingMetricsToCover).toList
+      if (!relevantMetricsSupportedByQuery.isEmpty)
+      {
+        result = result :+ (q._1, relevantMetricsSupportedByQuery)
+        remainingMetricsToCover = remainingMetricsToCover -- relevantMetricsSupportedByQuery
+      }
+    })
 
     if (sortedQueries(0)._2 >= queryIncompatibleScoreThreshold){
       val message = "Query not supported. The most similar supported query requires equality constrains on dimensions " + sortedQueries(0)._1.dimensionInformation.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension)
