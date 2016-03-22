@@ -7,7 +7,7 @@ import kanalony.storage.generator._
  */
 
 trait IColumnExtendedDefinition extends IColumnDefinition {
-    val inferred = false
+    val inferred : Boolean
 }
 
 class ColumnExtendedDefinition(val name : ColumnNames.Value, val typeName : ColumnType.Value, val inPartitionKey : Boolean, val inClusteringKey : Boolean, override val inferred : Boolean = false) extends IColumnExtendedDefinition
@@ -15,6 +15,8 @@ class ColumnExtendedDefinition(val name : ColumnNames.Value, val typeName : Colu
 object ColumnExtendedDefinition {
     def isColumnImplicit(name: String): Boolean = name match {
         case "year" => true
+        case "month" => true
+        case "day" => true
         case _ => false
     }
 

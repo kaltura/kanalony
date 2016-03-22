@@ -7,8 +7,6 @@ package kanalony.storage.generator
 object TablesMetadata {
   def metadata = List(
     createTableMetadata("hourly_ua_prtn_entry", "((partner,entry,metric,month),hour),value"),
-    createTableMetadata("minutely_ua_", "((partner,metric),minute),value"),
-    createTableMetadata("hourly_ua_", "((partner,metric,year),hour),value"),
     createTableMetadata("minutely_ua_prtn_entry", "((partner,entry,day,metric),minute),value"),
     createTableMetadata("minutely_ua_clst_entry", "((partner,day,metric),minute,entry),value"),
     createTableMetadata("hourly_ua_clst_entry", "((partner,metric,month),hour,entry),value"),
@@ -111,7 +109,7 @@ object TablesMetadata {
     createTableMetadata("hourly_ua_ptrn_app_clst_playback_context", "((partner,application,metric,year),hour,playback_context),value"),
     createTableMetadata("minutely_ua_prtn_app_playback_context", "((partner,application,playback_context,metric),minute),value"),
     createTableMetadata("hourly_ua_prtn_app_playback_context", "((partner,application,playback_context,metric,year),hour),value"),
-    createTableMetadata("minutely_ua_prtn_entry_app_clst_playback_context", "((partner,entry,application,year),minute,playback_context),value"),
+    createTableMetadata("minutely_ua_prtn_entry_app_clst_playback_context", "((partner,entry,application,metric),minute,playback_context),value"),
     createTableMetadata("hourly_ua_prtn_entry_app_clst_playback_context", "((partner,entry,application,metric,year),hour,playback_context),value"),
     createTableMetadata("minutely_ua_prtn_entry_app_playback_context", "((partner,entry,application,playback_context,metric),minute),value"),
     createTableMetadata("hourly_ua_prtn_entry_app_playback_context", "((partner,entry,application,playback_context,metric,year),hour),value"),
@@ -154,7 +152,49 @@ object TablesMetadata {
     createTableMetadata("minutely_ua_prtn_entry_cv1_cv2_clst_cv3", "((partner,entry,custom_var1,custom_var2,metric),minute,custom_var3),value"),
     createTableMetadata("hourly_ua_prtn_entry_cv1_cv2_clst_cv3", "((partner,entry,custom_var1,custom_var2,metric,year),hour,custom_var3),value"),
     createTableMetadata("minutely_ua_prtn_entry_cv1_cv2_cv3", "((partner,entry,custom_var1,custom_var2,custom_var3,metric),minute),value"),
-    createTableMetadata("hourly_ua_prtn_entry_cv1_cv2_cv3", "((partner,entry,custom_var1,custom_var2,custom_var3,metric,year),hour),value")
+    createTableMetadata("hourly_ua_prtn_entry_cv1_cv2_cv3", "((partner,entry,custom_var1,custom_var2,custom_var3,metric,year),hour),value"),
+    createTableMetadata("hourly_ua_prtn_category", "((partner,category,metric,year),hour),value"),
+    createTableMetadata("hourly_ua_clst_category", "((partner,metric,year),hour,category),value"),
+    createTableMetadata("minutely_ua_prtn_category", "((partner,category,metric),minute),value"),
+    createTableMetadata("minutely_ua_clst_category", "((partner,metric),minute,category),value"),
+    createTableMetadata("tensecs_ua_prtn_category", "((partner,category,metric),tensecs),value"),
+    createTableMetadata("tensecs_ua_clst_category", "((partner,metric),tensecs,category),value"),
+    createTableMetadata("hourly_ua_prtn_category_clst_entry", "((partner,category,month,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_category_clst_entry", "((partner,category,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_app_clst_entry", "((partner,application,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_app_clst_entry", "((partner,application,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_app_playback_context_clst_entry", "((partner,application,playback_context,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_app_playback_context_clst_entry", "((partner,application,playback_context,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_browser_clst_entry", "((partner,browser,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_browser_clst_entry", "((partner,browser,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_country_clst_entry", "((partner,country,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_country_clst_entry", "((partner,country,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_country_city_clst_entry", "((partner,country,city,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_country_city_clst_entry", "((partner,country,city,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_cv1_clst_entry", "((partner,custom_var1,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_cv1_clst_entry", "((partner,custom_var1,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_cv2_clst_entry", "((partner,custom_var2,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_cv2_clst_entry", "((partner,custom_var2,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_cv3_clst_entry", "((partner,custom_var3,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_cv3_clst_entry", "((partner,custom_var3,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_cv1_cv2_clst_entry", "((partner,custom_var1,custom_var2,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_cv1_cv2_clst_entry", "((partner,custom_var1,custom_var2,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_cv1_cv2_cv3_clst_entry", "((partner,custom_var1,custom_var2,custom_var3,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_cv1_cv2_cv3_clst_entry", "((partner,custom_var1,custom_var2,custom_var3,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_device_clst_entry", "((partner,device,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_device_clst_entry", "((partner,device,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_device_os_clst_entry", "((partner,device,os,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_device_os_clst_entry", "((partner,device,os,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_domain_clst_entry", "((partner,domain,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_domain_clst_entry", "((partner,domain,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_referrer_clst_entry", "((partner,referrer,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_referrer_clst_entry", "((partner,referrer,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_os_clst_entry", "((partner,os,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_os_clst_entry", "((partner,os,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_os_browser_clst_entry", "((partner,os,browser,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_os_browser_clst_entry", "((partner,os,browser,metric),minute,entry),value"),
+    createTableMetadata("hourly_ua_prtn_playback_context_clst_entry", "((partner,playback_context,year,metric),hour,entry),value"),
+    createTableMetadata("minutely_ua_prtn_playback_context_clst_entry", "((partner,playback_context,metric),minute,entry),value")
   )
 
   def createColumnDefinition(s: String, isInPartitionKey : Boolean, isInClusteringKey : Boolean): IColumnDefinition = s match {
@@ -163,6 +203,7 @@ object TablesMetadata {
     case "metric" => ColumnDefinition(ColumnNames.metric, ColumnType.Int, isInPartitionKey, isInClusteringKey)
     case "year" => ColumnDefinition(ColumnNames.year, ColumnType.Int, isInPartitionKey, isInClusteringKey)
     case "month" => ColumnDefinition(ColumnNames.month, ColumnType.Int, isInPartitionKey, isInClusteringKey)
+    case "day" => ColumnDefinition(ColumnNames.day, ColumnType.Int, isInPartitionKey, isInClusteringKey)
     case "country" => ColumnDefinition(ColumnNames.country, ColumnType.String, isInPartitionKey, isInClusteringKey)
     case "city" => ColumnDefinition(ColumnNames.city, ColumnType.String, isInPartitionKey, isInClusteringKey)
     case "os" => ColumnDefinition(ColumnNames.operating_system, ColumnType.Int, isInPartitionKey, isInClusteringKey)
@@ -171,18 +212,21 @@ object TablesMetadata {
     case "domain" => ColumnDefinition(ColumnNames.domain, ColumnType.String, isInPartitionKey, isInClusteringKey)
     case "referrer" => ColumnDefinition(ColumnNames.referrer, ColumnType.String, isInPartitionKey, isInClusteringKey)
     case "application" => ColumnDefinition(ColumnNames.application, ColumnType.String, isInPartitionKey, isInClusteringKey)
-    case "cf1" => ColumnDefinition(ColumnNames.cf1, ColumnType.String, isInPartitionKey, isInClusteringKey)
-    case "cf2" => ColumnDefinition(ColumnNames.cf2, ColumnType.String, isInPartitionKey, isInClusteringKey)
-    case "cf3" => ColumnDefinition(ColumnNames.cf3, ColumnType.String, isInPartitionKey, isInClusteringKey)
-    case "playbackContext" => ColumnDefinition(ColumnNames.playbackContext, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "custom_var1" => ColumnDefinition(ColumnNames.custom_var1, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "custom_var2" => ColumnDefinition(ColumnNames.custom_var2, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "custom_var3" => ColumnDefinition(ColumnNames.custom_var3, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "playback_context" => ColumnDefinition(ColumnNames.playback_context, ColumnType.String, isInPartitionKey, isInClusteringKey)
+    case "category" => ColumnDefinition(ColumnNames.category, ColumnType.String, isInPartitionKey, isInClusteringKey)
     case "value" => ColumnDefinition(ColumnNames.value, ColumnType.Long, isInPartitionKey, isInClusteringKey)
   }
 
   def createClusteringColumnDefinition(s: String): IClusteringColumnDefinition = s match {
     case "hour" => ClusteringColumnDefinition(ColumnNames.hour, ColumnType.DateTime, OrderBy.Descending)
     case "minute" => ClusteringColumnDefinition(ColumnNames.minute, ColumnType.DateTime, OrderBy.Descending)
+    case "tensecs" => ClusteringColumnDefinition(ColumnNames.tensecs, ColumnType.DateTime, OrderBy.Descending)
     case "entry" => ClusteringColumnDefinition(ColumnNames.entry_id, ColumnType.String)
     case "country" => ClusteringColumnDefinition(ColumnNames.country, ColumnType.String)
+    case "category" => ClusteringColumnDefinition(ColumnNames.category, ColumnType.String)
     case "city" => ClusteringColumnDefinition(ColumnNames.city, ColumnType.String)
     case "device" => ClusteringColumnDefinition(ColumnNames.device, ColumnType.Int)
     case "browser" => ClusteringColumnDefinition(ColumnNames.browser, ColumnType.Int)
@@ -190,10 +234,10 @@ object TablesMetadata {
     case "domain" => ClusteringColumnDefinition(ColumnNames.domain, ColumnType.String)
     case "referrer" => ClusteringColumnDefinition(ColumnNames.referrer, ColumnType.String)
     case "application" => ClusteringColumnDefinition(ColumnNames.application, ColumnType.String)
-    case "playbackContext" => ClusteringColumnDefinition(ColumnNames.playbackContext, ColumnType.String)
-    case "cf1" => ClusteringColumnDefinition(ColumnNames.cf1, ColumnType.String)
-    case "cf2" => ClusteringColumnDefinition(ColumnNames.cf2, ColumnType.String)
-    case "cf3" => ClusteringColumnDefinition(ColumnNames.cf3, ColumnType.String)
+    case "playback_context" => ClusteringColumnDefinition(ColumnNames.playback_context, ColumnType.String)
+    case "custom_var1" => ClusteringColumnDefinition(ColumnNames.custom_var1, ColumnType.String)
+    case "custom_var2" => ClusteringColumnDefinition(ColumnNames.custom_var2, ColumnType.String)
+    case "custom_var3" => ClusteringColumnDefinition(ColumnNames.custom_var3, ColumnType.String)
   }
 
   def createPartitionKey(partitionKeyColumns: String) : PartitionKey = {

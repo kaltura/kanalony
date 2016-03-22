@@ -10,11 +10,13 @@ object Dimensions extends Enumeration {
   expectedQuality,uiConfID,metric,cf1,cf2,cf3,referrer = Value
 
   implicit def fromColumnName(name : ColumnNames.Value) : Dimensions.Value = name match {
+    case ColumnNames.tensecs => Dimensions.tenSeconds
     case ColumnNames.application => Dimensions.application
+    case ColumnNames.category => Dimensions.category
     case ColumnNames.browser => Dimensions.browser
-    case ColumnNames.cf1 => Dimensions.cf1
-    case ColumnNames.cf2 => Dimensions.cf2
-    case ColumnNames.cf3 => Dimensions.cf3
+    case ColumnNames.`custom_var1` => Dimensions.cf1
+    case ColumnNames.`custom_var2` => Dimensions.cf2
+    case ColumnNames.`custom_var3` => Dimensions.cf3
     case ColumnNames.city => Dimensions.city
     case ColumnNames.country => Dimensions.country
     case ColumnNames.device => Dimensions.device
@@ -26,7 +28,7 @@ object Dimensions extends Enumeration {
     case ColumnNames.month => Dimensions.month
     case ColumnNames.`operating_system` => Dimensions.operatingSystem
     case ColumnNames.partner_id => Dimensions.partner
-    case ColumnNames.playbackContext=> Dimensions.playbackContext
+    case ColumnNames.`playback_context`=> Dimensions.playbackContext
     case ColumnNames.referrer => Dimensions.referrer
     case other => throw new IllegalArgumentException(s"column ${other} has no corresponding dimension")
   }
