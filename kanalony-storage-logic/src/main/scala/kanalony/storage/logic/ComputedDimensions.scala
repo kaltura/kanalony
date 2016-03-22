@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.Metrics
+import com.kaltura.model.entities.InternalMetrics
 import kanalony.storage.logic.queries.DailyQuery
 import kanalony.storage.logic.queries.model.QueryDimensionDefinition
 
@@ -12,7 +12,7 @@ object ComputedDimensions extends ComputedQueryFactory[Dimensions.Value] {
 
   val queryCreatorGetter = Map((Dimensions.day, dailyQueryCreator))
 
-  def dailyQueryCreator : (QueryParams) => List[(IQuery, List[Metrics.Value])] = {
+  def dailyQueryCreator : (QueryParams) => List[(IQuery, List[InternalMetrics.Value])] = {
     (qp) => List((new DailyQuery(qp), qp.metrics))
   }
 
