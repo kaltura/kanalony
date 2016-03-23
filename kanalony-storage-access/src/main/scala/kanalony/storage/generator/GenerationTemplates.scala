@@ -18,8 +18,9 @@ object GenerationTemplates {
   }
 
   case object valueDefinitionTemplate {
-    val content = ".value(_.%PROPNAME%, entity.%PROPNAME%)"
+    val content = ".value(_.%PROPNAME%, entity.%PARAM_NAME%)"
     val propertyNamePlaceholder = "%PROPNAME%"
+    val paramNamePlaceholder = "%PARAM_NAME%"
   }
 
   class columnDefinitionTemplate() extends IColumnDefinitionTemplate {
@@ -52,8 +53,9 @@ object GenerationTemplates {
   }
 
   case object equalityConditionTemplate {
-    val content = "_.%COLNAME% eqs %COLNAME%"
+    val content = "_.%COLNAME% eqs %PARAM_NAME%"
     val columnNamePlaceholder = "%COLNAME%"
+    val paramNamePlaceholder = "%PARAM_NAME%"
   }
 
   case object containmentConditionTemplate {

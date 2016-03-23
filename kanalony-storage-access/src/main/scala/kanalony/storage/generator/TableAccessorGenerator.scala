@@ -1,5 +1,6 @@
 package kanalony.storage.generator
 
+import com.google.common.base.CaseFormat
 import kanalony.storage.generator.GenerationTemplates.{partitionKeyColumnDefinitionTemplate, clusteringKeyColumnDefinitionTemplate}
 
 /**
@@ -21,6 +22,7 @@ class TableAccessorGenerator(val tm : TableMetadata) {
     for (c <- columns){
       var valueAssignment = GenerationTemplates.valueDefinitionTemplate.content
       valueAssignment = valueAssignment.replace(GenerationTemplates.valueDefinitionTemplate.propertyNamePlaceholder, c.name.toString)
+      valueAssignment = valueAssignment.replace(GenerationTemplates.valueDefinitionTemplate.paramNamePlaceholder, EntityClassGenerator.getParamName(c.name))
       res = res + valueAssignment + "\n"
     }
     res
@@ -101,6 +103,6 @@ class TableAccessorGenerator(val tm : TableMetadata) {
 
 object TableAccessorGenerator{
   def generateClassName(tm : TableMetadata): String = {
-    tm.tableName + "TableAccessor"
+    CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, tm.tableName) + "TableAccessor"
   }
 }

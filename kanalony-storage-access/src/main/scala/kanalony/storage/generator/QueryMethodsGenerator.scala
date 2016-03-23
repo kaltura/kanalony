@@ -1,5 +1,7 @@
 package kanalony.storage.generator
 
+import com.google.common.base.CaseFormat
+
 /**
  * Created by elad.benedict on 2/9/2016.
  */
@@ -13,7 +15,7 @@ object QueryMethodsGenerator {
   private def genParamDefinition(cqd : IQueryableColumnDefinition) = {
     cqd.queryKind match {
       case ColumnQueryKind.Equality => {
-        cqd.name + " : " + cqd.typeName
+        getPlainParamName(cqd) + " : " + cqd.typeName
       }
       case ColumnQueryKind.List => {
         getListParamName(cqd) + " : " + "List[" + cqd.typeName + "]"
@@ -26,11 +28,21 @@ object QueryMethodsGenerator {
   }
 
   private def getRangeParamNames(colDef : IColumnDefinition)  = {
-    (colDef.name + "Start", colDef.name + "End")
+    val camelCasedName = getCamelCasedParamName(colDef.name.toString)
+    (camelCasedName + "Start", camelCasedName + "End")
   }
 
   def getListParamName(colDef : IColumnDefinition)  = {
-    colDef.name + "_list"
+    val camelCasedName = getCamelCasedParamName(colDef.name.toString)
+    camelCasedName + "List"
+  }
+
+  def getPlainParamName(cqd: IColumnDefinition) = {
+    getCamelCasedParamName(cqd.name.toString)
+  }
+
+  private def getCamelCasedParamName(name : String) = {
+    CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
   }
 }
 
@@ -60,7 +72,9 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
 
   private def generateEqualityCondition(x: IColumnDefinition) = {
     val conditionTemplate = GenerationTemplates.equalityConditionTemplate
-    val condition = conditionTemplate.content.replace(conditionTemplate.columnNamePlaceholder, x.name.toString)
+    val condition = conditionTemplate.content
+                        .replace(conditionTemplate.columnNamePlaceholder, x.name.toString)
+                        .replace(conditionTemplate.paramNamePlaceholder, QueryMethodsGenerator.getPlainParamName(x))
     condition
   }
 
