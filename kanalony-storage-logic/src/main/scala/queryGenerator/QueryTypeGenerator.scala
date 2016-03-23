@@ -1,7 +1,9 @@
 package queryGenerator
 
+import com.sun.xml.internal.ws.resources.ServerMessages
 import kanalony.storage.generator._
 import kanalony.storage.logic.Dimensions
+import com.google.common.base.CaseFormat
 
 /**
  * Created by elad.benedict on 3/2/2016.
@@ -43,7 +45,7 @@ class QueryTypeGenerator(tm : TableMetadata) {
 
   def getResultRowImplementation : String = {
     val rowData = explicitColumnExtendedInformation
-      .map(x => s"row.${x.name}.toString")
+      .map(x => s"row.${EntityClassGenerator.getParamName(x.name)}.toString")
     val res = (rowData :+ "row.value.toString").mkString(",")
     s"List(${res})"
   }
@@ -76,6 +78,6 @@ class QueryTypeGenerator(tm : TableMetadata) {
 }
 
 object QueryTypeGenerator {
-  def getQueryName(tm : TableMetadata) : String = s"${tm.tableName}Query"
+  def getQueryName(tm : TableMetadata) : String = s"${CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, tm.tableName)}Query"
   def apply(tm : TableMetadata) = new QueryTypeGenerator(tm)
 }

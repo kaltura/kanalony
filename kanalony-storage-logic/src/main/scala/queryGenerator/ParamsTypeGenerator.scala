@@ -1,12 +1,13 @@
 package queryGenerator
 
+import com.google.common.base.CaseFormat
 import kanalony.storage.generator._
 import org.joda.time.DateTime
 
 object ParamsTypeGenerator {
 
   def apply() = new ParamsTypeGenerator()
-  def getClassName(tableName : String) = s"${tableName}QueryParams"
+  def getClassName(tableName : String) = s"${CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, tableName)}QueryParams"
 
   def getParamName(colDef : IColumnExtendedDefinition) = {
     if (colDef.inferred)
