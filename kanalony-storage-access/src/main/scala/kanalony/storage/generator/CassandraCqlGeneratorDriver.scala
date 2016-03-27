@@ -48,7 +48,7 @@ object CassandraCqlGeneratorDriver {
     val tables = TablesMetadata.metadata.map(tm => {
         tableCreationTemplate
           .replace(tableNamePlaceholder, tm.tableName)
-          .replace(columnDefsPlaceholder, tm.columns.map(c => s"${c.name} ${getCassandraType(c.typeName)}").mkString("", ",\n", ",\n"))
+          .replace(columnDefsPlaceholder, tm.columns.map(c => s"${c.name} ${getCassandraType(c.typeName)}").mkString("", ",\n\t", ","))
           .replace(partitionKeyColsPlaceholder, tm.primaryKey.pk.columns.map(_.name).mkString(","))
           .replace(clusteringColsPlaceholder, tm.primaryKey.ck.columns.map(_.name).mkString(","))
           .replace(timeColPlaceholder, tm.primaryKey.ck.columns.head.name.toString)
