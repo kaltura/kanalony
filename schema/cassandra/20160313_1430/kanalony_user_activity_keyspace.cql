@@ -1,0 +1,1 @@
+CREATE KEYSPACE IF NOT EXISTS kanalony_user_activity WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}  AND durable_writes = true;
