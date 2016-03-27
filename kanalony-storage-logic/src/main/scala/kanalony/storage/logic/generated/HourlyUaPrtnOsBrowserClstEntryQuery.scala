@@ -14,7 +14,7 @@ package kanalony.storage.logic.generated
       }
 
       private[logic] override def executeQuery(params: HourlyUaPrtnOsBrowserClstEntryQueryParams): Future[List[HourlyUaPrtnOsBrowserClstEntryRow]] = {
-        val rawQueryResult = HourlyUaPrtnOsBrowserClstEntryTableAccessor.query(params.partnerIdList,params.operatingSystemList,params.browserList,params.years,params.metricList,params.startTime,params.endTime)
+        val rawQueryResult = HourlyUaPrtnOsBrowserClstEntryTableAccessor.query(params.partnerIdList,params.operatingSystemList,params.browserList,params.months,params.metricList,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
       }
@@ -40,4 +40,4 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override private[logic] def extractMetric(row: HourlyUaPrtnOsBrowserClstEntryRow): Int = row.metric
     }
 
-case class HourlyUaPrtnOsBrowserClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], operatingSystemList : List[Int], browserList : List[Int], metricList : List[Int]) extends IYearlyPartitionedQueryParams
+case class HourlyUaPrtnOsBrowserClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], operatingSystemList : List[Int], browserList : List[Int], metricList : List[Int]) extends IMonthlyPartitionedQueryParams

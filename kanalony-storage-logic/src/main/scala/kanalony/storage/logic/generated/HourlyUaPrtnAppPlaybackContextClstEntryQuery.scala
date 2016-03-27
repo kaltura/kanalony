@@ -14,7 +14,7 @@ package kanalony.storage.logic.generated
       }
 
       private[logic] override def executeQuery(params: HourlyUaPrtnAppPlaybackContextClstEntryQueryParams): Future[List[HourlyUaPrtnAppPlaybackContextClstEntryRow]] = {
-        val rawQueryResult = HourlyUaPrtnAppPlaybackContextClstEntryTableAccessor.query(params.partnerIdList,params.applicationList,params.playbackContextList,params.years,params.metricList,params.startTime,params.endTime)
+        val rawQueryResult = HourlyUaPrtnAppPlaybackContextClstEntryTableAccessor.query(params.partnerIdList,params.applicationList,params.playbackContextList,params.months,params.metricList,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
       }
@@ -40,4 +40,4 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override private[logic] def extractMetric(row: HourlyUaPrtnAppPlaybackContextClstEntryRow): Int = row.metric
     }
 
-case class HourlyUaPrtnAppPlaybackContextClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[Int]) extends IYearlyPartitionedQueryParams
+case class HourlyUaPrtnAppPlaybackContextClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[Int]) extends IMonthlyPartitionedQueryParams

@@ -7,14 +7,14 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class HourlyUaPtrnOsClstBrowserQuery extends QueryBase[HourlyUaPtrnOsClstBrowserQueryParams, HourlyUaPtrnOsClstBrowserRow] with UserActivityQuery {
-      private[logic] override def extractParams(params: QueryParams): HourlyUaPtrnOsClstBrowserQueryParams = {
+    class HourlyUaPrtnOsClstBrowserQuery extends QueryBase[HourlyUaPrtnOsClstBrowserQueryParams, HourlyUaPrtnOsClstBrowserRow] with UserActivityQuery {
+      private[logic] override def extractParams(params: QueryParams): HourlyUaPrtnOsClstBrowserQueryParams = {
         val (partner_id,operating_system) = QueryParamsValidator.extractEqualityConstraintParams[Int,Int]((Dimensions.partner,Dimensions.operatingSystem), params)
-        HourlyUaPtrnOsClstBrowserQueryParams(params.start, params.end, partner_id,operating_system, params.metrics.map(_.id))
+        HourlyUaPrtnOsClstBrowserQueryParams(params.start, params.end, partner_id,operating_system, params.metrics.map(_.id))
       }
 
-      private[logic] override def executeQuery(params: HourlyUaPtrnOsClstBrowserQueryParams): Future[List[HourlyUaPtrnOsClstBrowserRow]] = {
-        val rawQueryResult = HourlyUaPtrnOsClstBrowserTableAccessor.query(params.partnerIdList,params.operatingSystemList,params.metricList,params.years,params.startTime,params.endTime)
+      private[logic] override def executeQuery(params: HourlyUaPrtnOsClstBrowserQueryParams): Future[List[HourlyUaPrtnOsClstBrowserRow]] = {
+        val rawQueryResult = HourlyUaPrtnOsClstBrowserTableAccessor.query(params.partnerIdList,params.operatingSystemList,params.metricList,params.years,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
       }
@@ -23,7 +23,7 @@ package kanalony.storage.logic.generated
         List(Dimensions.partner.toString,Dimensions.operatingSystem.toString,Dimensions.metric.toString,Dimensions.hour.toString,Dimensions.browser.toString,"value")
       }
 
-      override protected def getResultRow(row: HourlyUaPtrnOsClstBrowserRow): List[String] = {
+      override protected def getResultRow(row: HourlyUaPrtnOsClstBrowserRow): List[String] = {
         List(row.partnerId.toString,row.operatingSystem.toString,row.metric.toString,row.hour.toString,row.browser.toString,row.value.toString)
       }
 
@@ -36,7 +36,7 @@ DimensionDefinition(Dimensions.browser, new DimensionConstraintDeclaration(Query
 
       override def metricValueLocationIndex(): Int = 5
 
-      override private[logic] def extractMetric(row: HourlyUaPtrnOsClstBrowserRow): Int = row.metric
+      override private[logic] def extractMetric(row: HourlyUaPrtnOsClstBrowserRow): Int = row.metric
     }
 
-case class HourlyUaPtrnOsClstBrowserQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], operatingSystemList : List[Int], metricList : List[Int]) extends IYearlyPartitionedQueryParams
+case class HourlyUaPrtnOsClstBrowserQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], operatingSystemList : List[Int], metricList : List[Int]) extends IYearlyPartitionedQueryParams

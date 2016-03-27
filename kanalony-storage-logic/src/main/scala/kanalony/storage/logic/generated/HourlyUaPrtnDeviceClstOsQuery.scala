@@ -7,14 +7,14 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class HourlyUaPtrnDeviceClstOsQuery extends QueryBase[HourlyUaPtrnDeviceClstOsQueryParams, HourlyUaPtrnDeviceClstOsRow] with UserActivityQuery {
-      private[logic] override def extractParams(params: QueryParams): HourlyUaPtrnDeviceClstOsQueryParams = {
+    class HourlyUaPrtnDeviceClstOsQuery extends QueryBase[HourlyUaPrtnDeviceClstOsQueryParams, HourlyUaPrtnDeviceClstOsRow] with UserActivityQuery {
+      private[logic] override def extractParams(params: QueryParams): HourlyUaPrtnDeviceClstOsQueryParams = {
         val (partner_id,device) = QueryParamsValidator.extractEqualityConstraintParams[Int,Int]((Dimensions.partner,Dimensions.device), params)
-        HourlyUaPtrnDeviceClstOsQueryParams(params.start, params.end, partner_id,device, params.metrics.map(_.id))
+        HourlyUaPrtnDeviceClstOsQueryParams(params.start, params.end, partner_id,device, params.metrics.map(_.id))
       }
 
-      private[logic] override def executeQuery(params: HourlyUaPtrnDeviceClstOsQueryParams): Future[List[HourlyUaPtrnDeviceClstOsRow]] = {
-        val rawQueryResult = HourlyUaPtrnDeviceClstOsTableAccessor.query(params.partnerIdList,params.deviceList,params.metricList,params.years,params.startTime,params.endTime)
+      private[logic] override def executeQuery(params: HourlyUaPrtnDeviceClstOsQueryParams): Future[List[HourlyUaPrtnDeviceClstOsRow]] = {
+        val rawQueryResult = HourlyUaPrtnDeviceClstOsTableAccessor.query(params.partnerIdList,params.deviceList,params.metricList,params.years,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
       }
@@ -23,7 +23,7 @@ package kanalony.storage.logic.generated
         List(Dimensions.partner.toString,Dimensions.device.toString,Dimensions.metric.toString,Dimensions.hour.toString,Dimensions.operatingSystem.toString,"value")
       }
 
-      override protected def getResultRow(row: HourlyUaPtrnDeviceClstOsRow): List[String] = {
+      override protected def getResultRow(row: HourlyUaPrtnDeviceClstOsRow): List[String] = {
         List(row.partnerId.toString,row.device.toString,row.metric.toString,row.hour.toString,row.operatingSystem.toString,row.value.toString)
       }
 
@@ -36,7 +36,7 @@ DimensionDefinition(Dimensions.operatingSystem, new DimensionConstraintDeclarati
 
       override def metricValueLocationIndex(): Int = 5
 
-      override private[logic] def extractMetric(row: HourlyUaPtrnDeviceClstOsRow): Int = row.metric
+      override private[logic] def extractMetric(row: HourlyUaPrtnDeviceClstOsRow): Int = row.metric
     }
 
-case class HourlyUaPtrnDeviceClstOsQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], deviceList : List[Int], metricList : List[Int]) extends IYearlyPartitionedQueryParams
+case class HourlyUaPrtnDeviceClstOsQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], deviceList : List[Int], metricList : List[Int]) extends IYearlyPartitionedQueryParams

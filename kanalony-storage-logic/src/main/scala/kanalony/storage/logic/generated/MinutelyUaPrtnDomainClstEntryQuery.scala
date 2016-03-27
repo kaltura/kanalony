@@ -14,7 +14,7 @@ package kanalony.storage.logic.generated
       }
 
       private[logic] override def executeQuery(params: MinutelyUaPrtnDomainClstEntryQueryParams): Future[List[MinutelyUaPrtnDomainClstEntryRow]] = {
-        val rawQueryResult = MinutelyUaPrtnDomainClstEntryTableAccessor.query(params.partnerIdList,params.domainList,params.metricList,params.startTime,params.endTime)
+        val rawQueryResult = MinutelyUaPrtnDomainClstEntryTableAccessor.query(params.partnerIdList,params.domainList,params.days,params.metricList,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
       }
@@ -39,4 +39,4 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override private[logic] def extractMetric(row: MinutelyUaPrtnDomainClstEntryRow): Int = row.metric
     }
 
-case class MinutelyUaPrtnDomainClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], domainList : List[String], metricList : List[Int]) 
+case class MinutelyUaPrtnDomainClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], domainList : List[String], metricList : List[Int]) extends IDailyPartitionedQueryParams
