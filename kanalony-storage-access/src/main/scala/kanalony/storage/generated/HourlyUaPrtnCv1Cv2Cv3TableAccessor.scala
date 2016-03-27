@@ -11,8 +11,8 @@ abstract class HourlyUaPrtnCv1Cv2Cv3TableAccessor extends CassandraTable[HourlyU
 object custom_var1 extends StringColumn(this)with PartitionKey[String]
 object custom_var2 extends StringColumn(this)with PartitionKey[String]
 object custom_var3 extends StringColumn(this)with PartitionKey[String]
-object metric extends IntColumn(this)with PartitionKey[Int]
 object year extends IntColumn(this)with PartitionKey[Int]
+object metric extends IntColumn(this)with PartitionKey[Int]
 object hour extends DateTimeColumn(this)with ClusteringOrder[DateTime] with Descending
 object value extends LongColumn(this)
 
@@ -25,8 +25,8 @@ object value extends LongColumn(this)
 custom_var1(row), 
 custom_var2(row), 
 custom_var3(row), 
-metric(row), 
 year(row), 
+metric(row), 
 hour(row), 
 value(row)
     )
@@ -37,43 +37,43 @@ value(row)
 .value(_.custom_var1, entity.customVar1)
 .value(_.custom_var2, entity.customVar2)
 .value(_.custom_var3, entity.customVar3)
-.value(_.metric, entity.metric)
 .value(_.year, entity.year)
+.value(_.metric, entity.metric)
 .value(_.hour, entity.hour)
 .value(_.value, entity.value)
 
       .future()
   }
 
-  def query(partnerId : Int, customVar1 : String, customVar2 : String, customVar3 : String, metric : Int, year : Int) : SelectQuery[HourlyUaPrtnCv1Cv2Cv3TableAccessor, HourlyUaPrtnCv1Cv2Cv3Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, customVar1 : String, customVar2 : String, customVar3 : String, year : Int, metric : Int) : SelectQuery[HourlyUaPrtnCv1Cv2Cv3TableAccessor, HourlyUaPrtnCv1Cv2Cv3Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partnerId).and(_.custom_var1 eqs customVar1)
 .and(_.custom_var2 eqs customVar2)
 .and(_.custom_var3 eqs customVar3)
-.and(_.metric eqs metric)
 .and(_.year eqs year)
+.and(_.metric eqs metric)
   }
- def query(partnerId : Int, customVar1 : String, customVar2 : String, customVar3 : String, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyUaPrtnCv1Cv2Cv3TableAccessor, HourlyUaPrtnCv1Cv2Cv3Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, customVar1 : String, customVar2 : String, customVar3 : String, year : Int, metric : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyUaPrtnCv1Cv2Cv3TableAccessor, HourlyUaPrtnCv1Cv2Cv3Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partnerId).and(_.custom_var1 eqs customVar1)
 .and(_.custom_var2 eqs customVar2)
 .and(_.custom_var3 eqs customVar3)
-.and(_.metric eqs metric)
 .and(_.year eqs year)
+.and(_.metric eqs metric)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
   }
-def query(partnerIdList : List[Int], customVar1List : List[String], customVar2List : List[String], customVar3List : List[String], metricList : List[Int], yearList : List[Int]) : SelectQuery[HourlyUaPrtnCv1Cv2Cv3TableAccessor, HourlyUaPrtnCv1Cv2Cv3Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], customVar1List : List[String], customVar2List : List[String], customVar3List : List[String], yearList : List[Int], metricList : List[Int]) : SelectQuery[HourlyUaPrtnCv1Cv2Cv3TableAccessor, HourlyUaPrtnCv1Cv2Cv3Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partnerIdList).and(_.custom_var1 in customVar1List)
 .and(_.custom_var2 in customVar2List)
 .and(_.custom_var3 in customVar3List)
-.and(_.metric in metricList)
 .and(_.year in yearList)
+.and(_.metric in metricList)
   }
- def query(partnerIdList : List[Int], customVar1List : List[String], customVar2List : List[String], customVar3List : List[String], metricList : List[Int], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyUaPrtnCv1Cv2Cv3TableAccessor, HourlyUaPrtnCv1Cv2Cv3Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], customVar1List : List[String], customVar2List : List[String], customVar3List : List[String], yearList : List[Int], metricList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyUaPrtnCv1Cv2Cv3TableAccessor, HourlyUaPrtnCv1Cv2Cv3Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partnerIdList).and(_.custom_var1 in customVar1List)
 .and(_.custom_var2 in customVar2List)
 .and(_.custom_var3 in customVar3List)
-.and(_.metric in metricList)
 .and(_.year in yearList)
+.and(_.metric in metricList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
   }

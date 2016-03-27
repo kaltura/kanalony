@@ -4,7 +4,7 @@ case class HourlyUaPrtnEntryCv1Cv2Row(partnerId:Int,
 entryId:String,
 customVar1:String,
 customVar2:String,
-metric:Int,
 year:Int,
+metric:Int,
 hour:DateTime,
 value:Long)
