@@ -3,7 +3,7 @@ import org.joda.time.DateTime
 case class HourlyUaPrtnAppPlaybackContextClstEntryRow(partnerId:Int,
 application:String,
 playbackContext:String,
-year:Int,
+month:Int,
 metric:Int,
 hour:DateTime,
 entryId:String,

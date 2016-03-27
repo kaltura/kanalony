@@ -2,7 +2,7 @@ package kanalony.storage.generated
 import org.joda.time.DateTime
 case class HourlyUaPrtnOsClstEntryRow(partnerId:Int,
 operatingSystem:Int,
-year:Int,
+month:Int,
 metric:Int,
 hour:DateTime,
 entryId:String,

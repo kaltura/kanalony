@@ -14,7 +14,7 @@ package kanalony.storage.logic.generated
       }
 
       private[logic] override def executeQuery(params: HourlyUaClstEntryQueryParams): Future[List[HourlyUaClstEntryRow]] = {
-        val rawQueryResult = HourlyUaClstEntryTableAccessor.query(params.partnerIdList,params.metricList,params.months,params.startTime,params.endTime)
+        val rawQueryResult = HourlyUaClstEntryTableAccessor.query(params.partnerIdList,params.months,params.metricList,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
       }

@@ -9,8 +9,8 @@ abstract class HourlyUaPrtnCountryClstOsTableAccessor extends CassandraTable[Hou
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object country extends StringColumn(this)with PartitionKey[String]
-object metric extends IntColumn(this)with PartitionKey[Int]
 object year extends IntColumn(this)with PartitionKey[Int]
+object metric extends IntColumn(this)with PartitionKey[Int]
 object hour extends DateTimeColumn(this)with ClusteringOrder[DateTime] with Descending
 object operating_system extends IntColumn(this)with ClusteringOrder[Int] with Ascending
 object value extends LongColumn(this)
@@ -22,8 +22,8 @@ object value extends LongColumn(this)
     HourlyUaPrtnCountryClstOsRow(
       partner_id(row), 
 country(row), 
-metric(row), 
 year(row), 
+metric(row), 
 hour(row), 
 operating_system(row), 
 value(row)
@@ -33,8 +33,8 @@ value(row)
   def store(entity: HourlyUaPrtnCountryClstOsRow): Future[ResultSet] = {
     insert.value(_.partner_id, entity.partnerId)
 .value(_.country, entity.country)
-.value(_.metric, entity.metric)
 .value(_.year, entity.year)
+.value(_.metric, entity.metric)
 .value(_.hour, entity.hour)
 .value(_.operating_system, entity.operatingSystem)
 .value(_.value, entity.value)
@@ -42,43 +42,43 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, country : String, metric : Int, year : Int) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, country : String, year : Int, metric : Int) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partnerId).and(_.country eqs country)
-.and(_.metric eqs metric)
 .and(_.year eqs year)
+.and(_.metric eqs metric)
   }
- def query(partnerId : Int, country : String, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, country : String, year : Int, metric : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partnerId).and(_.country eqs country)
-.and(_.metric eqs metric)
 .and(_.year eqs year)
+.and(_.metric eqs metric)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
   }
- def query(partnerId : Int, country : String, metric : Int, year : Int, hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, country : String, year : Int, metric : Int, hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id eqs partnerId).and(_.country eqs country)
-.and(_.metric eqs metric)
 .and(_.year eqs year)
+.and(_.metric eqs metric)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
 .and(_.operating_system gte operatingSystemStart)
 .and(_.operating_system lt operatingSystemEnd)
   }
-def query(partnerIdList : List[Int], countryList : List[String], metricList : List[Int], yearList : List[Int]) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], countryList : List[String], yearList : List[Int], metricList : List[Int]) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partnerIdList).and(_.country in countryList)
-.and(_.metric in metricList)
 .and(_.year in yearList)
+.and(_.metric in metricList)
   }
- def query(partnerIdList : List[Int], countryList : List[String], metricList : List[Int], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], countryList : List[String], yearList : List[Int], metricList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partnerIdList).and(_.country in countryList)
-.and(_.metric in metricList)
 .and(_.year in yearList)
+.and(_.metric in metricList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
   }
- def query(partnerIdList : List[Int], countryList : List[String], metricList : List[Int], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], countryList : List[String], yearList : List[Int], metricList : List[Int], hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : SelectQuery[HourlyUaPrtnCountryClstOsTableAccessor, HourlyUaPrtnCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
     select.where(_.partner_id in partnerIdList).and(_.country in countryList)
-.and(_.metric in metricList)
 .and(_.year in yearList)
+.and(_.metric in metricList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
 .and(_.operating_system gte operatingSystemStart)

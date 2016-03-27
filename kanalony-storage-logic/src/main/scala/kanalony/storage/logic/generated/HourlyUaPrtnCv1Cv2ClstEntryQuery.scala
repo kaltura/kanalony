@@ -14,7 +14,7 @@ package kanalony.storage.logic.generated
       }
 
       private[logic] override def executeQuery(params: HourlyUaPrtnCv1Cv2ClstEntryQueryParams): Future[List[HourlyUaPrtnCv1Cv2ClstEntryRow]] = {
-        val rawQueryResult = HourlyUaPrtnCv1Cv2ClstEntryTableAccessor.query(params.partnerIdList,params.customVar1List,params.customVar2List,params.years,params.metricList,params.startTime,params.endTime)
+        val rawQueryResult = HourlyUaPrtnCv1Cv2ClstEntryTableAccessor.query(params.partnerIdList,params.customVar1List,params.customVar2List,params.months,params.metricList,params.startTime,params.endTime)
       .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
     rawQueryResult
       }
@@ -40,4 +40,4 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override private[logic] def extractMetric(row: HourlyUaPrtnCv1Cv2ClstEntryRow): Int = row.metric
     }
 
-case class HourlyUaPrtnCv1Cv2ClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], customVar1List : List[String], customVar2List : List[String], metricList : List[Int]) extends IYearlyPartitionedQueryParams
+case class HourlyUaPrtnCv1Cv2ClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], customVar1List : List[String], customVar2List : List[String], metricList : List[Int]) extends IMonthlyPartitionedQueryParams

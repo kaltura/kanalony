@@ -3,7 +3,7 @@ import org.joda.time.DateTime
 case class HourlyUaPrtnEntryCv2Row(partnerId:Int,
 entryId:String,
 customVar2:String,
-metric:Int,
 year:Int,
+metric:Int,
 hour:DateTime,
 value:Long)
