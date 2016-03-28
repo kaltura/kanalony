@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.InternalMetrics
+import com.kaltura.model.entities.{AggregationKind, InternalMetrics}
 import kanalony.storage.logic.queries.{DailyMaxQuery, DailyCountQuery}
 
 /**
@@ -14,13 +14,13 @@ object ComputedDimensions extends ComputedQueryFactory[Dimensions.Value] {
   def dailyQueryCreator : (QueryParams) => List[(IQuery, List[InternalMetrics.Value])] = {
     (qp) => {
       var res : List[(IQuery, List[InternalMetrics.Value])] = List()
-      val dailyMaxMetrics = qp.metrics.filter(_ == InternalMetrics.peakView)
+      val dailyMaxMetrics = qp.metrics.filter(InternalMetrics.getAggregationKind(_) == AggregationKind.Max)
       if (dailyMaxMetrics.nonEmpty)
       {
         res = res :+ (new DailyMaxQuery(qp), dailyMaxMetrics)
       }
 
-      val dailyCountMetrics = qp.metrics.filter(_ != InternalMetrics.peakView)
+      val dailyCountMetrics = qp.metrics.filter(InternalMetrics.getAggregationKind(_) == AggregationKind.Sum)
       if (dailyCountMetrics.nonEmpty)
       {
         res = res :+ (new DailyCountQuery(qp), dailyCountMetrics)

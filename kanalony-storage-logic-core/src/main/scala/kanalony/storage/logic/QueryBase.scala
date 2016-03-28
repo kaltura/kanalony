@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.InternalMetrics
+import com.kaltura.model.entities.{AggregationKind, InternalMetrics}
 import kanalony.storage.DbClientFactory
 import kanalony.storage.generated._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,10 +39,9 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
   }
 
   def getGroupAggregatedValue(v: List[List[String]], metric : Int): Double = {
-    val x = metric
     val metricKind = InternalMetrics.values.find(_.id == metric)
     val values = v.map(row => row(metricValueLocationIndex).toDouble)
-    if (metricKind.isDefined && metricKind.get == InternalMetrics.peakView)
+    if (metricKind.isDefined && InternalMetrics.getAggregationKind(metricKind.get) == AggregationKind.Max)
     {
       values.max
     }
