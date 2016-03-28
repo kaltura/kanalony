@@ -2,7 +2,6 @@ package kanalony.storage.logic
 
 import com.kaltura.model.entities.InternalMetrics
 import kanalony.storage.logic.queries.DailyQuery
-import kanalony.storage.logic.queries.model.QueryDimensionDefinition
 
 /**
  * Created by elad.benedict on 3/7/2016.

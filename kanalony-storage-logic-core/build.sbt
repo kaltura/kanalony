@@ -1,11 +1,9 @@
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-storage-access` = RootProject(file("../kanalony-storage-access"))
 lazy val `kanalony-storage-access-generated` = RootProject(file("../kanalony-storage-access-generated"))
-lazy val `kanalony-storage-logic-core` = RootProject(file("../kanalony-storage-logic-core"))
-lazy val `kanalony-storage-logic-generated` = RootProject(file("../kanalony-storage-logic-generated"))
-lazy val `kanalony-storage-logic` = (project in file(".")).
+lazy val `kanalony-storage-logic-core` = (project in file(".")).
   settings(
-    name := "kanalony-storage-logic",
+    name := "kanalony-storage-logic-core",
     version := "1.0",
     scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
@@ -14,4 +12,4 @@ lazy val `kanalony-storage-logic` = (project in file(".")).
       "joda-time"         %  "joda-time"                     % "2.8.1",
       "com.google.guava"  %  "guava"                         % "12.0"
     )
-  ).dependsOn(`kanalony-storage-access`,`kanalony-storage-access-generated`,`kanalony-model`,`kanalony-storage-logic-generated`,`kanalony-storage-logic-core`)
+  ).dependsOn(`kanalony-storage-access`,`kanalony-storage-access-generated`,`kanalony-model`)
