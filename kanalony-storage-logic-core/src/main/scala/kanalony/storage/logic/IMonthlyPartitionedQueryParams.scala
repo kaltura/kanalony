@@ -1,5 +1,6 @@
 package kanalony.storage.logic
 
+import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
 import org.joda.time.{Months, DateTime}
 
 /**
@@ -12,7 +13,7 @@ trait IMonthlyPartitionedQueryParams {
     val monthCount = Months.monthsBetween(startTime, endTime).getMonths
     (0 to monthCount).map(numOfMonthsToAdd => {
       val monthDateTime = startTime.plusMonths(numOfMonthsToAdd)
-      monthDateTime.getYear * 100 + monthDateTime.getMonthOfYear
+      monthDateTime.getYearMonth
     }).toList
   }
 }
