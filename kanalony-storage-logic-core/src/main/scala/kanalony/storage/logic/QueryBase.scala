@@ -38,8 +38,18 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def getGroupAggregatedValue(v: List[List[String]]): Double = {
-    v.map(row => row(metricValueLocationIndex).toDouble).sum
+  def getGroupAggregatedValue(v: List[List[String]], metric : Int): Double = {
+    val x = metric
+    val metricKind = InternalMetrics.values.find(_.id == metric)
+    val values = v.map(row => row(metricValueLocationIndex).toDouble)
+    if (metricKind.isDefined && metricKind.get == InternalMetrics.peakView)
+    {
+      values.max
+    }
+    else
+    {
+      values.sum
+    }
   }
 
   def groupAndAggregate(params: QueryParams, metric: Int): QueryResult => QueryResult = {
@@ -64,7 +74,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
         } else {
           group._1.split(groupingSeparator).toList
         }
-        val groupAggregatedValue = getGroupAggregatedValue(group._2).toString
+        val groupAggregatedValue = getGroupAggregatedValue(group._2, metric).toString
         rowData = rowData :+ groupAggregatedValue
         rowData
       })
