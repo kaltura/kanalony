@@ -5,7 +5,7 @@ import com.kaltura.core.urls.UrlParts
 import com.kaltura.core.userAgent.UserAgent
 import org.joda.time.DateTime
 
-case class EnrichedPlayerEvent(eventType:       Int,
+case class EnrichedPlayerEvent(eventType:       String,
                                eventTime:       DateTime,
                                partnerId:       Int,
                                entryId:         String,

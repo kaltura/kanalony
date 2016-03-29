@@ -5,6 +5,7 @@ import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.urls.UrlParser
 import com.kaltura.core.userAgent.UserAgentResolver
 import com.kaltura.core.utils.ConfigurationManager
+import com.kaltura.model.entities.PlayerEventTypes
 import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser, RawPlayerEvent}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.log4j.{Level, Logger}
@@ -76,27 +77,35 @@ object EventsEnrichment extends App with Logging {
         val producer = StreamManager.createProducer(kafkaBrokers)
         val locationResolver = new LocationResolver
         eventsPart.foreach(rawPlayerEvent => {
-          val playerEvent = EnrichedPlayerEvent(
-            rawPlayerEvent.params.getOrElse("event:eventType","-1").toInt,
-            rawPlayerEvent.eventTime,
-            rawPlayerEvent.params.getOrElse("event:partnerId","-1").toInt,
-            rawPlayerEvent.params.getOrElse("event:entryId",""),
-            rawPlayerEvent.params.getOrElse("event:flavourId",""),
-            rawPlayerEvent.params.getOrElse("userId","Unknown"),
-            locationResolver.parseWithProxy(rawPlayerEvent.remoteAddr, rawPlayerEvent.proxyRemoteAddr),
-            UserAgentResolver.resolve(rawPlayerEvent.userAgent),
-            UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("event:referrer","")),
-            rawPlayerEvent.params.getOrElse("kalsig",""),
-            rawPlayerEvent.params.getOrElse("categories",""),
-            rawPlayerEvent.params.getOrElse("application",""),
-            rawPlayerEvent.params.getOrElse("playbackContext",""),
-            rawPlayerEvent.params.getOrElse("playbackType",""),
-            rawPlayerEvent.params.getOrElse("customVar1",""),
-            rawPlayerEvent.params.getOrElse("customVar2",""),
-            rawPlayerEvent.params.getOrElse("customVar3","")
-          )
-          producer.send(new ProducerRecord[String,String]("enriched-player-events", null, PlayerEventParser.asJson(playerEvent)))
-          logError(playerEvent.toString)
+          val eventType = rawPlayerEvent.params.get("event:eventType")
+          val partnerId = rawPlayerEvent.params.get("event:partnerId")
+          val entryId = rawPlayerEvent.params.get("event:entryId")
+          if (eventType.isDefined && partnerId.isDefined && entryId.isDefined) {
+            val eventTypeEnum = PlayerEventTypes(eventType.get)
+            val playerEvent = EnrichedPlayerEvent(
+              if (eventTypeEnum.equals(PlayerEventTypes.unknown)) eventType.get else eventTypeEnum.toString,
+              rawPlayerEvent.eventTime,
+              partnerId.get.toInt,
+              entryId.get,
+              rawPlayerEvent.params.getOrElse("event:flavourId",""),
+              rawPlayerEvent.params.getOrElse("userId","Unknown"),
+              locationResolver.parseWithProxy(rawPlayerEvent.remoteAddr, rawPlayerEvent.proxyRemoteAddr),
+              UserAgentResolver.resolve(rawPlayerEvent.userAgent),
+              UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("event:referrer","")),
+              rawPlayerEvent.params.getOrElse("kalsig",""),
+              rawPlayerEvent.params.getOrElse("categories",""),
+              rawPlayerEvent.params.getOrElse("application",""),
+              rawPlayerEvent.params.getOrElse("playbackContext",""),
+              rawPlayerEvent.params.getOrElse("playbackType",""),
+              rawPlayerEvent.params.getOrElse("customVar1",""),
+              rawPlayerEvent.params.getOrElse("customVar2",""),
+              rawPlayerEvent.params.getOrElse("customVar3","")
+            )
+            producer.send(new ProducerRecord[String,String]("enriched-player-events", playerEvent.entryId, PlayerEventParser.asJson(playerEvent)))
+          }
+          else { // Handle a case where partnerId or eventType are missing
+            producer.send(new ProducerRecord[String,String]("erroneous-player-events", rawPlayerEvent.eventTime.toString, PlayerEventParser.asJson(rawPlayerEvent)))
+          }
         })
         producer.close()
         locationResolver.close()
