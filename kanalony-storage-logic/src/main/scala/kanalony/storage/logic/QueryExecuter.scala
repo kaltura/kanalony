@@ -27,7 +27,7 @@ object QueryExecutor {
       var resultantRow = if (groping equals "") { List() } else { groping.split(groupingSeparator).toList }
       resultMetrics.foreach(metric => {
         rowsWithSameMetric
-          .find(_._2 eq metric.toString)
+          .find(_._2 == metric.name)
           .orElse(Some((List("0"), metric)))
           .foreach(r => { resultantRow = resultantRow :+ r._1.last })
       })
@@ -45,7 +45,7 @@ object QueryExecutor {
         .transform(combineMetrics(queryParams.metrics))
         .values
         .toList
-      val headers = queryParams.dimensionDefinitions.filter(_.includeInResult).map(_.dimension.toString) ::: queryParams.metrics.map(_.toString)
+      val headers = queryParams.dimensionDefinitions.filter(_.includeInResult).map(_.dimension.toString) ::: queryParams.metrics.map(_.name)
       QueryResult(headers, resultantRows)
     }
   }
