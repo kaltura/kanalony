@@ -11,7 +11,7 @@ object CassandraCqlGeneratorDriver {
 
   def main (args: Array[String]) {
 
-    val keySpaceName = "kanalony_user_activity"
+    val keySpaceName = "kanalony_agg"
     val keyspaceCreation = s"CREATE KEYSPACE IF NOT EXISTS ${keySpaceName} WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}  AND durable_writes = true;"
 
     val tableNamePlaceholder = "%TABLE_NAME%"
@@ -27,7 +27,7 @@ object CassandraCqlGeneratorDriver {
                                   |    PRIMARY KEY ((%PARTITION_KEY_COLS%), %CLUSTERING_KEY_COLS%)
                                   |) WITH CLUSTERING ORDER BY (%TIME_COL% DESC)
                                   |  AND default_time_to_live=%TTL%
-                                  |  AND gc_grace_seconds=%GC_GRACE_SECS%"""
+                                  |  AND gc_grace_seconds=%GC_GRACE_SECS% ;"""
 
 
     def getCassandraType(typeName: ColumnType.Value) : String = typeName match {
@@ -56,7 +56,7 @@ object CassandraCqlGeneratorDriver {
           .replace(gcGracePlaceholder, getGracePeriod())
     })
 
-    fs.printToFile(new File("kanalony_user_activity_tables.cql"))(p=>(p.write(tables.mkString("\n\n").stripMargin)))
-    fs.printToFile(new File("kanalony_user_activity_keyspace.cql"))(p=>(p.write(keyspaceCreation)))
+    fs.printToFile(new File("kanalony_agg_tables.cql"))(p=>(p.write(tables.mkString("\n\n").stripMargin)))
+    fs.printToFile(new File("kanalony_agg_keyspace.cql"))(p=>(p.write(keyspaceCreation)))
   }
 }
