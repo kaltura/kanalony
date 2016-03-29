@@ -2,17 +2,16 @@ package kanalony.storage.logic.queries
 
 import com.kaltura.model.entities.InternalMetrics
 import kanalony.storage.logic._
-import kanalony.storage.logic.queries.model._
+import kanalony.storage.logic.queries.model.{IDimensionDefinition, QueryDimensionDefinition}
 import org.joda.time.DateTime
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.Future
 
 /**
  * Created by elad.benedict on 3/7/2016.
  */
 
-class DailyQuery(queryParams: QueryParams) extends IQuery {
+abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
 
   if (!queryParams.dimensionDefinitions.map(_.dimension).contains(Dimensions.day))
   {
@@ -51,6 +50,8 @@ class DailyQuery(queryParams: QueryParams) extends IQuery {
 
   def createRow: (String, Double) => List[String] = (grouping, aggregatedValue) => (grouping.split(separator) :+ aggregatedValue.toString).toList
 
+  def computeGroupAggregatedValue: (List[List[String]]) => Double
+
   def aggregateByDay: (IQueryResult) => IQueryResult = {
     qr => {
       val headers = qr.headers.map {
@@ -61,7 +62,7 @@ class DailyQuery(queryParams: QueryParams) extends IQuery {
       val groupByKey = getDailyGroupByKey(qr.headers)
       val rows = qr.rows
         .groupBy(groupByKey)
-        .mapValues(_.foldLeft(0.0)(_ + countFieldExtractor(_)))
+        .mapValues(computeGroupAggregatedValue)
         .transform(createRow)
         .values
         .toList
