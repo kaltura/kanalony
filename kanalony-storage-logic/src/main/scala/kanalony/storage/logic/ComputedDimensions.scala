@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.{AggregationKind, InternalMetrics}
+import com.kaltura.model.entities.{Metric, AggregationKind, Metrics}
 import kanalony.storage.logic.queries.{DailyMaxQuery, DailyCountQuery}
 
 /**
@@ -11,16 +11,16 @@ object ComputedDimensions extends ComputedQueryFactory[Dimensions.Value] {
 
   val queryCreatorGetter = Map((Dimensions.day, dailyQueryCreator))
 
-  def dailyQueryCreator : (QueryParams) => List[(IQuery, List[InternalMetrics.Value])] = {
+  def dailyQueryCreator : (QueryParams) => List[(IQuery, List[Metric])] = {
     (qp) => {
-      var res : List[(IQuery, List[InternalMetrics.Value])] = List()
-      val dailyMaxMetrics = qp.metrics.filter(InternalMetrics.getAggregationKind(_) == AggregationKind.Max)
+      var res : List[(IQuery, List[Metric])] = List()
+      val dailyMaxMetrics = qp.metrics.filter(_.aggregationKind == AggregationKind.Max)
       if (dailyMaxMetrics.nonEmpty)
       {
         res = res :+ (new DailyMaxQuery(qp), dailyMaxMetrics)
       }
 
-      val dailyCountMetrics = qp.metrics.filter(InternalMetrics.getAggregationKind(_) == AggregationKind.Sum)
+      val dailyCountMetrics = qp.metrics.filter(_.aggregationKind == AggregationKind.Sum)
       if (dailyCountMetrics.nonEmpty)
       {
         res = res :+ (new DailyCountQuery(qp), dailyCountMetrics)
@@ -31,4 +31,5 @@ object ComputedDimensions extends ComputedQueryFactory[Dimensions.Value] {
   }
 
   override def getErrorMessage(value: Dimensions.Value): String = s"Computed dimension ${value} is currently not supported"
+
 }

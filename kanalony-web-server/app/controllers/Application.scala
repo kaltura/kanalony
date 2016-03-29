@@ -1,6 +1,6 @@
 package controllers
 
-import com.kaltura.model.entities.{InternalMetrics, Metrics}
+import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.queries.model._
 import kanalony.storage.logic._
 import model._
@@ -79,9 +79,8 @@ class Application extends Controller {
     }
   }
 
-  def extractMetrics(metrics : List[String]): List[InternalMetrics.Value] = {
-    val externallyAvailableMetrics = extractValues(metrics, Metrics.withName(_), metric => new InvalidMetricsException(s"Metric $metric not supported"))
-    externallyAvailableMetrics.map(m => InternalMetrics.withName(m.toString))
+  def extractMetrics(metrics : List[String]): List[Metric] = {
+    extractValues(metrics, Metrics.get(_), metric => new InvalidMetricsException(s"Metric $metric not supported"))
   }
 
   def extractDimension(dimension : String): Dimensions.Value = {

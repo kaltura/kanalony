@@ -33,8 +33,10 @@ object QueryTemplates {
     class %QUERY_NAME% extends QueryBase[%QUERY_PARAMS_TYPE%, %TABLE_ROW_TYPE%] with %SUPPORTED_METRICS_PROVIDER% {
       private[logic] override def extractParams(params: QueryParams): %QUERY_PARAMS_TYPE% = {
         val (%EQUALITY_CONS_DIMS_WITHOUT_METRIC%) = QueryParamsValidator.extractEqualityConstraintParams[%EQUALITY_CONS_TYPES%]((%EQUALITY_CONS_DIMS_WITHOUT_METRIC_ENUM_VALUES%), params)
-        %QUERY_PARAMS_TYPE%(params.start, params.end, %EQUALITY_CONS_DIMS_WITHOUT_METRIC%, params.metrics.map(_.id))
+        %QUERY_PARAMS_TYPE%(params.start, params.end, %EQUALITY_CONS_DIMS_WITHOUT_METRIC%, params.metrics.map(_.name))
       }
+
+      override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: %QUERY_PARAMS_TYPE%): Future[List[%TABLE_ROW_TYPE%]] = {
         %QUERY_TABLE_WITH_PARAMS_ARGS%
@@ -54,7 +56,7 @@ object QueryTemplates {
 
       override def metricValueLocationIndex(): Int = %METRIC_VALUE_LOCATION%
 
-      override private[logic] def extractMetric(row: %TABLE_ROW_TYPE%): Int = row.metric
+      override private[logic] def extractMetric(row: %TABLE_ROW_TYPE%): String = row.metric
     }"""
   }
 
