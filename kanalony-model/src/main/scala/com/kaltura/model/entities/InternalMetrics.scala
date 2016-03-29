@@ -3,6 +3,11 @@ package com.kaltura.model.entities
 /**
  * Created by elad.benedict on 2/16/2016.
  */
+
+object AggregationKind extends Enumeration {
+  val Sum, Max = Value
+}
+
 object InternalMetrics extends Enumeration {
   val playImpression = Value(1)
   val playRequested = Value(2)
@@ -18,4 +23,10 @@ object InternalMetrics extends Enumeration {
   estimatedMinutesWatched, loadToPlayTime = Value
   val tenSecsViewed = Value(99)
   val actualBitrate = Value(1000)
+
+  def getAggregationKind(metric : InternalMetrics.Value) : AggregationKind.Value = metric match {
+    case InternalMetrics.peakView => AggregationKind.Max
+    case _ => AggregationKind.Sum
+  }
+
 }
