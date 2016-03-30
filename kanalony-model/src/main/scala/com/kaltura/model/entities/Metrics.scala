@@ -13,7 +13,7 @@ object AggregationKind extends Enumeration {
 }
 
 object Metrics {
-  object playImpression extends Metric("playImpression")
+  object playerImpression extends Metric("playerImpression")
   object playRequested extends Metric("playRequested")
   object play extends Metric("play")
   object playThrough25 extends Metric("playThrough25")
@@ -51,7 +51,7 @@ object Metrics {
     }
   }
 
-  val values = Set(playImpression, playRequested, play,
+  val values = Set(playerImpression, playRequested, play,
     playThrough25, playThrough50, playThrough75, playThrough100,
     playRatio, averageViewDropOff, segmentsWatched, percentageWatched,
     uniqueKnownUsers, uniquePlayerSessionId, uniqueVideos, view,

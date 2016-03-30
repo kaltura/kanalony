@@ -11,11 +11,11 @@ import scala.concurrent.Future
  */
 
 class PlayRatioQuery(queryParams: QueryParams) extends ComputedQuery(Metrics.playRatio, queryParams) {
-  override val requiredMetrics: List[Metric] = List(Metrics.play, Metrics.playImpression)
+  override val requiredMetrics: List[Metric] = List(Metrics.play, Metrics.playerImpression)
 
   override def computeValue(groupMetricsValues: List[SingleMetricValue]): Double = {
     val playValue = groupMetricsValues.find(_.metric == Metrics.play).get.value
-    val playImpressionValue = groupMetricsValues.find(_.metric == Metrics.playImpression).get.value
-    playValue/playImpressionValue
+    val playerImpressionValue = groupMetricsValues.find(_.metric == Metrics.playerImpression).get.value
+    playValue/playerImpressionValue
   }
 }
