@@ -1,6 +1,5 @@
 import play.sbt.PlayImport._
 
-lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-storage-logic` = RootProject(file("../kanalony-storage-logic"))
 lazy val `kanalony-storage-access` = RootProject(file("../kanalony-storage-access"))
 lazy val `kanalony-storage-access-generated` = RootProject(file("../kanalony-storage-access-generated"))
