@@ -15,7 +15,7 @@ lazy val `kanalony-web-server` = (project in file(".")).enablePlugins(PlayScala)
       specs2                    %   Test,
       "io.argonaut"            %% "argonaut"                  % "6.0.4",
       "org.scalatest"          %% "scalatest"                 % "2.2.6"    % "test",
-      "io.gatling.highcharts"   % "gatling-charts-highcharts" % "2.1.7"
+      "io.gatling.highcharts"   % "gatling-charts-highcharts" % "2.1.7"    % "test"
     ),
     resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
                       "Artima Maven Repository" at "http://repo.artima.com/releases"),
