@@ -22,11 +22,10 @@ class QueryTypeGenerator(tm : TableMetadata) {
   def getQueryName : String = QueryTypeGenerator.getQueryName(tm)
   def getTableRowType : String = EntityClassGenerator.getEntityName(tm)
   def getQueryParamsTypeName : String = ParamsTypeGenerator.getClassName(tm.tableName)
-  def getSupportedMetricsProvider : String = "UserActivityQuery" // This will require additional metadata and include logic when we support additional query kinds
+  def getSupportedMetricsProvider : String = "IUserActivityQuery" // This will require additional metadata and include logic when we support additional query kinds
   def getEqualityConstraintExplicitColumnsNotIncludingMetrics : String = explicitNonMetricPartitionKeyColumnsExtendedInformation.map(c => c.name).mkString(",")
   def getEqualityConstraintColumnTypesNotIncludingMetricPlaceholder : String = explicitNonMetricPartitionKeyColumnsExtendedInformation.map(c => c.typeName).mkString(",")
   def getEqualityConstraintExplicitColumnsNotIncludingMetricsEnumValues : String = explicitNonMetricPartitionKeyColumnsExtendedInformation.map(c => s"Dimensions.${Dimensions.fromColumnName(c.name)}").mkString(",")
-
 
   def getTableQueryingImplementation : String = {
     def getEqualityArguments : String = extendedPartitionKeyColumnsInformation.map(x => s"params.${ParamsTypeGenerator.getParamName(x)}").mkString(",")

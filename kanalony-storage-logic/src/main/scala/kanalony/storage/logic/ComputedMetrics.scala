@@ -1,30 +1,30 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.InternalMetrics
+import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.queries.{AverageViewDropOffQuery, AverageTimeViewedQuery, EstimatedMinutesWatchedQuery, PlayRatioQuery}
 
-object ComputedMetrics extends ComputedQueryFactory[InternalMetrics.Value] {
+object ComputedMetrics extends ComputedQueryFactory[Metric] {
 
-  val queryCreatorGetter = Map((InternalMetrics.playRatio, playRatioQueryCreator),
-                               (InternalMetrics.estimatedMinutesWatched, estimatedMinutesWatchedQueryCreator),
-                               (InternalMetrics.averageViewDuration, averageViewDurationQueryCreator),
-                               (InternalMetrics.averageViewDropOff, averageViewDropOffQueryCreator))
+  val queryCreatorGetter = Map((Metrics.playRatio, playRatioQueryCreator),
+                               (Metrics.estimatedMinutesWatched, estimatedMinutesWatchedQueryCreator),
+                               (Metrics.averageViewDuration, averageViewDurationQueryCreator),
+                               (Metrics.averageViewDropOff, averageViewDropOffQueryCreator))
 
-  def playRatioQueryCreator: (QueryParams) => List[(IQuery, List[InternalMetrics.Value])] = {
-    (qp) => List((new PlayRatioQuery(qp), List(InternalMetrics.playRatio)))
+  def playRatioQueryCreator: (QueryParams) => List[(IQuery, List[Metric])] = {
+    (qp) => List((new PlayRatioQuery(qp), List(Metrics.playRatio)))
   }
 
-  def estimatedMinutesWatchedQueryCreator: (QueryParams) => List[(IQuery, List[InternalMetrics.Value])] = {
-    (qp) => List((new EstimatedMinutesWatchedQuery(qp), List(InternalMetrics.estimatedMinutesWatched)))
+  def estimatedMinutesWatchedQueryCreator: (QueryParams) => List[(IQuery, List[Metric])] = {
+    (qp) => List((new EstimatedMinutesWatchedQuery(qp), List(Metrics.estimatedMinutesWatched)))
   }
 
-  def averageViewDurationQueryCreator: (QueryParams) => List[(IQuery, List[InternalMetrics.Value])] = {
-    (qp) => List((new AverageTimeViewedQuery(qp), List(InternalMetrics.averageViewDuration)))
+  def averageViewDurationQueryCreator: (QueryParams) => List[(IQuery, List[Metric])] = {
+    (qp) => List((new AverageTimeViewedQuery(qp), List(Metrics.averageViewDuration)))
   }
 
-  def averageViewDropOffQueryCreator: (QueryParams) => List[(IQuery, List[InternalMetrics.Value])] = {
-    (qp) => List((new AverageViewDropOffQuery(qp), List(InternalMetrics.averageViewDropOff)))
+  def averageViewDropOffQueryCreator: (QueryParams) => List[(IQuery, List[Metric])] = {
+    (qp) => List((new AverageViewDropOffQuery(qp), List(Metrics.averageViewDropOff)))
   }
 
-  override def getErrorMessage(value: InternalMetrics.Value): String = s"Computed metric ${value} is currently not supported"
+  override def getErrorMessage(value: Metric): String = s"Computed metric ${value} is currently not supported"
 }

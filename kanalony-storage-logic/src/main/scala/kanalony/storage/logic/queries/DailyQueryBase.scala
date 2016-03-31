@@ -1,6 +1,6 @@
 package kanalony.storage.logic.queries
 
-import com.kaltura.model.entities.InternalMetrics
+import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic._
 import kanalony.storage.logic.queries.model.{IDimensionDefinition, QueryDimensionDefinition}
 import org.joda.time.DateTime
@@ -29,7 +29,8 @@ abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
   val query = queryLocationResult.head._1
 
   val separator = "::"
-  override val supportedMetrics: Set[InternalMetrics.Value] = query.supportedMetrics
+
+  override def isMetricSupported(metric: Metric) = query.isMetricSupported(metric)
 
   def getDailyGroupByKey(headers : List[String]) : (List[String]) => String = {
 
@@ -95,4 +96,6 @@ abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
     }
     QueryParams(dimDefs, queryParams.metrics, queryParams.start, queryParams.end)
   }
+
+  override val supportedWellKnownMetrics: Set[Metric] = query.supportedWellKnownMetrics
 }

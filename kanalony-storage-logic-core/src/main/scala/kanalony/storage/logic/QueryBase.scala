@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.{AggregationKind, InternalMetrics}
+import com.kaltura.model.entities.{Metric, AggregationKind, Metrics}
 import kanalony.storage.DbClientFactory
 import kanalony.storage.generated._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -11,6 +11,8 @@ import scala.concurrent.Future
  */
 
 abstract class QueryBase[TReq, TQueryRow] extends IQuery {
+
+  def supportsUserDefinedMetrics = false
 
   val groupingSeparator = "::"
 
@@ -24,7 +26,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
   private[logic] def getResultHeaders(): List[String]
 
-  private[logic] def extractMetric(row : TQueryRow): Int
+  private[logic] def extractMetric(row : TQueryRow): String
 
   protected def getResultRow(row: TQueryRow): List[String]
 
@@ -38,10 +40,10 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def getGroupAggregatedValue(v: List[List[String]], metric : Int): Double = {
-    val metricKind = InternalMetrics.values.find(_.id == metric)
+  def getGroupAggregatedValue(v: List[List[String]], metric : String): Double = {
+    val metricKind = Metrics.values.find(_.name == metric)
     val values = v.map(row => row(metricValueLocationIndex).toDouble)
-    if (metricKind.isDefined && InternalMetrics.getAggregationKind(metricKind.get) == AggregationKind.Max)
+    if (metricKind.isDefined && metricKind.get.aggregationKind == AggregationKind.Max)
     {
       values.max
     }
@@ -51,7 +53,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def groupAndAggregate(params: QueryParams, metric: Int): QueryResult => QueryResult = {
+  def groupAndAggregate(params: QueryParams, metric: String): QueryResult => QueryResult = {
 
     val resultDimensions = params.dimensionDefinitions.filter(_.includeInResult).map(_.dimension)
 
@@ -64,7 +66,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
     queryResult => {
       val headerDimensionIndexes = getGroupDimensionIndexes(queryResult)
-      val resultHeaders = resultDimensions.map(_.toString) :+ InternalMetrics(metric).toString
+      val resultHeaders = resultDimensions.map(_.toString) :+ Metrics.get(metric).name
       val groupedData = queryResult.rows.groupBy(getGroupByKey(headerDimensionIndexes))
 
       val resultRows = groupedData.toList.map((group: (String, List[List[String]])) => {
@@ -82,11 +84,11 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def groupByMetric: (List[TQueryRow]) => Map[Int, List[TQueryRow]] = {
+  def groupByMetric: (List[TQueryRow]) => Map[String, List[TQueryRow]] = {
     rows => rows.groupBy(extractMetric)
   }
 
-  def processMetric(params: QueryParams): (Map[Int, List[TQueryRow]]) => List[QueryResult] = {
+  def processMetric(params: QueryParams): (Map[String, List[TQueryRow]]) => List[QueryResult] = {
     // For each (group of rows with the same) metric
     x => {
       if (x.isEmpty)
@@ -94,7 +96,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
         List(QueryResult(getResultHeaders(), List()))
       }
       else {
-        x.map((kvp: (Int, List[TQueryRow])) => {
+        x.map((kvp: (String, List[TQueryRow])) => {
           // Turn to QueryResult
           val processedRows = kvp._2.map(row => getResultRow(row))
           val queryResult = QueryResult(getResultHeaders(), processedRows)
@@ -114,5 +116,16 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
       .map(groupByMetric)
       // Calculate aggregation per metric
       .map(processMetric(params))
+  }
+
+  override def isMetricSupported(metric: Metric): Boolean = {
+    if (metric.isUserDefined)
+    {
+      supportsUserDefinedMetrics
+    }
+    else
+    {
+      supportedWellKnownMetrics.contains(metric)
+    }
   }
 }

@@ -1,6 +1,6 @@
 package kanalony.storage.logic.queries
 
-import com.kaltura.model.entities.InternalMetrics
+import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.queries.model.IDimensionDefinition
 import kanalony.storage.logic._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -10,14 +10,14 @@ import scala.concurrent.Future
  * Created by elad.benedict on 3/15/2016.
  */
 
-case class SingleMetricQuery(metric : InternalMetrics.Value, query : IQuery)
-case class SingleMetricValue(metric : InternalMetrics.Value, value : Double)
-case class SingleMetricQueryResult(metric : InternalMetrics.Value, queryResult : IQueryResult)
+case class SingleMetricQuery(metric : Metric, query : IQuery)
+case class SingleMetricValue(metric : Metric, value : Double)
+case class SingleMetricQueryResult(metric : Metric, queryResult : IQueryResult)
 
-abstract class ComputedQuery(metric : InternalMetrics.Value, queryParams: QueryParams) extends IQuery {
+abstract class ComputedQuery(metric : Metric, queryParams: QueryParams) extends IQuery {
 
   val separator = "::"
-  val requiredMetrics : List[InternalMetrics.Value]
+  val requiredMetrics : List[Metric]
 
   def computeValue(groupMetricsValues: List[SingleMetricValue]): Double
 
@@ -45,17 +45,15 @@ abstract class ComputedQuery(metric : InternalMetrics.Value, queryParams: QueryP
     List(QueryResult(resultHeaders, resultRows))
   }
 
-  override val supportedMetrics: Set[InternalMetrics.Value] = Set(metric)
-
   def convertQueryParams(queryParams: QueryParams) : QueryParams = {
     convertQueryParams(queryParams, requiredMetrics)
   }
 
-  private def convertQueryParams(queryParams: QueryParams, metric : InternalMetrics.Value) : QueryParams = {
+  private def convertQueryParams(queryParams: QueryParams, metric : Metric) : QueryParams = {
     QueryParams(queryParams.dimensionDefinitions, List(metric) , queryParams.start, queryParams.end)
   }
 
-  private def convertQueryParams(queryParams: QueryParams, metrics : List[InternalMetrics.Value]) : QueryParams = {
+  private def convertQueryParams(queryParams: QueryParams, metrics : List[Metric]) : QueryParams = {
     QueryParams(queryParams.dimensionDefinitions, metrics , queryParams.start, queryParams.end)
   }
 
@@ -77,4 +75,9 @@ abstract class ComputedQuery(metric : InternalMetrics.Value, queryParams: QueryP
   }
 
   override val dimensionInformation: List[IDimensionDefinition] = queryParams.dimensionDefinitions
+
+  override def isMetricSupported(m : Metric): Boolean = m == metric
+
+  val supportedWellKnownMetrics = Set(metric)
+
 }

@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.InternalMetrics
+import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.queries.model._
 
 import scala.concurrent.Future
@@ -10,7 +10,8 @@ import scala.concurrent.Future
  */
 
 trait IQuery {
-  val supportedMetrics : Set[InternalMetrics.Value]
+  def isMetricSupported(metric: Metric) : Boolean
+  val supportedWellKnownMetrics : Set[Metric]
   val dimensionInformation : List[IDimensionDefinition]
   def query(params : QueryParams) : Future[List[IQueryResult]] // IQueryResult per metric
 }

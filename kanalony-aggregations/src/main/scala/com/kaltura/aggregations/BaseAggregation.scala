@@ -1,7 +1,6 @@
 package com.kaltura.aggregations
 
 import com.datastax.spark.connector._
-import com.kaltura.aggregations.IAggregate
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
