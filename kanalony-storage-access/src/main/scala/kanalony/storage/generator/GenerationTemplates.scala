@@ -83,17 +83,24 @@ object GenerationTemplates {
   }
 
   case object queryDefinitionTemplate {
-    val content = """def query(%PARAM_DEFS%) : SelectQuery[%TABLE_CLASS_NAME%, %ENTITY_CLASS%, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+    val content = """def query(%PARAM_DEFS%) : Future[List[%ENTITY_CLASS%]] = {
                     |    select%FILTERS%
+                    |    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
                     |  }"""
     val paramDefsPlaceholder = "%PARAM_DEFS%"
-    val tableClassNamePlaceholder = "%TABLE_CLASS_NAME%"
     val entityClassNamePlaceholder = "%ENTITY_CLASS%"
     val filterClausesPlaceholder = "%FILTERS%"
   }
 
+  case object queryDefinitionSignatureTemplate {
+    val content = """def query(%PARAM_DEFS%) : Future[List[%ENTITY_CLASS%]]"""
+    val paramDefsPlaceholder = "%PARAM_DEFS%"
+    val entityClassNamePlaceholder = "%ENTITY_CLASS%"
+  }
+
   case object tableAccessorTemplate {
     val classNamePlaceholder = "%CLASSNAME%"
+    val interfaceNamePlaceholder = "%TABLE_ACCESSOR_INTERFACE%"
     val entityClassNamePlaceholder = "%ENTITY_CLASS%"
     val valuePopulationPlaceholder = "%VALUE_POPULATION%"
     val rowDecompositionPlaceholder = "%ROW_DECOMPOSITION%"
@@ -107,7 +114,7 @@ object GenerationTemplates {
                     |import shapeless.HNil
                     |import scala.concurrent.Future
                     |
-                    |abstract class %CLASSNAME% extends CassandraTable[%CLASSNAME%, %ENTITY_CLASS%] with RootConnector {
+                    |abstract class %CLASSNAME% extends CassandraTable[%CLASSNAME%, %ENTITY_CLASS%] with RootConnector with %TABLE_ACCESSOR_INTERFACE% {
                     |
                     |  %TABLE_COL_DEFS%
                     |
@@ -127,6 +134,18 @@ object GenerationTemplates {
                     |  %QUERY_METHODS%
                     |
                     |}"""
+  }
+
+  case object tableAccessorInterfaceTemplate {
+    val content = """
+                    |import scala.concurrent.Future
+                    |
+                    |trait %TABLE_ACCESSOR_INTERFACE_NAME% {
+                    |  %QUERY_METHODS_SIGNATURES%
+                    |}"""
+
+    val tableAccessorInterfaceNamePlaceholder = "%TABLE_ACCESSOR_INTERFACE_NAME%"
+    val queryMethodsSignaturesPlaceholder = "%QUERY_METHODS_SIGNATURES%"
   }
 
   case object dbClientFactoryTemplate {

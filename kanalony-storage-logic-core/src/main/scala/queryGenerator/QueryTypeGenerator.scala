@@ -30,7 +30,6 @@ class QueryTypeGenerator(tm : TableMetadata) {
   def getTableQueryingImplementation : String = {
     def getEqualityArguments : String = extendedPartitionKeyColumnsInformation.map(x => s"params.${ParamsTypeGenerator.getParamName(x)}").mkString(",")
     QueryTemplates.TableQueryingTemplate.content
-      .replace(QueryTemplates.TableQueryingTemplate.tableAccessorNamePlaceholder, TableAccessorGenerator.generateClassName(tm))
       .replace(QueryTemplates.TableQueryingTemplate.allEqualityValuesPlaceholder, getEqualityArguments)
   }
 
@@ -62,6 +61,7 @@ class QueryTypeGenerator(tm : TableMetadata) {
   def generate() : String = {
     QueryTemplates.QueryClassTemplate.content
       .replace(QueryTemplates.QueryClassTemplate.queryNamePlaceholder, getQueryName)
+      .replace(QueryTemplates.QueryClassTemplate.tableAccessorInterfacePlaceholder, TableAccessorGenerator.generateInterfaceName(tm))
       .replace(QueryTemplates.QueryClassTemplate.queryParamsClassNamePlaceholder, getQueryParamsTypeName)
       .replace(QueryTemplates.QueryClassTemplate.supportedMetricsProviderPlaceholder, getSupportedMetricsProvider)
       .replace(QueryTemplates.QueryClassTemplate.equalityConstraintColumnsNotIncludingMetricEnumValuesPlaceholder, getEqualityConstraintExplicitColumnsNotIncludingMetricsEnumValues)

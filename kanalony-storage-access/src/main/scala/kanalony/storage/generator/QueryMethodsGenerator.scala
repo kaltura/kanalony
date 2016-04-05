@@ -118,7 +118,6 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
     var generatedQuery = generatedQueryTemplate.content
     val colsDefs = generateColDefs(cols)
     generatedQuery = generatedQuery.replace(generatedQueryTemplate.paramDefsPlaceholder, colsDefs)
-    generatedQuery = generatedQuery.replace(generatedQueryTemplate.tableClassNamePlaceholder, TableAccessorGenerator.generateClassName(tm))
     val entityClassName = EntityClassGenerator.getEntityName(tm)
     generatedQuery = generatedQuery.replace(generatedQueryTemplate.entityClassNamePlaceholder, entityClassName)
     val filterClauses = cols match {
@@ -128,4 +127,15 @@ class QueryMethodsGenerator(val tm : TableMetadata) {
     generatedQuery = generatedQuery.replace(generatedQueryTemplate.filterClausesPlaceholder, filterClauses)
     generatedQuery
   }
+
+  def generateQueryMethodSignature(cols : List[IQueryableColumnDefinition]): String = {
+    val generatedQueryTemplate = GenerationTemplates.queryDefinitionSignatureTemplate
+    var generatedQuery = generatedQueryTemplate.content
+    val colsDefs = generateColDefs(cols)
+    generatedQuery = generatedQuery.replace(generatedQueryTemplate.paramDefsPlaceholder, colsDefs)
+    val entityClassName = EntityClassGenerator.getEntityName(tm)
+    generatedQuery = generatedQuery.replace(generatedQueryTemplate.entityClassNamePlaceholder, entityClassName)
+    generatedQuery
+  }
+
 }

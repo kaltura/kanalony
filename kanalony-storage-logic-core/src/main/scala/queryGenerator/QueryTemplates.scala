@@ -9,6 +9,7 @@ object QueryTemplates {
 
     val queryNamePlaceholder = "%QUERY_NAME%"
     val tableRowTypePlaceholder = "%TABLE_ROW_TYPE%"
+    val tableAccessorInterfacePlaceholder = "%TABLE_ACCESSOR_INTERFACE%"
     val queryParamsClassNamePlaceholder = "%QUERY_PARAMS_TYPE%"
     val supportedMetricsProviderPlaceholder = "%SUPPORTED_METRICS_PROVIDER%"
     val tableQueryingImplementationPlaceholder = "%QUERY_TABLE_WITH_PARAMS_ARGS%"
@@ -30,7 +31,7 @@ object QueryTemplates {
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class %QUERY_NAME% extends QueryBase[%QUERY_PARAMS_TYPE%, %TABLE_ROW_TYPE%] with %SUPPORTED_METRICS_PROVIDER% {
+    class %QUERY_NAME%(accessor : %TABLE_ACCESSOR_INTERFACE%) extends QueryBase[%QUERY_PARAMS_TYPE%, %TABLE_ROW_TYPE%] with %SUPPORTED_METRICS_PROVIDER% {
       private[logic] override def extractParams(params: QueryParams): %QUERY_PARAMS_TYPE% = {
         val (%EQUALITY_CONS_DIMS_WITHOUT_METRIC%) = QueryParamsValidator.extractEqualityConstraintParams[%EQUALITY_CONS_TYPES%]((%EQUALITY_CONS_DIMS_WITHOUT_METRIC_ENUM_VALUES%), params)
         %QUERY_PARAMS_TYPE%(params.start, params.end, %EQUALITY_CONS_DIMS_WITHOUT_METRIC%, params.metrics.map(_.name))
@@ -61,16 +62,14 @@ object QueryTemplates {
   }
 
   object TableQueryingTemplate {
-    val content = """val rawQueryResult = %TABLE_ACCESSOR_NAME%.query(%EQUALITY_VALUES%,params.startTime,params.endTime)
-                    |      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-                    |    rawQueryResult""".stripMargin
-    val tableAccessorNamePlaceholder = "%TABLE_ACCESSOR_NAME%"
+    val content = """accessor.query(%EQUALITY_VALUES%,params.startTime,params.endTime)""".stripMargin
     val allEqualityValuesPlaceholder = "%EQUALITY_VALUES%"
   }
 
   object QueryListTemplate {
     val content = """package kanalony.storage.logic.generated
                     |
+                    |import kanalony.storage.DbClientFactory
                     |import kanalony.storage.logic.queries._
                     |import kanalony.storage.logic._
                     |

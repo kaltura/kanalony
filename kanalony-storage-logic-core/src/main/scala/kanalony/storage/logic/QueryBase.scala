@@ -32,7 +32,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
   def metricValueLocationIndex: Int
 
-  def getGroupByKey(headerDimensionIndexes: List[Int]): (List[String]) => String = {
+  private def getGroupByKey(headerDimensionIndexes: List[Int]): (List[String]) => String = {
     row => {
       var groupValues: List[String] = List()
       headerDimensionIndexes.foreach(i => groupValues = groupValues :+ row(i))
@@ -40,7 +40,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def getGroupAggregatedValue(v: List[List[String]], metric : String): Double = {
+  private def getGroupAggregatedValue(v: List[List[String]], metric : String): Double = {
     val metricKind = Metrics.values.find(_.name == metric)
     val values = v.map(row => row(metricValueLocationIndex).toDouble)
     if (metricKind.isDefined && metricKind.get.aggregationKind == AggregationKind.Max)
@@ -53,7 +53,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def groupAndAggregate(params: QueryParams, metric: String): QueryResult => QueryResult = {
+  private def groupAndAggregate(params: QueryParams, metric: String): QueryResult => QueryResult = {
 
     val resultDimensions = params.dimensionDefinitions.filter(_.includeInResult).map(_.dimension)
 
@@ -84,11 +84,11 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def groupByMetric: (List[TQueryRow]) => Map[String, List[TQueryRow]] = {
+  private def groupByMetric: (List[TQueryRow]) => Map[String, List[TQueryRow]] = {
     rows => rows.groupBy(extractMetric)
   }
 
-  def processMetric(params: QueryParams): (Map[String, List[TQueryRow]]) => List[QueryResult] = {
+  private def processMetric(params: QueryParams): (Map[String, List[TQueryRow]]) => List[QueryResult] = {
     // For each (group of rows with the same) metric
     x => {
       if (x.isEmpty)
