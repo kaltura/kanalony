@@ -47,7 +47,7 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
 
     it("Should query table with the correct parameters")({
       configureStub(List(1,2),List("1","2"),List("play"),List(1970),new DateTime(1), new DateTime(1000),
-                    List(HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1),"app",5)))
+        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1),"app",5)))
 
       val params = QueryParams(List(
         createPartnerDimensionDefintion(Set(1, 2)),
