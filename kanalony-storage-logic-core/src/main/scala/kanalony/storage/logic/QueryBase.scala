@@ -4,7 +4,7 @@ import com.kaltura.model.entities.{Metric, AggregationKind, Metrics}
 import kanalony.storage.DbClientFactory
 import kanalony.storage.generated._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Promise, Future}
 
 /**
  * Created by elad.benedict on 2/10/2016.
@@ -15,8 +15,6 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
   def supportsUserDefinedMetrics = false
 
   val groupingSeparator = "::"
-
-  val dbApi = DbClientFactory
 
   val metricValueHeaderName = "value"
 
@@ -85,7 +83,9 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
   }
 
   private def groupByMetric: (List[TQueryRow]) => Map[String, List[TQueryRow]] = {
-    rows => rows.groupBy(extractMetric)
+    rows => {
+      rows.groupBy(extractMetric)
+    }
   }
 
   private def processMetric(params: QueryParams): (Map[String, List[TQueryRow]]) => List[QueryResult] = {
@@ -108,14 +108,19 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
   }
 
   def query(params: QueryParams): Future[List[IQueryResult]] = {
-    val inputParams = extractParams(params)
-    val retrievedRowsFuture = executeQuery(inputParams)
+    try {
+      val inputParams = extractParams(params)
+      val retrievedRowsFuture = executeQuery(inputParams)
 
-    retrievedRowsFuture
-      // Group retrieved data by metric
-      .map(groupByMetric)
-      // Calculate aggregation per metric
-      .map(processMetric(params))
+      retrievedRowsFuture
+        // Group retrieved data by metric
+        .map(groupByMetric)
+        // Calculate aggregation per metric
+        .map(processMetric(params))
+    }
+    catch {
+      case e: Exception => Promise[List[IQueryResult]]().failure(e).future
+    }
   }
 
   override def isMetricSupported(metric: Metric): Boolean = {
