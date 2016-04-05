@@ -7,7 +7,7 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class HourlyAggPrtnEntryCv3Query extends QueryBase[HourlyAggPrtnEntryCv3QueryParams, HourlyAggPrtnEntryCv3Row] with IUserActivityQuery {
+    class HourlyAggPrtnEntryCv3Query(accessor : IHourlyAggPrtnEntryCv3TableAccessor) extends QueryBase[HourlyAggPrtnEntryCv3QueryParams, HourlyAggPrtnEntryCv3Row] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnEntryCv3QueryParams = {
         val (partner_id,entry_id,custom_var3) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.entry,Dimensions.cf3), params)
         HourlyAggPrtnEntryCv3QueryParams(params.start, params.end, partner_id,entry_id,custom_var3, params.metrics.map(_.name))
@@ -16,9 +16,7 @@ package kanalony.storage.logic.generated
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnEntryCv3QueryParams): Future[List[HourlyAggPrtnEntryCv3Row]] = {
-        val rawQueryResult = HourlyAggPrtnEntryCv3TableAccessor.query(params.partnerIdList,params.entryIdList,params.customVar3List,params.years,params.metricList,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.customVar3List,params.years,params.metricList,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {

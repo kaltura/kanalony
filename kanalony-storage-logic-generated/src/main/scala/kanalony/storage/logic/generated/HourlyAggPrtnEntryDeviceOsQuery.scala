@@ -7,7 +7,7 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class HourlyAggPrtnEntryDeviceOsQuery extends QueryBase[HourlyAggPrtnEntryDeviceOsQueryParams, HourlyAggPrtnEntryDeviceOsRow] with IUserActivityQuery {
+    class HourlyAggPrtnEntryDeviceOsQuery(accessor : IHourlyAggPrtnEntryDeviceOsTableAccessor) extends QueryBase[HourlyAggPrtnEntryDeviceOsQueryParams, HourlyAggPrtnEntryDeviceOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnEntryDeviceOsQueryParams = {
         val (partner_id,entry_id,device,operating_system) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,Int,Int]((Dimensions.partner,Dimensions.entry,Dimensions.device,Dimensions.operatingSystem), params)
         HourlyAggPrtnEntryDeviceOsQueryParams(params.start, params.end, partner_id,entry_id,device,operating_system, params.metrics.map(_.name))
@@ -16,9 +16,7 @@ package kanalony.storage.logic.generated
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnEntryDeviceOsQueryParams): Future[List[HourlyAggPrtnEntryDeviceOsRow]] = {
-        val rawQueryResult = HourlyAggPrtnEntryDeviceOsTableAccessor.query(params.partnerIdList,params.entryIdList,params.deviceList,params.operatingSystemList,params.metricList,params.years,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.deviceList,params.operatingSystemList,params.metricList,params.years,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {

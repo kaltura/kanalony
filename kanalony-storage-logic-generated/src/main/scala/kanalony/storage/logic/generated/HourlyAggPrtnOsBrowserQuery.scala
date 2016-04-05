@@ -7,7 +7,7 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class HourlyAggPrtnOsBrowserQuery extends QueryBase[HourlyAggPrtnOsBrowserQueryParams, HourlyAggPrtnOsBrowserRow] with IUserActivityQuery {
+    class HourlyAggPrtnOsBrowserQuery(accessor : IHourlyAggPrtnOsBrowserTableAccessor) extends QueryBase[HourlyAggPrtnOsBrowserQueryParams, HourlyAggPrtnOsBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnOsBrowserQueryParams = {
         val (partner_id,operating_system,browser) = QueryParamsValidator.extractEqualityConstraintParams[Int,Int,Int]((Dimensions.partner,Dimensions.operatingSystem,Dimensions.browser), params)
         HourlyAggPrtnOsBrowserQueryParams(params.start, params.end, partner_id,operating_system,browser, params.metrics.map(_.name))
@@ -16,9 +16,7 @@ package kanalony.storage.logic.generated
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnOsBrowserQueryParams): Future[List[HourlyAggPrtnOsBrowserRow]] = {
-        val rawQueryResult = HourlyAggPrtnOsBrowserTableAccessor.query(params.partnerIdList,params.operatingSystemList,params.browserList,params.metricList,params.years,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.operatingSystemList,params.browserList,params.metricList,params.years,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {

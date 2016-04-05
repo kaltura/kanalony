@@ -7,7 +7,7 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class TensecsAggPrtnEntryQuery extends QueryBase[TensecsAggPrtnEntryQueryParams, TensecsAggPrtnEntryRow] with IUserActivityQuery {
+    class TensecsAggPrtnEntryQuery(accessor : ITensecsAggPrtnEntryTableAccessor) extends QueryBase[TensecsAggPrtnEntryQueryParams, TensecsAggPrtnEntryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggPrtnEntryQueryParams = {
         val (partner_id,entry_id) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.entry), params)
         TensecsAggPrtnEntryQueryParams(params.start, params.end, partner_id,entry_id, params.metrics.map(_.name))
@@ -16,9 +16,7 @@ package kanalony.storage.logic.generated
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: TensecsAggPrtnEntryQueryParams): Future[List[TensecsAggPrtnEntryRow]] = {
-        val rawQueryResult = TensecsAggPrtnEntryTableAccessor.query(params.partnerIdList,params.entryIdList,params.days,params.metricList,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.days,params.metricList,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {

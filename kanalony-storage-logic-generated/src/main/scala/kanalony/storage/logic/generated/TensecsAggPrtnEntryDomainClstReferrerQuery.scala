@@ -7,7 +7,7 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class TensecsAggPrtnEntryDomainClstReferrerQuery extends QueryBase[TensecsAggPrtnEntryDomainClstReferrerQueryParams, TensecsAggPrtnEntryDomainClstReferrerRow] with IUserActivityQuery {
+    class TensecsAggPrtnEntryDomainClstReferrerQuery(accessor : ITensecsAggPrtnEntryDomainClstReferrerTableAccessor) extends QueryBase[TensecsAggPrtnEntryDomainClstReferrerQueryParams, TensecsAggPrtnEntryDomainClstReferrerRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggPrtnEntryDomainClstReferrerQueryParams = {
         val (partner_id,entry_id,domain) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.entry,Dimensions.syndicationDomain), params)
         TensecsAggPrtnEntryDomainClstReferrerQueryParams(params.start, params.end, partner_id,entry_id,domain, params.metrics.map(_.name))
@@ -16,9 +16,7 @@ package kanalony.storage.logic.generated
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: TensecsAggPrtnEntryDomainClstReferrerQueryParams): Future[List[TensecsAggPrtnEntryDomainClstReferrerRow]] = {
-        val rawQueryResult = TensecsAggPrtnEntryDomainClstReferrerTableAccessor.query(params.partnerIdList,params.entryIdList,params.domainList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.domainList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {

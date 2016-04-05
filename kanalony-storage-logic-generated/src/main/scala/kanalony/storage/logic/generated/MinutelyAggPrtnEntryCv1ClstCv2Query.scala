@@ -7,7 +7,7 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class MinutelyAggPrtnEntryCv1ClstCv2Query extends QueryBase[MinutelyAggPrtnEntryCv1ClstCv2QueryParams, MinutelyAggPrtnEntryCv1ClstCv2Row] with IUserActivityQuery {
+    class MinutelyAggPrtnEntryCv1ClstCv2Query(accessor : IMinutelyAggPrtnEntryCv1ClstCv2TableAccessor) extends QueryBase[MinutelyAggPrtnEntryCv1ClstCv2QueryParams, MinutelyAggPrtnEntryCv1ClstCv2Row] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnEntryCv1ClstCv2QueryParams = {
         val (partner_id,entry_id,custom_var1) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.entry,Dimensions.cf1), params)
         MinutelyAggPrtnEntryCv1ClstCv2QueryParams(params.start, params.end, partner_id,entry_id,custom_var1, params.metrics.map(_.name))
@@ -16,9 +16,7 @@ package kanalony.storage.logic.generated
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: MinutelyAggPrtnEntryCv1ClstCv2QueryParams): Future[List[MinutelyAggPrtnEntryCv1ClstCv2Row]] = {
-        val rawQueryResult = MinutelyAggPrtnEntryCv1ClstCv2TableAccessor.query(params.partnerIdList,params.entryIdList,params.customVar1List,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.customVar1List,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {

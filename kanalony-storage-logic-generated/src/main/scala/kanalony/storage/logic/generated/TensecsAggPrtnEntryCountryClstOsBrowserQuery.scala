@@ -7,7 +7,7 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class TensecsAggPrtnEntryCountryClstOsBrowserQuery extends QueryBase[TensecsAggPrtnEntryCountryClstOsBrowserQueryParams, TensecsAggPrtnEntryCountryClstOsBrowserRow] with IUserActivityQuery {
+    class TensecsAggPrtnEntryCountryClstOsBrowserQuery(accessor : ITensecsAggPrtnEntryCountryClstOsBrowserTableAccessor) extends QueryBase[TensecsAggPrtnEntryCountryClstOsBrowserQueryParams, TensecsAggPrtnEntryCountryClstOsBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggPrtnEntryCountryClstOsBrowserQueryParams = {
         val (partner_id,entry_id,country) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.entry,Dimensions.country), params)
         TensecsAggPrtnEntryCountryClstOsBrowserQueryParams(params.start, params.end, partner_id,entry_id,country, params.metrics.map(_.name))
@@ -16,9 +16,7 @@ package kanalony.storage.logic.generated
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: TensecsAggPrtnEntryCountryClstOsBrowserQueryParams): Future[List[TensecsAggPrtnEntryCountryClstOsBrowserRow]] = {
-        val rawQueryResult = TensecsAggPrtnEntryCountryClstOsBrowserTableAccessor.query(params.partnerIdList,params.entryIdList,params.countryList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.countryList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {

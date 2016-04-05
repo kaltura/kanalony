@@ -7,7 +7,7 @@ package kanalony.storage.logic.generated
     import org.joda.time.DateTime
     import scala.concurrent.Future
 
-    class HourlyAggPrtnPlaybackcontextQuery extends QueryBase[HourlyAggPrtnPlaybackcontextQueryParams, HourlyAggPrtnPlaybackcontextRow] with IUserActivityQuery {
+    class HourlyAggPrtnPlaybackcontextQuery(accessor : IHourlyAggPrtnPlaybackcontextTableAccessor) extends QueryBase[HourlyAggPrtnPlaybackcontextQueryParams, HourlyAggPrtnPlaybackcontextRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnPlaybackcontextQueryParams = {
         val (partner_id,playback_context) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.playbackContext), params)
         HourlyAggPrtnPlaybackcontextQueryParams(params.start, params.end, partner_id,playback_context, params.metrics.map(_.name))
@@ -16,9 +16,7 @@ package kanalony.storage.logic.generated
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnPlaybackcontextQueryParams): Future[List[HourlyAggPrtnPlaybackcontextRow]] = {
-        val rawQueryResult = HourlyAggPrtnPlaybackcontextTableAccessor.query(params.partnerIdList,params.playbackContextList,params.metricList,params.years,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.playbackContextList,params.metricList,params.years,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
