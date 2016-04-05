@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnAppClstPlaybackcontextTableAccessor extends CassandraTable[HourlyAggPrtnAppClstPlaybackcontextTableAccessor, HourlyAggPrtnAppClstPlaybackcontextRow] with RootConnector {
+abstract class HourlyAggPrtnAppClstPlaybackcontextTableAccessor extends CassandraTable[HourlyAggPrtnAppClstPlaybackcontextTableAccessor, HourlyAggPrtnAppClstPlaybackcontextRow] with RootConnector with IHourlyAggPrtnAppClstPlaybackcontextTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object application extends StringColumn(this)with PartitionKey[String]
@@ -42,19 +42,21 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, application : String, metric : String, year : Int) : SelectQuery[HourlyAggPrtnAppClstPlaybackcontextTableAccessor, HourlyAggPrtnAppClstPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, application : String, metric : String, year : Int) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.application eqs application)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnAppClstPlaybackcontextTableAccessor, HourlyAggPrtnAppClstPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.application eqs application)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[HourlyAggPrtnAppClstPlaybackcontextTableAccessor, HourlyAggPrtnAppClstPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.application eqs application)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
@@ -62,20 +64,23 @@ value(row)
 .and(_.hour lt hourEnd)
 .and(_.playback_context gte playbackContextStart)
 .and(_.playback_context lt playbackContextEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int]) : SelectQuery[HourlyAggPrtnAppClstPlaybackcontextTableAccessor, HourlyAggPrtnAppClstPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.application in applicationList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnAppClstPlaybackcontextTableAccessor, HourlyAggPrtnAppClstPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.application in applicationList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : SelectQuery[HourlyAggPrtnAppClstPlaybackcontextTableAccessor, HourlyAggPrtnAppClstPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.application in applicationList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
@@ -83,6 +88,28 @@ def query(partnerIdList : List[Int], applicationList : List[String], metricList 
 .and(_.hour lt hourEnd)
 .and(_.playback_context gte playbackContextStart)
 .and(_.playback_context lt playbackContextEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnAppClstPlaybackcontextRow(partnerId:Int,
+application:String,
+metric:String,
+year:Int,
+hour:DateTime,
+playbackContext:String,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnAppClstPlaybackcontextTableAccessor {
+  def query(partnerId : Int, application : String, metric : String, year : Int) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]]
+ def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]]
+ def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]]
+def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]]
+ def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]]
+ def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime, playbackContextStart : String, playbackContextEnd : String) : Future[List[HourlyAggPrtnAppClstPlaybackcontextRow]]
 }

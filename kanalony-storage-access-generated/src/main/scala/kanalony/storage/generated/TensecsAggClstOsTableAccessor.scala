@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class TensecsAggClstOsTableAccessor extends CassandraTable[TensecsAggClstOsTableAccessor, TensecsAggClstOsRow] with RootConnector {
+abstract class TensecsAggClstOsTableAccessor extends CassandraTable[TensecsAggClstOsTableAccessor, TensecsAggClstOsRow] with RootConnector with ITensecsAggClstOsTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object metric extends StringColumn(this)with PartitionKey[String]
@@ -39,41 +39,67 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, metric : String, day : Int) : SelectQuery[TensecsAggClstOsTableAccessor, TensecsAggClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, metric : String, day : Int) : Future[List[TensecsAggClstOsRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggClstOsTableAccessor, TensecsAggClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggClstOsRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : SelectQuery[TensecsAggClstOsTableAccessor, TensecsAggClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : Future[List[TensecsAggClstOsRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
 .and(_.operating_system gte operatingSystemStart)
 .and(_.operating_system lt operatingSystemEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int]) : SelectQuery[TensecsAggClstOsTableAccessor, TensecsAggClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggClstOsRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggClstOsTableAccessor, TensecsAggClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggClstOsRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : SelectQuery[TensecsAggClstOsTableAccessor, TensecsAggClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : Future[List[TensecsAggClstOsRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
 .and(_.operating_system gte operatingSystemStart)
 .and(_.operating_system lt operatingSystemEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class TensecsAggClstOsRow(partnerId:Int,
+metric:String,
+day:Int,
+tensecs:DateTime,
+operatingSystem:Int,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait ITensecsAggClstOsTableAccessor {
+  def query(partnerId : Int, metric : String, day : Int) : Future[List[TensecsAggClstOsRow]]
+ def query(partnerId : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggClstOsRow]]
+ def query(partnerId : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : Future[List[TensecsAggClstOsRow]]
+def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggClstOsRow]]
+ def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggClstOsRow]]
+ def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : Future[List[TensecsAggClstOsRow]]
 }

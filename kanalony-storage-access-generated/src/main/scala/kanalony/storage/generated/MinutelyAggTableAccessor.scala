@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class MinutelyAggTableAccessor extends CassandraTable[MinutelyAggTableAccessor, MinutelyAggRow] with RootConnector {
+abstract class MinutelyAggTableAccessor extends CassandraTable[MinutelyAggTableAccessor, MinutelyAggRow] with RootConnector with IMinutelyAggTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object metric extends StringColumn(this)with PartitionKey[String]
@@ -36,25 +36,46 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, metric : String, day : Int) : SelectQuery[MinutelyAggTableAccessor, MinutelyAggRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, metric : String, day : Int) : Future[List[MinutelyAggRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggTableAccessor, MinutelyAggRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int]) : SelectQuery[MinutelyAggTableAccessor, MinutelyAggRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int]) : Future[List[MinutelyAggRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggTableAccessor, MinutelyAggRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class MinutelyAggRow(partnerId:Int,
+metric:String,
+day:Int,
+minute:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IMinutelyAggTableAccessor {
+  def query(partnerId : Int, metric : String, day : Int) : Future[List[MinutelyAggRow]]
+ def query(partnerId : Int, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggRow]]
+def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int]) : Future[List[MinutelyAggRow]]
+ def query(partnerIdList : List[Int], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggRow]]
 }

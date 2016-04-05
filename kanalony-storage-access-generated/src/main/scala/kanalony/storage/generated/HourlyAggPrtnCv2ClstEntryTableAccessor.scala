@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnCv2ClstEntryTableAccessor extends CassandraTable[HourlyAggPrtnCv2ClstEntryTableAccessor, HourlyAggPrtnCv2ClstEntryRow] with RootConnector {
+abstract class HourlyAggPrtnCv2ClstEntryTableAccessor extends CassandraTable[HourlyAggPrtnCv2ClstEntryTableAccessor, HourlyAggPrtnCv2ClstEntryRow] with RootConnector with IHourlyAggPrtnCv2ClstEntryTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object custom_var2 extends StringColumn(this)with PartitionKey[String]
@@ -42,19 +42,21 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, customVar2 : String, month : Int, metric : String) : SelectQuery[HourlyAggPrtnCv2ClstEntryTableAccessor, HourlyAggPrtnCv2ClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, customVar2 : String, month : Int, metric : String) : Future[List[HourlyAggPrtnCv2ClstEntryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.custom_var2 eqs customVar2)
 .and(_.month eqs month)
 .and(_.metric eqs metric)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, customVar2 : String, month : Int, metric : String, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnCv2ClstEntryTableAccessor, HourlyAggPrtnCv2ClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, customVar2 : String, month : Int, metric : String, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnCv2ClstEntryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.custom_var2 eqs customVar2)
 .and(_.month eqs month)
 .and(_.metric eqs metric)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, customVar2 : String, month : Int, metric : String, hourStart : DateTime, hourEnd : DateTime, entryIdStart : String, entryIdEnd : String) : SelectQuery[HourlyAggPrtnCv2ClstEntryTableAccessor, HourlyAggPrtnCv2ClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, customVar2 : String, month : Int, metric : String, hourStart : DateTime, hourEnd : DateTime, entryIdStart : String, entryIdEnd : String) : Future[List[HourlyAggPrtnCv2ClstEntryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.custom_var2 eqs customVar2)
 .and(_.month eqs month)
 .and(_.metric eqs metric)
@@ -62,20 +64,23 @@ value(row)
 .and(_.hour lt hourEnd)
 .and(_.entry_id gte entryIdStart)
 .and(_.entry_id lt entryIdEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String]) : SelectQuery[HourlyAggPrtnCv2ClstEntryTableAccessor, HourlyAggPrtnCv2ClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String]) : Future[List[HourlyAggPrtnCv2ClstEntryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.custom_var2 in customVar2List)
 .and(_.month in monthList)
 .and(_.metric in metricList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnCv2ClstEntryTableAccessor, HourlyAggPrtnCv2ClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnCv2ClstEntryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.custom_var2 in customVar2List)
 .and(_.month in monthList)
 .and(_.metric in metricList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime, entryIdStart : String, entryIdEnd : String) : SelectQuery[HourlyAggPrtnCv2ClstEntryTableAccessor, HourlyAggPrtnCv2ClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime, entryIdStart : String, entryIdEnd : String) : Future[List[HourlyAggPrtnCv2ClstEntryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.custom_var2 in customVar2List)
 .and(_.month in monthList)
 .and(_.metric in metricList)
@@ -83,6 +88,28 @@ def query(partnerIdList : List[Int], customVar2List : List[String], monthList : 
 .and(_.hour lt hourEnd)
 .and(_.entry_id gte entryIdStart)
 .and(_.entry_id lt entryIdEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnCv2ClstEntryRow(partnerId:Int,
+customVar2:String,
+month:Int,
+metric:String,
+hour:DateTime,
+entryId:String,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnCv2ClstEntryTableAccessor {
+  def query(partnerId : Int, customVar2 : String, month : Int, metric : String) : Future[List[HourlyAggPrtnCv2ClstEntryRow]]
+ def query(partnerId : Int, customVar2 : String, month : Int, metric : String, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnCv2ClstEntryRow]]
+ def query(partnerId : Int, customVar2 : String, month : Int, metric : String, hourStart : DateTime, hourEnd : DateTime, entryIdStart : String, entryIdEnd : String) : Future[List[HourlyAggPrtnCv2ClstEntryRow]]
+def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String]) : Future[List[HourlyAggPrtnCv2ClstEntryRow]]
+ def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnCv2ClstEntryRow]]
+ def query(partnerIdList : List[Int], customVar2List : List[String], monthList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime, entryIdStart : String, entryIdEnd : String) : Future[List[HourlyAggPrtnCv2ClstEntryRow]]
 }

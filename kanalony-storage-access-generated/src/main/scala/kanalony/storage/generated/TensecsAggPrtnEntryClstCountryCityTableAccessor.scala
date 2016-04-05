@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class TensecsAggPrtnEntryClstCountryCityTableAccessor extends CassandraTable[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow] with RootConnector {
+abstract class TensecsAggPrtnEntryClstCountryCityTableAccessor extends CassandraTable[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow] with RootConnector with ITensecsAggPrtnEntryClstCountryCityTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object entry_id extends StringColumn(this)with PartitionKey[String]
@@ -45,28 +45,21 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, entryId : String, metric : String, day : Int) : SelectQuery[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, entryId : String, metric : String, day : Int) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
-    select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
-.and(_.metric eqs metric)
-.and(_.day eqs day)
-.and(_.tensecs gte tensecsStart)
-.and(_.tensecs lt tensecsEnd)
-  }
- def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String) : SelectQuery[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
-.and(_.country gte countryStart)
-.and(_.country lt countryEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : SelectQuery[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
@@ -74,40 +67,79 @@ value(row)
 .and(_.tensecs lt tensecsEnd)
 .and(_.country gte countryStart)
 .and(_.country lt countryEnd)
-.and(_.city gte cityStart)
-.and(_.city lt cityEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int]) : SelectQuery[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
-    select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
-.and(_.metric in metricList)
-.and(_.day in dayList)
-  }
- def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
-    select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
-.and(_.metric in metricList)
-.and(_.day in dayList)
-.and(_.tensecs gte tensecsStart)
-.and(_.tensecs lt tensecsEnd)
-  }
- def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String) : SelectQuery[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
-    select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
-.and(_.metric in metricList)
-.and(_.day in dayList)
-.and(_.tensecs gte tensecsStart)
-.and(_.tensecs lt tensecsEnd)
-.and(_.country gte countryStart)
-.and(_.country lt countryEnd)
-  }
- def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : SelectQuery[TensecsAggPrtnEntryClstCountryCityTableAccessor, TensecsAggPrtnEntryClstCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
-    select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
-.and(_.metric in metricList)
-.and(_.day in dayList)
+ def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]] = {
+    select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
+.and(_.metric eqs metric)
+.and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
 .and(_.country gte countryStart)
 .and(_.country lt countryEnd)
 .and(_.city gte cityStart)
 .and(_.city lt cityEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
+  }
+def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]] = {
+    select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
+.and(_.metric in metricList)
+.and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
+  }
+ def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]] = {
+    select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
+.and(_.metric in metricList)
+.and(_.day in dayList)
+.and(_.tensecs gte tensecsStart)
+.and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
+  }
+ def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]] = {
+    select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
+.and(_.metric in metricList)
+.and(_.day in dayList)
+.and(_.tensecs gte tensecsStart)
+.and(_.tensecs lt tensecsEnd)
+.and(_.country gte countryStart)
+.and(_.country lt countryEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
+  }
+ def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]] = {
+    select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
+.and(_.metric in metricList)
+.and(_.day in dayList)
+.and(_.tensecs gte tensecsStart)
+.and(_.tensecs lt tensecsEnd)
+.and(_.country gte countryStart)
+.and(_.country lt countryEnd)
+.and(_.city gte cityStart)
+.and(_.city lt cityEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class TensecsAggPrtnEntryClstCountryCityRow(partnerId:Int,
+entryId:String,
+metric:String,
+day:Int,
+tensecs:DateTime,
+country:String,
+city:String,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait ITensecsAggPrtnEntryClstCountryCityTableAccessor {
+  def query(partnerId : Int, entryId : String, metric : String, day : Int) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]]
+ def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]]
+ def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]]
+ def query(partnerId : Int, entryId : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]]
+def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, countryStart : String, countryEnd : String, cityStart : String, cityEnd : String) : Future[List[TensecsAggPrtnEntryClstCountryCityRow]]
 }

@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class MinutelyAggPrtnAppPlaybackcontextTableAccessor extends CassandraTable[MinutelyAggPrtnAppPlaybackcontextTableAccessor, MinutelyAggPrtnAppPlaybackcontextRow] with RootConnector {
+abstract class MinutelyAggPrtnAppPlaybackcontextTableAccessor extends CassandraTable[MinutelyAggPrtnAppPlaybackcontextTableAccessor, MinutelyAggPrtnAppPlaybackcontextRow] with RootConnector with IMinutelyAggPrtnAppPlaybackcontextTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object application extends StringColumn(this)with PartitionKey[String]
@@ -42,33 +42,56 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, application : String, playbackContext : String, metric : String, day : Int) : SelectQuery[MinutelyAggPrtnAppPlaybackcontextTableAccessor, MinutelyAggPrtnAppPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, application : String, playbackContext : String, metric : String, day : Int) : Future[List[MinutelyAggPrtnAppPlaybackcontextRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.application eqs application)
 .and(_.playback_context eqs playbackContext)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, application : String, playbackContext : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnAppPlaybackcontextTableAccessor, MinutelyAggPrtnAppPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, application : String, playbackContext : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnAppPlaybackcontextRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.application eqs application)
 .and(_.playback_context eqs playbackContext)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[String], dayList : List[Int]) : SelectQuery[MinutelyAggPrtnAppPlaybackcontextTableAccessor, MinutelyAggPrtnAppPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[MinutelyAggPrtnAppPlaybackcontextRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.application in applicationList)
 .and(_.playback_context in playbackContextList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnAppPlaybackcontextTableAccessor, MinutelyAggPrtnAppPlaybackcontextRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnAppPlaybackcontextRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.application in applicationList)
 .and(_.playback_context in playbackContextList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class MinutelyAggPrtnAppPlaybackcontextRow(partnerId:Int,
+application:String,
+playbackContext:String,
+metric:String,
+day:Int,
+minute:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IMinutelyAggPrtnAppPlaybackcontextTableAccessor {
+  def query(partnerId : Int, application : String, playbackContext : String, metric : String, day : Int) : Future[List[MinutelyAggPrtnAppPlaybackcontextRow]]
+ def query(partnerId : Int, application : String, playbackContext : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnAppPlaybackcontextRow]]
+def query(partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[MinutelyAggPrtnAppPlaybackcontextRow]]
+ def query(partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnAppPlaybackcontextRow]]
 }

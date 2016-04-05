@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class MinutelyAggPrtnDeviceOsClstEntryTableAccessor extends CassandraTable[MinutelyAggPrtnDeviceOsClstEntryTableAccessor, MinutelyAggPrtnDeviceOsClstEntryRow] with RootConnector {
+abstract class MinutelyAggPrtnDeviceOsClstEntryTableAccessor extends CassandraTable[MinutelyAggPrtnDeviceOsClstEntryTableAccessor, MinutelyAggPrtnDeviceOsClstEntryRow] with RootConnector with IMinutelyAggPrtnDeviceOsClstEntryTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object device extends IntColumn(this)with PartitionKey[Int]
@@ -45,21 +45,23 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String) : SelectQuery[MinutelyAggPrtnDeviceOsClstEntryTableAccessor, MinutelyAggPrtnDeviceOsClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.device eqs device)
 .and(_.operating_system eqs operatingSystem)
 .and(_.day eqs day)
 .and(_.metric eqs metric)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnDeviceOsClstEntryTableAccessor, MinutelyAggPrtnDeviceOsClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.device eqs device)
 .and(_.operating_system eqs operatingSystem)
 .and(_.day eqs day)
 .and(_.metric eqs metric)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime, entryIdStart : String, entryIdEnd : String) : SelectQuery[MinutelyAggPrtnDeviceOsClstEntryTableAccessor, MinutelyAggPrtnDeviceOsClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime, entryIdStart : String, entryIdEnd : String) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.device eqs device)
 .and(_.operating_system eqs operatingSystem)
 .and(_.day eqs day)
@@ -68,22 +70,25 @@ value(row)
 .and(_.minute lt minuteEnd)
 .and(_.entry_id gte entryIdStart)
 .and(_.entry_id lt entryIdEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String]) : SelectQuery[MinutelyAggPrtnDeviceOsClstEntryTableAccessor, MinutelyAggPrtnDeviceOsClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String]) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.device in deviceList)
 .and(_.operating_system in operatingSystemList)
 .and(_.day in dayList)
 .and(_.metric in metricList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnDeviceOsClstEntryTableAccessor, MinutelyAggPrtnDeviceOsClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.device in deviceList)
 .and(_.operating_system in operatingSystemList)
 .and(_.day in dayList)
 .and(_.metric in metricList)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime, entryIdStart : String, entryIdEnd : String) : SelectQuery[MinutelyAggPrtnDeviceOsClstEntryTableAccessor, MinutelyAggPrtnDeviceOsClstEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime, entryIdStart : String, entryIdEnd : String) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.device in deviceList)
 .and(_.operating_system in operatingSystemList)
 .and(_.day in dayList)
@@ -92,6 +97,29 @@ def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList
 .and(_.minute lt minuteEnd)
 .and(_.entry_id gte entryIdStart)
 .and(_.entry_id lt entryIdEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class MinutelyAggPrtnDeviceOsClstEntryRow(partnerId:Int,
+device:Int,
+operatingSystem:Int,
+day:Int,
+metric:String,
+minute:DateTime,
+entryId:String,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IMinutelyAggPrtnDeviceOsClstEntryTableAccessor {
+  def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]]
+ def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]]
+ def query(partnerId : Int, device : Int, operatingSystem : Int, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime, entryIdStart : String, entryIdEnd : String) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]]
+def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String]) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]]
+ def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]]
+ def query(partnerIdList : List[Int], deviceList : List[Int], operatingSystemList : List[Int], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime, entryIdStart : String, entryIdEnd : String) : Future[List[MinutelyAggPrtnDeviceOsClstEntryRow]]
 }

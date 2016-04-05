@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnEntryOsClstBrowserTableAccessor extends CassandraTable[HourlyAggPrtnEntryOsClstBrowserTableAccessor, HourlyAggPrtnEntryOsClstBrowserRow] with RootConnector {
+abstract class HourlyAggPrtnEntryOsClstBrowserTableAccessor extends CassandraTable[HourlyAggPrtnEntryOsClstBrowserTableAccessor, HourlyAggPrtnEntryOsClstBrowserRow] with RootConnector with IHourlyAggPrtnEntryOsClstBrowserTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object entry_id extends StringColumn(this)with PartitionKey[String]
@@ -45,21 +45,23 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int) : SelectQuery[HourlyAggPrtnEntryOsClstBrowserTableAccessor, HourlyAggPrtnEntryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.operating_system eqs operatingSystem)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnEntryOsClstBrowserTableAccessor, HourlyAggPrtnEntryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.operating_system eqs operatingSystem)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime, browserStart : Int, browserEnd : Int) : SelectQuery[HourlyAggPrtnEntryOsClstBrowserTableAccessor, HourlyAggPrtnEntryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime, browserStart : Int, browserEnd : Int) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.operating_system eqs operatingSystem)
 .and(_.metric eqs metric)
@@ -68,22 +70,25 @@ value(row)
 .and(_.hour lt hourEnd)
 .and(_.browser gte browserStart)
 .and(_.browser lt browserEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int]) : SelectQuery[HourlyAggPrtnEntryOsClstBrowserTableAccessor, HourlyAggPrtnEntryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.operating_system in operatingSystemList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnEntryOsClstBrowserTableAccessor, HourlyAggPrtnEntryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.operating_system in operatingSystemList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime, browserStart : Int, browserEnd : Int) : SelectQuery[HourlyAggPrtnEntryOsClstBrowserTableAccessor, HourlyAggPrtnEntryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime, browserStart : Int, browserEnd : Int) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.operating_system in operatingSystemList)
 .and(_.metric in metricList)
@@ -92,6 +97,29 @@ def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystem
 .and(_.hour lt hourEnd)
 .and(_.browser gte browserStart)
 .and(_.browser lt browserEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnEntryOsClstBrowserRow(partnerId:Int,
+entryId:String,
+operatingSystem:Int,
+metric:String,
+year:Int,
+hour:DateTime,
+browser:Int,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnEntryOsClstBrowserTableAccessor {
+  def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]]
+ def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]]
+ def query(partnerId : Int, entryId : String, operatingSystem : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime, browserStart : Int, browserEnd : Int) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]]
+def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], operatingSystemList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime, browserStart : Int, browserEnd : Int) : Future[List[HourlyAggPrtnEntryOsClstBrowserRow]]
 }

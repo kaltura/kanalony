@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnDeviceTableAccessor extends CassandraTable[HourlyAggPrtnDeviceTableAccessor, HourlyAggPrtnDeviceRow] with RootConnector {
+abstract class HourlyAggPrtnDeviceTableAccessor extends CassandraTable[HourlyAggPrtnDeviceTableAccessor, HourlyAggPrtnDeviceRow] with RootConnector with IHourlyAggPrtnDeviceTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object device extends IntColumn(this)with PartitionKey[Int]
@@ -39,29 +39,51 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, device : Int, metric : String, year : Int) : SelectQuery[HourlyAggPrtnDeviceTableAccessor, HourlyAggPrtnDeviceRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, device : Int, metric : String, year : Int) : Future[List[HourlyAggPrtnDeviceRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.device eqs device)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, device : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnDeviceTableAccessor, HourlyAggPrtnDeviceRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, device : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnDeviceRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.device eqs device)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], deviceList : List[Int], metricList : List[String], yearList : List[Int]) : SelectQuery[HourlyAggPrtnDeviceTableAccessor, HourlyAggPrtnDeviceRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], deviceList : List[Int], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnDeviceRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.device in deviceList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], deviceList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnDeviceTableAccessor, HourlyAggPrtnDeviceRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], deviceList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnDeviceRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.device in deviceList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnDeviceRow(partnerId:Int,
+device:Int,
+metric:String,
+year:Int,
+hour:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnDeviceTableAccessor {
+  def query(partnerId : Int, device : Int, metric : String, year : Int) : Future[List[HourlyAggPrtnDeviceRow]]
+ def query(partnerId : Int, device : Int, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnDeviceRow]]
+def query(partnerIdList : List[Int], deviceList : List[Int], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnDeviceRow]]
+ def query(partnerIdList : List[Int], deviceList : List[Int], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnDeviceRow]]
 }

@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnReferrerTableAccessor extends CassandraTable[HourlyAggPrtnReferrerTableAccessor, HourlyAggPrtnReferrerRow] with RootConnector {
+abstract class HourlyAggPrtnReferrerTableAccessor extends CassandraTable[HourlyAggPrtnReferrerTableAccessor, HourlyAggPrtnReferrerRow] with RootConnector with IHourlyAggPrtnReferrerTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object referrer extends StringColumn(this)with PartitionKey[String]
@@ -39,29 +39,51 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, referrer : String, metric : String, year : Int) : SelectQuery[HourlyAggPrtnReferrerTableAccessor, HourlyAggPrtnReferrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, referrer : String, metric : String, year : Int) : Future[List[HourlyAggPrtnReferrerRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.referrer eqs referrer)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, referrer : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnReferrerTableAccessor, HourlyAggPrtnReferrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, referrer : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnReferrerRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.referrer eqs referrer)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], referrerList : List[String], metricList : List[String], yearList : List[Int]) : SelectQuery[HourlyAggPrtnReferrerTableAccessor, HourlyAggPrtnReferrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], referrerList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnReferrerRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.referrer in referrerList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], referrerList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnReferrerTableAccessor, HourlyAggPrtnReferrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], referrerList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnReferrerRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.referrer in referrerList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnReferrerRow(partnerId:Int,
+referrer:String,
+metric:String,
+year:Int,
+hour:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnReferrerTableAccessor {
+  def query(partnerId : Int, referrer : String, metric : String, year : Int) : Future[List[HourlyAggPrtnReferrerRow]]
+ def query(partnerId : Int, referrer : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnReferrerRow]]
+def query(partnerIdList : List[Int], referrerList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnReferrerRow]]
+ def query(partnerIdList : List[Int], referrerList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnReferrerRow]]
 }
