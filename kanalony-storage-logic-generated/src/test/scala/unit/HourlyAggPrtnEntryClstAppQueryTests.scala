@@ -176,6 +176,26 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "hour", "play"),List(List("1", "2016-01-01T00:01:00.000+02:00", "3.0"), List("1", "2015-12-31T04:06:00.000+02:00", "5.0"), List("1", "2015-12-31T04:01:00.000+02:00", "5.0"))))) }
     })
 
+    it("Should display data per application")({
+      val start = new DateTime(2015,12,31,1,1)
+      val end = new DateTime(2016,1,1,1,1)
+
+      configureStub(List(1),List("1","2"),List("play"),List(2015,2016),start, end,
+        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start,"app1",5),
+          HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start,"app2",5),
+          HourlyAggPrtnEntryClstAppRow(1,"1","play",2016, end,"app3",3)))
+
+      val params = QueryParams(List(
+        createPartnerDimensionDefintion(Set(1)),
+        createEntryDimensionDefintion(Set("1", "2"), false),
+        createAppDimensionDefintion(true)),
+        List(Metrics.play),
+        start,
+        end)
+
+      whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "application", "play"),List(List("1", "app2", "5.0"), List("1", "app1", "5.0"), List("1", "app3", "3.0"))))) }
+    })
+
     it("Should return a correct response when there are no relevant rows in the DB")({
       (tableAccessorStub.query(_:List[Int], _:List[String], _:List[String], _:List[Int], _:DateTime, _:DateTime)).
         when(*, *, *, *, *, *).
@@ -202,6 +222,10 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
 
   private def createEntryDimensionDefintion(entries : Set[String], includeInResult : Boolean = true) = {
     QueryDimensionDefinition(Dimensions.entry, new DimensionEqualityConstraint[String](entries), includeInResult)
+  }
+
+  private def createAppDimensionDefintion(includeInResult : Boolean = true) = {
+    QueryDimensionDefinition(Dimensions.application, new DimensionUnconstrained, includeInResult)
   }
 
   private def createHourDimensionDefintion(includeInResult : Boolean = true) = {

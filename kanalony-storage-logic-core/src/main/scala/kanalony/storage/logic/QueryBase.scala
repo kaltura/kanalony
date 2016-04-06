@@ -7,8 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Promise, Future}
 
 /**
- * Created by elad.benedict on 2/10/2016.
- */
+  * Created by elad.benedict on 2/10/2016.
+  */
 
 abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
@@ -82,28 +82,25 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  private def groupByMetric: (List[TQueryRow]) => Map[String, List[TQueryRow]] = {
+  private def groupByMetric(params: QueryParams): (List[TQueryRow]) => Map[String, List[TQueryRow]] = {
     rows => {
-      rows.groupBy(extractMetric)
+      var res = rows.groupBy(extractMetric)
+      val missingMetrics = params.metrics.map(_.name).toSet -- res.keys
+      missingMetrics.foreach(m => res = res + (m -> List()))
+      res
     }
   }
 
   private def processMetric(params: QueryParams): (Map[String, List[TQueryRow]]) => List[QueryResult] = {
     // For each (group of rows with the same) metric
     x => {
-      if (x.isEmpty)
-      {
-        List(QueryResult(getResultHeaders(), List()))
-      }
-      else {
-        x.map((kvp: (String, List[TQueryRow])) => {
-          // Turn to QueryResult
-          val processedRows = kvp._2.map(row => getResultRow(row))
-          val queryResult = QueryResult(getResultHeaders(), processedRows)
-          // Group by requested dimensions and aggregate
-          groupAndAggregate(params, kvp._1)(queryResult) // => Iterable[QueryResult]
-        }).toList
-      }
+      x.map((kvp: (String, List[TQueryRow])) => {
+        // Turn to QueryResult
+        val processedRows = kvp._2.map(row => getResultRow(row))
+        val queryResult = QueryResult(getResultHeaders(), processedRows)
+        // Group by requested dimensions and aggregate
+        groupAndAggregate(params, kvp._1)(queryResult) // => Iterable[QueryResult]
+      }).toList
     }
   }
 
@@ -114,7 +111,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
       retrievedRowsFuture
         // Group retrieved data by metric
-        .map(groupByMetric)
+        .map(groupByMetric(params))
         // Calculate aggregation per metric
         .map(processMetric(params))
     }
