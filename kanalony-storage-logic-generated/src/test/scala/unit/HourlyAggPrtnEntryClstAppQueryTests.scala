@@ -176,6 +176,21 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "hour", "play"),List(List("1", "2016-01-01T00:01:00.000+02:00", "3.0"), List("1", "2015-12-31T04:06:00.000+02:00", "5.0"), List("1", "2015-12-31T04:01:00.000+02:00", "5.0"))))) }
     })
 
+    it("Should return a correct response when there are no relevant rows in the DB")({
+      (tableAccessorStub.query(_:List[Int], _:List[String], _:List[String], _:List[Int], _:DateTime, _:DateTime)).
+        when(*, *, *, *, *, *).
+        returns(createCompletedFuture(List()))
+
+      val params = QueryParams(List(
+        createPartnerDimensionDefintion(Set(1, 2)),
+        createEntryDimensionDefintion(Set("1", "2"))),
+        List(Metrics.play),
+        new DateTime(1),
+        new DateTime(1000))
+
+      whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","entry","play"),List()))) }
+    })
+
     it("Should display data per application")({
       val start = new DateTime(2015,12,31,1,1)
       val end = new DateTime(2016,1,1,1,1)
@@ -196,21 +211,6 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "application", "play"),List(List("1", "app2", "5.0"), List("1", "app1", "5.0"), List("1", "app3", "3.0"))))) }
     })
 
-    it("Should return a correct response when there are no relevant rows in the DB")({
-      (tableAccessorStub.query(_:List[Int], _:List[String], _:List[String], _:List[Int], _:DateTime, _:DateTime)).
-        when(*, *, *, *, *, *).
-        returns(createCompletedFuture(List()))
-
-      val params = QueryParams(List(
-        createPartnerDimensionDefintion(Set(1, 2)),
-        createEntryDimensionDefintion(Set("1", "2"))),
-        List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
-
-      whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","entry","play"),List()))) }
-    })
-
 
   }
 
@@ -224,12 +224,12 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
     QueryDimensionDefinition(Dimensions.entry, new DimensionEqualityConstraint[String](entries), includeInResult)
   }
 
-  private def createAppDimensionDefintion(includeInResult : Boolean = true) = {
-    QueryDimensionDefinition(Dimensions.application, new DimensionUnconstrained, includeInResult)
-  }
-
   private def createHourDimensionDefintion(includeInResult : Boolean = true) = {
     QueryDimensionDefinition(Dimensions.hour, new DimensionUnconstrained, includeInResult)
+  }
+
+  private def createAppDimensionDefintion(includeInResult : Boolean = true) = {
+    QueryDimensionDefinition(Dimensions.application, new DimensionUnconstrained, includeInResult)
   }
 
   def configureStub(partners : List[Int], entries : List[String], metrics : List[String], years : List[Int], start : DateTime, end : DateTime, valueToReturn : List[HourlyAggPrtnEntryClstAppRow]) = {
