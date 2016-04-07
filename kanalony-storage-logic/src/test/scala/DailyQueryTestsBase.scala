@@ -14,10 +14,6 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import scala.concurrent.Promise
 import scala.concurrent.ExecutionContext.Implicits.global
 
-
-
-
-
 abstract class DailyQueryTestsBase[T <: IQuery] extends FunSpec with MockFactory with BeforeAndAfterEach with ScalaFutures with Matchers with Inspectors {
 
   def createDailyQuery(queryParams: QueryParams, queryLocator: IQueryLocator) : T
@@ -85,14 +81,14 @@ abstract class DailyQueryTestsBase[T <: IQuery] extends FunSpec with MockFactory
   }
 
   protected def configureStub(params : QueryParams, result : List[(IQuery, List[Metric])]) = {
-    (queryLocatorStub.locate(_)).
-      when(params).
+    (queryLocatorStub.locate(_, _, _)).
+      when(params, * , *).
       returns(result)
   }
 
   protected def configureMock(params : QueryParams, result : List[(IQuery, List[Metric])]) = {
-    (queryLocatorMock.locate(_)).
-      expects(params).
+    (queryLocatorMock.locate(_, _, _)).
+      expects(params, * , *).
       returning(result)
   }
 

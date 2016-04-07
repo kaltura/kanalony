@@ -4,9 +4,9 @@ import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.generated.Queries
 import kanalony.storage.logic.queries.model.QueryConstraint
 
+object QueryLocator extends QueryLocator(Queries.queries)
 
-
-object QueryLocator extends IQueryLocator {
+class QueryLocator(availableQueries : List[IQuery]) extends IQueryLocator {
 
   val queryIncompatibleScoreThreshold = 1000
 
@@ -36,11 +36,11 @@ object QueryLocator extends IQueryLocator {
     }
   }
 
-  def locate(queryParams: QueryParams) : List[(IQuery, List[Metric])] = {
-    val requestedComputedDimensions = ComputedDimensions.values.intersect(queryParams.dimensionDefinitions.map(_.dimension).toSet)
-    val requestedComputedMetrics = ComputedMetrics.values.intersect(queryParams.metrics.toSet)
+  def locate(queryParams: QueryParams, computedDimensions: IComputedDimensions, computedMetrics: IComputedMetrics) : List[(IQuery, List[Metric])] = {
+    val requestedComputedDimensions = computedDimensions.values.intersect(queryParams.dimensionDefinitions.map(_.dimension).toSet)
+    val requestedComputedMetrics = computedMetrics.values.intersect(queryParams.metrics.toSet)
 
-    val computedMetricQueries = requestedComputedMetrics.toList.flatMap(ComputedMetrics.getQueryCreator(_)(queryParams))
+    val computedMetricQueries = requestedComputedMetrics.toList.flatMap(computedMetrics.getQueryCreator(_)(queryParams))
 
     val nonComputedMetrics = queryParams.metrics.toSet -- requestedComputedMetrics
     val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end)
@@ -53,7 +53,7 @@ object QueryLocator extends IQueryLocator {
     val nonComputedMetricQueries = if (requestedComputedDimensions.nonEmpty)
     {
       // Create a query for the computed dimension (locates relevant internal queries recursively)
-      ComputedDimensions.getQueryCreator(requestedComputedDimensions.head)(updatedQueryParams)
+      computedDimensions.getQueryCreator(requestedComputedDimensions.head)(updatedQueryParams)
     }
     else {
       locateDirectQueries(updatedQueryParams)
@@ -63,7 +63,7 @@ object QueryLocator extends IQueryLocator {
   }
 
   private def locateDirectQueries(queryParams: QueryParams) : List[(IQuery, List[Metric])] = {
-    val sortedQueries = Queries.queries.map(tq => (tq , calcTableCompatibilityDistance(tq, queryParams))).sortBy(_._2)
+    val sortedQueries = availableQueries.map(tq => (tq , calcTableCompatibilityDistance(tq, queryParams))).sortBy(_._2)
     var remainingMetricsToCover = queryParams.metrics.toSet
     var result : List[(IQuery, List[Metric])] = List()
     sortedQueries

@@ -19,7 +19,7 @@ abstract class DailyQueryBase(queryParams: QueryParams, queryLocator: IQueryLoca
   }
 
   val updatedQueryParams = convertQueryParams(queryParams)
-  val queryLocationResult = queryLocator.locate(updatedQueryParams)
+  val queryLocationResult = queryLocator.locate(updatedQueryParams, ComputedDimensions, ComputedMetrics)
 
   if (queryLocationResult.length < 1)
   {

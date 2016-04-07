@@ -3,7 +3,12 @@ package kanalony.storage.logic
 import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.queries.{AverageViewDropOffQuery, AverageTimeViewedQuery, EstimatedMinutesWatchedQuery, PlayRatioQuery}
 
-object ComputedMetrics extends ComputedQueryFactory[Metric] {
+trait IComputedMetrics {
+  def getQueryCreator(m : Metric) : (QueryParams) => List[(IQuery, List[Metric])]
+  def values : Set[Metric]
+}
+
+object ComputedMetrics extends ComputedQueryFactory[Metric] with IComputedMetrics {
 
   val queryCreatorGetter = Map((Metrics.playRatio, playRatioQueryCreator),
                                (Metrics.estimatedMinutesWatched, estimatedMinutesWatchedQueryCreator),

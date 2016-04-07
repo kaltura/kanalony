@@ -64,7 +64,7 @@ abstract class ComputedQuery(metric : Metric, queryParams: QueryParams) extends 
     }
 
     val updatedQueryParams = convertQueryParams(queryParams)
-    val queryLocationResult = QueryLocator.locate(updatedQueryParams)
+    val queryLocationResult = QueryLocator.locate(updatedQueryParams, ComputedDimensions, ComputedMetrics)
     val metricResults = requiredMetrics.map(m => {
       val query = queryLocationResult.find(_._2.contains(m)).get._1
       val singleMetricQueryParams = convertQueryParams(queryParams, m)

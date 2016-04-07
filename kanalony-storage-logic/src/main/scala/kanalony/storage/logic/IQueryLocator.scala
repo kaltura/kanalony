@@ -7,5 +7,5 @@ import com.kaltura.model.entities.Metric
  */
 
 trait IQueryLocator {
-  def locate(queryParams: QueryParams) : List[(IQuery, List[Metric])]
+  def locate(queryParams: QueryParams, computedDimensions: IComputedDimensions, computedMetrics: IComputedMetrics) : List[(IQuery, List[Metric])]
 }
