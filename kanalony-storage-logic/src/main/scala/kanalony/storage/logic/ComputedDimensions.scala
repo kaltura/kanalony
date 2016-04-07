@@ -17,13 +17,13 @@ object ComputedDimensions extends ComputedQueryFactory[Dimensions.Value] {
       val dailyMaxMetrics = qp.metrics.filter(_.aggregationKind == AggregationKind.Max)
       if (dailyMaxMetrics.nonEmpty)
       {
-        res = res :+ (new DailyMaxQuery(qp), dailyMaxMetrics)
+        res = res :+ (new DailyMaxQuery(qp, QueryLocator), dailyMaxMetrics)
       }
 
       val dailyCountMetrics = qp.metrics.filter(_.aggregationKind == AggregationKind.Sum)
       if (dailyCountMetrics.nonEmpty)
       {
-        res = res :+ (new DailyCountQuery(qp), dailyCountMetrics)
+        res = res :+ (new DailyCountQuery(qp, QueryLocator), dailyCountMetrics)
       }
 
       res

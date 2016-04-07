@@ -4,28 +4,26 @@ import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.generated.Queries
 import kanalony.storage.logic.queries.model.QueryConstraint
 
-/**
- * Created by elad.benedict on 2/16/2016.
- */
 
-object QueryLocator {
+
+object QueryLocator extends IQueryLocator {
 
   val queryIncompatibleScoreThreshold = 1000
 
-  def tableAndQueryEqualityConstraintsSymmetricDifferenceSize(tq: IQuery, queryParams: QueryParams) : Int = {
+  private def tableAndQueryEqualityConstraintsSymmetricDifferenceSize(tq: IQuery, queryParams: QueryParams) : Int = {
     val tableEqualityConstrainedDefs = tq.dimensionInformation.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension).toSet
     val queryEqualityConstraintDefs = queryParams.dimensionDefinitions.filter(_.constraint.constraint == QueryConstraint.Equality).map(_.dimension).toSet
     val symmetricDifference = (queryEqualityConstraintDefs -- tableEqualityConstrainedDefs) ++ (tableEqualityConstrainedDefs -- queryEqualityConstraintDefs )
     symmetricDifference.size
   }
 
-  def tableSupportsAllQueryDimensions(tq: IQuery, queryParams: QueryParams) = {
+  private def tableSupportsAllQueryDimensions(tq: IQuery, queryParams: QueryParams) = {
     val queryDimnesions = queryParams.dimensionDefinitions.map(_.dimension).toSet
     val tableDimensions = tq.dimensionInformation.map(_.dimension).toSet
     queryDimnesions subsetOf tableDimensions
   }
 
-  def calcTableCompatibilityDistance(query : IQuery, queryParams : QueryParams) : Int = {
+  private def calcTableCompatibilityDistance(query : IQuery, queryParams : QueryParams) : Int = {
     val constraintDiffSize = tableAndQueryEqualityConstraintsSymmetricDifferenceSize(query, queryParams)
 
     if (queryParams.metrics.toSet.filter(query.isMetricSupported(_)).isEmpty ||
@@ -64,7 +62,7 @@ object QueryLocator {
     computedMetricQueries ::: nonComputedMetricQueries
   }
 
-  def locateDirectQueries(queryParams: QueryParams) : List[(IQuery, List[Metric])] = {
+  private def locateDirectQueries(queryParams: QueryParams) : List[(IQuery, List[Metric])] = {
     val sortedQueries = Queries.queries.map(tq => (tq , calcTableCompatibilityDistance(tq, queryParams))).sortBy(_._2)
     var remainingMetricsToCover = queryParams.metrics.toSet
     var result : List[(IQuery, List[Metric])] = List()

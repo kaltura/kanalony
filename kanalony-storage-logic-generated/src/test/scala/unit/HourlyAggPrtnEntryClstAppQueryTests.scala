@@ -21,7 +21,7 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
 
   var query : HourlyAggPrtnEntryClstAppQuery = null
   var tableAccessorStub : IHourlyAggPrtnEntryClstAppTableAccessor = null
-  def tableAccessorStubQueryMethod = tableAccessorStub.query(_:List[Int], _:List[String], _:List[String], _:List[Int])
+
   implicit val defaultPatience =
     PatienceConfig(timeout =  Span(600, Seconds), interval = Span(15, Millis))
 
@@ -210,8 +210,6 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "application", "play"),List(List("1", "app2", "5.0"), List("1", "app1", "5.0"), List("1", "app3", "3.0"))))) }
     })
-
-
   }
 
   def createCompletedFuture[T](value : T) = Promise[T]().success(value).future

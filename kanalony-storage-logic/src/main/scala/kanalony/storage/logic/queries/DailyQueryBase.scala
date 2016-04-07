@@ -11,7 +11,7 @@ import scala.concurrent.Future
  * Created by elad.benedict on 3/7/2016.
  */
 
-abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
+abstract class DailyQueryBase(queryParams: QueryParams, queryLocator: IQueryLocator) extends IQuery {
 
   if (!queryParams.dimensionDefinitions.map(_.dimension).contains(Dimensions.day))
   {
@@ -19,11 +19,11 @@ abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
   }
 
   val updatedQueryParams = convertQueryParams(queryParams)
-  val queryLocationResult = QueryLocator.locate(updatedQueryParams)
+  val queryLocationResult = queryLocator.locate(updatedQueryParams)
 
-  if (queryLocationResult.length > 1)
+  if (queryLocationResult.length < 1)
   {
-    throw new IllegalArgumentException("A daily query should be mapped to exactly one hourly table")
+    throw new IllegalArgumentException("No suitable hourly query found for this daily query")
   }
 
   val query = queryLocationResult.head._1
