@@ -14,14 +14,14 @@ case class SingleMetricQuery(metric : Metric, query : IQuery)
 case class SingleMetricValue(metric : Metric, value : Double)
 case class SingleMetricQueryResult(metric : Metric, queryResult : IQueryResult)
 
-abstract class ComputedQuery(metric : Metric, queryParams: QueryParams) extends IQuery {
+abstract class ComputedQuery(val metric : Metric, queryParams: QueryParams, queryLocator: IQueryLocator) extends IQuery {
 
   val separator = "::"
   val requiredMetrics : List[Metric]
 
   def computeValue(groupMetricsValues: List[SingleMetricValue]): Double
 
-  def computation(singleMetricQueryResults : List[SingleMetricQueryResult]) : List[IQueryResult] = {
+  private def computation(singleMetricQueryResults : List[SingleMetricQueryResult]) : List[IQueryResult] = {
 
     var combinedRows : List[List[String]] = List()
     singleMetricQueryResults.foreach(smqr => {
@@ -41,11 +41,11 @@ abstract class ComputedQuery(metric : Metric, queryParams: QueryParams) extends 
     }).toList
 
     var resultHeaders = singleMetricQueryResults.head.queryResult.headers.take(singleMetricQueryResults.head.queryResult.headers.length - 1)
-    resultHeaders = resultHeaders :+ metric.toString
+    resultHeaders = resultHeaders :+ metric.name.toString
     List(QueryResult(resultHeaders, resultRows))
   }
 
-  def convertQueryParams(queryParams: QueryParams) : QueryParams = {
+  private def convertQueryParams(queryParams: QueryParams) : QueryParams = {
     convertQueryParams(queryParams, requiredMetrics)
   }
 
@@ -64,7 +64,7 @@ abstract class ComputedQuery(metric : Metric, queryParams: QueryParams) extends 
     }
 
     val updatedQueryParams = convertQueryParams(queryParams)
-    val queryLocationResult = QueryLocator.locate(updatedQueryParams, ComputedDimensions, ComputedMetrics)
+    val queryLocationResult = queryLocator.locate(updatedQueryParams, ComputedDimensions, ComputedMetrics)
     val metricResults = requiredMetrics.map(m => {
       val query = queryLocationResult.find(_._2.contains(m)).get._1
       val singleMetricQueryParams = convertQueryParams(queryParams, m)
