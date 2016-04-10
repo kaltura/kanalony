@@ -17,6 +17,9 @@ lazy val `kanalony-enrichment` = (project in file(".")).
       "io.dropwizard.metrics" % "metrics-core"                % "3.1.2",
       "joda-time"             % "joda-time"                   % "2.9.1",
       "com.google.guava"      % "guava"                       % "18.0",
+      "org.apache.hadoop"     % "hadoop-aws"                  % "2.7.1",
+      "com.amazonaws"         % "aws-java-sdk"                % "1.7.4",
+
       // Test
       "org.scalatest"         %% "scalatest"                  % "2.2.4"    % "test"
     )
