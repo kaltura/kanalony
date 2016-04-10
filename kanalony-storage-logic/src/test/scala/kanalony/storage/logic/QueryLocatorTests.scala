@@ -1,18 +1,14 @@
 package kanalony.storage.test.logic.queries
 
 import com.kaltura.model.entities.{Metric, Metrics}
-import kanalony.storage.generated.{HourlyAggPrtnEntryClstAppRow, IHourlyAggPrtnEntryClstAppTableAccessor}
-import kanalony.storage.logic.queries.{DailyMaxQuery, DailyCountQuery}
 import kanalony.storage.logic.queries.model._
 import kanalony.storage.logic._
-import kanalony.storage.logic.generated.{Queries, HourlyAggPrtnEntryClstAppQuery}
 import org.joda.time.{DateTime}
+import org.scalamock.function.StubFunction1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.concurrent.{ScalaFutures}
 import org.scalatest.time.{Millis, Seconds, Span}
-import scala.concurrent.Promise
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach with ScalaFutures with Matchers with Inspectors {
 
@@ -21,6 +17,8 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
   var computedDimensions : IComputedDimensions = null
   var computedMetrics : IComputedMetrics = null
+  var stubDimensionQueryCreator : StubFunction1[QueryParams, List[(IQuery, List[Metric])]] = null
+  var stubMetricQueryCreator : StubFunction1[QueryParams, List[(IQuery, List[Metric])]] = null
 
   def createQueryLocator(availableQueries : List[IQuery]) : IQueryLocator = {
     new QueryLocator(availableQueries)
@@ -29,12 +27,12 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
   def initStubs(dimensions : Set[Dimensions.Value] = Set(), metrics : Set[Metric] = Set() ) = { // For some reason the suite fails when this logic is run in beforEach :S
     computedDimensions = stub[IComputedDimensions]
     (computedDimensions.values _).when().returning(dimensions)
-    val stubDimensionQueryCreator = stubFunction[QueryParams, List[(IQuery, List[Metric])]]
+    stubDimensionQueryCreator = stubFunction[QueryParams, List[(IQuery, List[Metric])]]
     stubDimensionQueryCreator.when(*).returns(List((stub[IQuery], List())))
     dimensions.foreach(x => (computedDimensions.getQueryCreator(_)).when(x).returns(stubDimensionQueryCreator))
     computedMetrics = stub[IComputedMetrics]
     (computedMetrics.values _).when().returning(metrics)
-    val stubMetricQueryCreator = stubFunction[QueryParams, List[(IQuery, List[Metric])]]
+    stubMetricQueryCreator = stubFunction[QueryParams, List[(IQuery, List[Metric])]]
     stubMetricQueryCreator.when(*).returns(List((stub[IQuery], List())))
     metrics.foreach(x => (computedMetrics.getQueryCreator(_)).when(x).returns(stubMetricQueryCreator))
   }
@@ -45,7 +43,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)),createEntryDimensionDefintion(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
       val availableQueries = List(createQuery(List(Dimensions.partner), List(), Set(Metrics.play))) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
       val ql = createQueryLocator(availableQueries)
       intercept[QueryNotSupportedException] {
@@ -57,7 +55,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)),createEntryDimensionDefintion(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
       val availableQueries = List(createQuery(List(Dimensions.partner), List(Dimensions.entry), Set(Metrics.play))) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
       val ql = createQueryLocator(availableQueries)
       intercept[QueryNotSupportedException] {
@@ -69,7 +67,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)),createEntryDimensionDefintion(Set("1"))), List(Metrics.play, Metrics.playerImpression), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play, Metrics.playerImpression), new DateTime(1), new DateTime(1000))
       val availableQueries = List(createQuery(List(Dimensions.partner, Dimensions.entry), List(), Set(Metrics.play))) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
       val ql = createQueryLocator(availableQueries)
       intercept[QueryNotSupportedException] {
@@ -81,7 +79,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)),createEntryDimensionDefintion(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
       val resQuery = createQuery(List(Dimensions.partner, Dimensions.entry), List(), Set(Metrics.play, Metrics.playRatio))
       val availableQueries = List(resQuery) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
       val ql = createQueryLocator(availableQueries)
@@ -91,24 +89,38 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
       assert(locatedQueries.head._2 == List(Metrics.play))
     })
 
-    it("Should succeed when there's an hourly query appropriate for the requested daily query")({
+    it("Should create a daily query (computed dimension) when day dimension is used")({
 
       initStubs(Set(Dimensions.day))
 
-      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)),createEntryDimensionDefintion(Set("1")), createDayDimensionDefintion()), List(Metrics.play), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1")), createDayDimensionDefinition()), List(Metrics.play), new DateTime(1), new DateTime(1000))
       val resQuery = createQuery(List(Dimensions.partner, Dimensions.entry, Dimensions.hour), List(), Set(Metrics.play, Metrics.playRatio))
-      val availableQueries = List(resQuery) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
-      val ql = createQueryLocator(availableQueries)
+      val ql = createQueryLocator(List())
       val locatedQueries = ql.locate(params, computedDimensions, computedMetrics)
       assert(locatedQueries.length == 1)
-      // TODO: Use ComputedDimensions mock to assert that getQueryCreator was called
+      (computedDimensions.getQueryCreator _).verify(Dimensions.day)
+      stubDimensionQueryCreator.verify(params)
     })
+
+    it("Should create a computed metric query when a computed metric is requested")({
+
+      initStubs(Set(), Set(Metrics.peakView))
+
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1")), createHourDimensionDefinition()), List(Metrics.peakView), new DateTime(1), new DateTime(1000))
+      val resQuery = createQuery(List(Dimensions.partner, Dimensions.entry, Dimensions.hour), List(), Set(Metrics.play, Metrics.playRatio))
+      val ql = createQueryLocator(List())
+      val locatedQueries = ql.locate(params, computedDimensions, computedMetrics)
+      assert(locatedQueries.length == 1)
+      (computedMetrics.getQueryCreator _).verify(Metrics.peakView)
+      stubMetricQueryCreator.verify(params)
+    })
+
 
     it("Should return a few queries when a single query does not satisfy all query param requirements")({
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)),createEntryDimensionDefintion(Set("1"))), List(Metrics.play, Metrics.bufferingTime), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play, Metrics.bufferingTime), new DateTime(1), new DateTime(1000))
       val resQuery1 = createQuery(List(Dimensions.partner, Dimensions.entry), List(), Set(Metrics.play, Metrics.playRatio))
       val resQuery2 = createQuery(List(Dimensions.partner, Dimensions.entry), List(), Set(Metrics.play, Metrics.bufferingTime))
       val availableQueries = List(resQuery1) ::: List(resQuery2) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
@@ -118,10 +130,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
       assert(locatedQueries(0)._1 == resQuery1)
       assert(locatedQueries(1)._1 == resQuery2)
     })
-
-
   }
-
 
   private def createQuery(eqConsCols : List[Dimensions.Value], additionalCols : List[Dimensions.Value], supportedMetrics : Set[Metric]) = {
     val res = stub[IQuery]
@@ -134,19 +143,19 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
     res
   }
 
-  protected def createPartnerDimensionDefintion(partners : Set[Int], includeInResult : Boolean = true) = {
+  protected def createPartnerDimensionDefinition(partners : Set[Int], includeInResult : Boolean = true) = {
     QueryDimensionDefinition(Dimensions.partner, new DimensionEqualityConstraint[Int](partners), includeInResult)
   }
 
-  protected def createEntryDimensionDefintion(entries : Set[String], includeInResult : Boolean = true) = {
+  protected def createEntryDimensionDefinition(entries : Set[String], includeInResult : Boolean = true) = {
     QueryDimensionDefinition(Dimensions.entry, new DimensionEqualityConstraint[String](entries), includeInResult)
   }
 
-  protected def createDayDimensionDefintion(includeInResult : Boolean = true) = {
+  protected def createDayDimensionDefinition(includeInResult : Boolean = true) = {
     QueryDimensionDefinition(Dimensions.day, new DimensionUnconstrained, includeInResult)
   }
 
-  protected def createHourDimensionDefintion(includeInResult : Boolean = true) = {
+  protected def createHourDimensionDefinition(includeInResult : Boolean = true) = {
     QueryDimensionDefinition(Dimensions.hour, new DimensionUnconstrained, includeInResult)
   }
 
