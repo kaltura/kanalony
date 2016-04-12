@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class HourlyAggClstReferrerQuery(accessor : IHourlyAggClstReferrerTableAccessor) extends QueryBase[HourlyAggClstReferrerQueryParams, HourlyAggClstReferrerRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggClstReferrerQueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
-        HourlyAggClstReferrerQueryParams(params.start, params.end, partner_id, params.metrics.map(_.name))
+        HourlyAggClstReferrerQueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -36,6 +36,11 @@ DimensionDefinition(Dimensions.referrer, new DimensionConstraintDeclaration(Quer
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: HourlyAggClstReferrerRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggClstReferrerRow, timezoneOffsetFromUtc : Int) : HourlyAggClstReferrerRow = {
+        HourlyAggClstReferrerRow(row.partnerId, row.metric, row.year, row.hour.plusHours(timezoneOffsetFromUtc), row.referrer, row.value)
+      }
+
     }
 
 case class HourlyAggClstReferrerQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], metricList : List[String]) extends IYearlyPartitionedQueryParams

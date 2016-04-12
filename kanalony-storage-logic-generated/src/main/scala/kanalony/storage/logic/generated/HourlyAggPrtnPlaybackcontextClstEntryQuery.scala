@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class HourlyAggPrtnPlaybackcontextClstEntryQuery(accessor : IHourlyAggPrtnPlaybackcontextClstEntryTableAccessor) extends QueryBase[HourlyAggPrtnPlaybackcontextClstEntryQueryParams, HourlyAggPrtnPlaybackcontextClstEntryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnPlaybackcontextClstEntryQueryParams = {
         val (partner_id,playback_context) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.playbackContext), params)
-        HourlyAggPrtnPlaybackcontextClstEntryQueryParams(params.start, params.end, partner_id,playback_context, params.metrics.map(_.name))
+        HourlyAggPrtnPlaybackcontextClstEntryQueryParams(params.startUtc, params.endUtc, partner_id,playback_context, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -37,6 +37,11 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: HourlyAggPrtnPlaybackcontextClstEntryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnPlaybackcontextClstEntryRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnPlaybackcontextClstEntryRow = {
+        HourlyAggPrtnPlaybackcontextClstEntryRow(row.partnerId, row.playbackContext, row.month, row.metric, row.hour.plusHours(timezoneOffsetFromUtc), row.entryId, row.value)
+      }
+
     }
 
 case class HourlyAggPrtnPlaybackcontextClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], playbackContextList : List[String], metricList : List[String]) extends IMonthlyPartitionedQueryParams

@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class TensecsAggClstCountryCityQuery(accessor : ITensecsAggClstCountryCityTableAccessor) extends QueryBase[TensecsAggClstCountryCityQueryParams, TensecsAggClstCountryCityRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggClstCountryCityQueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
-        TensecsAggClstCountryCityQueryParams(params.start, params.end, partner_id, params.metrics.map(_.name))
+        TensecsAggClstCountryCityQueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -37,6 +37,11 @@ DimensionDefinition(Dimensions.city, new DimensionConstraintDeclaration(QueryCon
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: TensecsAggClstCountryCityRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : TensecsAggClstCountryCityRow, timezoneOffsetFromUtc : Int) : TensecsAggClstCountryCityRow = {
+        TensecsAggClstCountryCityRow(row.partnerId, row.metric, row.day, row.tensecs.plusHours(timezoneOffsetFromUtc), row.country, row.city, row.value)
+      }
+
     }
 
 case class TensecsAggClstCountryCityQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams

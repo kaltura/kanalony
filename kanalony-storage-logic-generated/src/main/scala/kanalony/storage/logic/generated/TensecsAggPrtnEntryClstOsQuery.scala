@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class TensecsAggPrtnEntryClstOsQuery(accessor : ITensecsAggPrtnEntryClstOsTableAccessor) extends QueryBase[TensecsAggPrtnEntryClstOsQueryParams, TensecsAggPrtnEntryClstOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggPrtnEntryClstOsQueryParams = {
         val (partner_id,entry_id) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.entry), params)
-        TensecsAggPrtnEntryClstOsQueryParams(params.start, params.end, partner_id,entry_id, params.metrics.map(_.name))
+        TensecsAggPrtnEntryClstOsQueryParams(params.startUtc, params.endUtc, partner_id,entry_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -37,6 +37,11 @@ DimensionDefinition(Dimensions.operatingSystem, new DimensionConstraintDeclarati
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: TensecsAggPrtnEntryClstOsRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : TensecsAggPrtnEntryClstOsRow, timezoneOffsetFromUtc : Int) : TensecsAggPrtnEntryClstOsRow = {
+        TensecsAggPrtnEntryClstOsRow(row.partnerId, row.entryId, row.metric, row.day, row.tensecs.plusHours(timezoneOffsetFromUtc), row.operatingSystem, row.value)
+      }
+
     }
 
 case class TensecsAggPrtnEntryClstOsQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], entryIdList : List[String], metricList : List[String]) extends IDailyPartitionedQueryParams

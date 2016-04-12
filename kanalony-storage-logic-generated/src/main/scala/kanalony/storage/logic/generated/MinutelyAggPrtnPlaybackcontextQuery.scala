@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class MinutelyAggPrtnPlaybackcontextQuery(accessor : IMinutelyAggPrtnPlaybackcontextTableAccessor) extends QueryBase[MinutelyAggPrtnPlaybackcontextQueryParams, MinutelyAggPrtnPlaybackcontextRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnPlaybackcontextQueryParams = {
         val (partner_id,playback_context) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.playbackContext), params)
-        MinutelyAggPrtnPlaybackcontextQueryParams(params.start, params.end, partner_id,playback_context, params.metrics.map(_.name))
+        MinutelyAggPrtnPlaybackcontextQueryParams(params.startUtc, params.endUtc, partner_id,playback_context, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -36,6 +36,11 @@ DimensionDefinition(Dimensions.minute, new DimensionConstraintDeclaration(QueryC
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: MinutelyAggPrtnPlaybackcontextRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnPlaybackcontextRow, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnPlaybackcontextRow = {
+        MinutelyAggPrtnPlaybackcontextRow(row.partnerId, row.playbackContext, row.metric, row.day, row.minute.plusHours(timezoneOffsetFromUtc), row.value)
+      }
+
     }
 
 case class MinutelyAggPrtnPlaybackcontextQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], playbackContextList : List[String], metricList : List[String]) extends IDailyPartitionedQueryParams

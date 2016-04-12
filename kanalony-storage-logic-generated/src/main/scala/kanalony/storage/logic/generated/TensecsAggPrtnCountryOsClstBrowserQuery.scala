@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class TensecsAggPrtnCountryOsClstBrowserQuery(accessor : ITensecsAggPrtnCountryOsClstBrowserTableAccessor) extends QueryBase[TensecsAggPrtnCountryOsClstBrowserQueryParams, TensecsAggPrtnCountryOsClstBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggPrtnCountryOsClstBrowserQueryParams = {
         val (partner_id,country,operating_system) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,Int]((Dimensions.partner,Dimensions.country,Dimensions.operatingSystem), params)
-        TensecsAggPrtnCountryOsClstBrowserQueryParams(params.start, params.end, partner_id,country,operating_system, params.metrics.map(_.name))
+        TensecsAggPrtnCountryOsClstBrowserQueryParams(params.startUtc, params.endUtc, partner_id,country,operating_system, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -38,6 +38,11 @@ DimensionDefinition(Dimensions.browser, new DimensionConstraintDeclaration(Query
       override def metricValueLocationIndex(): Int = 6
 
       override private[logic] def extractMetric(row: TensecsAggPrtnCountryOsClstBrowserRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : TensecsAggPrtnCountryOsClstBrowserRow, timezoneOffsetFromUtc : Int) : TensecsAggPrtnCountryOsClstBrowserRow = {
+        TensecsAggPrtnCountryOsClstBrowserRow(row.partnerId, row.country, row.operatingSystem, row.metric, row.day, row.tensecs.plusHours(timezoneOffsetFromUtc), row.browser, row.value)
+      }
+
     }
 
 case class TensecsAggPrtnCountryOsClstBrowserQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams

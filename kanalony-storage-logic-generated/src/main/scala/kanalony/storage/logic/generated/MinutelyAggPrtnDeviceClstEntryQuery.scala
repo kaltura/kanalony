@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class MinutelyAggPrtnDeviceClstEntryQuery(accessor : IMinutelyAggPrtnDeviceClstEntryTableAccessor) extends QueryBase[MinutelyAggPrtnDeviceClstEntryQueryParams, MinutelyAggPrtnDeviceClstEntryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnDeviceClstEntryQueryParams = {
         val (partner_id,device) = QueryParamsValidator.extractEqualityConstraintParams[Int,Int]((Dimensions.partner,Dimensions.device), params)
-        MinutelyAggPrtnDeviceClstEntryQueryParams(params.start, params.end, partner_id,device, params.metrics.map(_.name))
+        MinutelyAggPrtnDeviceClstEntryQueryParams(params.startUtc, params.endUtc, partner_id,device, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -37,6 +37,11 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: MinutelyAggPrtnDeviceClstEntryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnDeviceClstEntryRow, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnDeviceClstEntryRow = {
+        MinutelyAggPrtnDeviceClstEntryRow(row.partnerId, row.device, row.day, row.metric, row.minute.plusHours(timezoneOffsetFromUtc), row.entryId, row.value)
+      }
+
     }
 
 case class MinutelyAggPrtnDeviceClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], deviceList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams

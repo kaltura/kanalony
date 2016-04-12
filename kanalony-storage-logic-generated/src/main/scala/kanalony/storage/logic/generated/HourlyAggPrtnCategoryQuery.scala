@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class HourlyAggPrtnCategoryQuery(accessor : IHourlyAggPrtnCategoryTableAccessor) extends QueryBase[HourlyAggPrtnCategoryQueryParams, HourlyAggPrtnCategoryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnCategoryQueryParams = {
         val (partner_id,category) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.category), params)
-        HourlyAggPrtnCategoryQueryParams(params.start, params.end, partner_id,category, params.metrics.map(_.name))
+        HourlyAggPrtnCategoryQueryParams(params.startUtc, params.endUtc, partner_id,category, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -36,6 +36,11 @@ DimensionDefinition(Dimensions.hour, new DimensionConstraintDeclaration(QueryCon
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: HourlyAggPrtnCategoryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnCategoryRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnCategoryRow = {
+        HourlyAggPrtnCategoryRow(row.partnerId, row.category, row.metric, row.year, row.hour.plusHours(timezoneOffsetFromUtc), row.value)
+      }
+
     }
 
 case class HourlyAggPrtnCategoryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], categoryList : List[String], metricList : List[String]) extends IYearlyPartitionedQueryParams

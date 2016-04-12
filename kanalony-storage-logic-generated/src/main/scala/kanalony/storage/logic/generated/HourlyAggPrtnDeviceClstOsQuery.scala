@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class HourlyAggPrtnDeviceClstOsQuery(accessor : IHourlyAggPrtnDeviceClstOsTableAccessor) extends QueryBase[HourlyAggPrtnDeviceClstOsQueryParams, HourlyAggPrtnDeviceClstOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnDeviceClstOsQueryParams = {
         val (partner_id,device) = QueryParamsValidator.extractEqualityConstraintParams[Int,Int]((Dimensions.partner,Dimensions.device), params)
-        HourlyAggPrtnDeviceClstOsQueryParams(params.start, params.end, partner_id,device, params.metrics.map(_.name))
+        HourlyAggPrtnDeviceClstOsQueryParams(params.startUtc, params.endUtc, partner_id,device, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -37,6 +37,11 @@ DimensionDefinition(Dimensions.operatingSystem, new DimensionConstraintDeclarati
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: HourlyAggPrtnDeviceClstOsRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnDeviceClstOsRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnDeviceClstOsRow = {
+        HourlyAggPrtnDeviceClstOsRow(row.partnerId, row.device, row.metric, row.year, row.hour.plusHours(timezoneOffsetFromUtc), row.operatingSystem, row.value)
+      }
+
     }
 
 case class HourlyAggPrtnDeviceClstOsQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], deviceList : List[Int], metricList : List[String]) extends IYearlyPartitionedQueryParams

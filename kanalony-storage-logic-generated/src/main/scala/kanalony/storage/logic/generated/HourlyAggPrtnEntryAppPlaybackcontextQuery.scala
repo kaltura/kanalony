@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class HourlyAggPrtnEntryAppPlaybackcontextQuery(accessor : IHourlyAggPrtnEntryAppPlaybackcontextTableAccessor) extends QueryBase[HourlyAggPrtnEntryAppPlaybackcontextQueryParams, HourlyAggPrtnEntryAppPlaybackcontextRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnEntryAppPlaybackcontextQueryParams = {
         val (partner_id,entry_id,application,playback_context) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String,String]((Dimensions.partner,Dimensions.entry,Dimensions.application,Dimensions.playbackContext), params)
-        HourlyAggPrtnEntryAppPlaybackcontextQueryParams(params.start, params.end, partner_id,entry_id,application,playback_context, params.metrics.map(_.name))
+        HourlyAggPrtnEntryAppPlaybackcontextQueryParams(params.startUtc, params.endUtc, partner_id,entry_id,application,playback_context, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -38,6 +38,11 @@ DimensionDefinition(Dimensions.hour, new DimensionConstraintDeclaration(QueryCon
       override def metricValueLocationIndex(): Int = 6
 
       override private[logic] def extractMetric(row: HourlyAggPrtnEntryAppPlaybackcontextRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnEntryAppPlaybackcontextRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnEntryAppPlaybackcontextRow = {
+        HourlyAggPrtnEntryAppPlaybackcontextRow(row.partnerId, row.entryId, row.application, row.playbackContext, row.metric, row.year, row.hour.plusHours(timezoneOffsetFromUtc), row.value)
+      }
+
     }
 
 case class HourlyAggPrtnEntryAppPlaybackcontextQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], entryIdList : List[String], applicationList : List[String], playbackContextList : List[String], metricList : List[String]) extends IYearlyPartitionedQueryParams

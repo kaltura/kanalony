@@ -10,7 +10,7 @@ package kanalony.storage.logic.generated
     class HourlyAggClstCountryQuery(accessor : IHourlyAggClstCountryTableAccessor) extends QueryBase[HourlyAggClstCountryQueryParams, HourlyAggClstCountryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggClstCountryQueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
-        HourlyAggClstCountryQueryParams(params.start, params.end, partner_id, params.metrics.map(_.name))
+        HourlyAggClstCountryQueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -36,6 +36,11 @@ DimensionDefinition(Dimensions.country, new DimensionConstraintDeclaration(Query
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: HourlyAggClstCountryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggClstCountryRow, timezoneOffsetFromUtc : Int) : HourlyAggClstCountryRow = {
+        HourlyAggClstCountryRow(row.partnerId, row.metric, row.year, row.hour.plusHours(timezoneOffsetFromUtc), row.country, row.value)
+      }
+
     }
 
 case class HourlyAggClstCountryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], metricList : List[String]) extends IYearlyPartitionedQueryParams
