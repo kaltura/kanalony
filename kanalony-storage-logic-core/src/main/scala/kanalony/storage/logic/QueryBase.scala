@@ -26,6 +26,8 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
   private[logic] def extractMetric(row : TQueryRow): String
 
+  private[logic] def updateTimezoneOffset(row : TQueryRow, timezoneOffsetFromUtc : Int) : TQueryRow
+
   protected def getResultRow(row: TQueryRow): List[String]
 
   def metricValueLocationIndex: Int
@@ -104,12 +106,20 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
+  def updateTimezoneOffset(params: QueryParams): (List[TQueryRow]) => List[TQueryRow] =  {
+    rows => {
+      rows.map(r => updateTimezoneOffset(r, params.timezoneOffset))
+    }
+  }
+
   def query(params: QueryParams): Future[List[IQueryResult]] = {
     try {
       val inputParams = extractParams(params)
       val retrievedRowsFuture = executeQuery(inputParams)
 
       retrievedRowsFuture
+        // Update row time data to the appropriate timezone
+        .map(updateTimezoneOffset(params))
         // Group retrieved data by metric
         .map(groupByMetric(params))
         // Calculate aggregation per metric

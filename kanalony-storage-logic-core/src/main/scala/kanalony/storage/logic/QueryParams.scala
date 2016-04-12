@@ -8,4 +8,7 @@ import org.joda.time.DateTime
  * Created by elad.benedict on 2/14/2016.
  */
 
-case class QueryParams(dimensionDefinitions : List[IQueryDimensionDefinition], metrics : List[Metric], start : DateTime, end : DateTime)
+case class QueryParams(dimensionDefinitions : List[IQueryDimensionDefinition], metrics : List[Metric], start : DateTime, end : DateTime, timezoneOffset : Int) {
+  val startUtc = start.minusHours(timezoneOffset)
+  val endUtc = end.minusHours(timezoneOffset)
+}

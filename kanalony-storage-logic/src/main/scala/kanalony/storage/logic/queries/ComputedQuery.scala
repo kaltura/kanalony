@@ -50,11 +50,11 @@ abstract class ComputedQuery(val metric : Metric, queryParams: QueryParams, quer
   }
 
   private def convertQueryParams(queryParams: QueryParams, metric : Metric) : QueryParams = {
-    QueryParams(queryParams.dimensionDefinitions, List(metric) , queryParams.start, queryParams.end)
+    convertQueryParams(queryParams, List(metric))
   }
 
   private def convertQueryParams(queryParams: QueryParams, metrics : List[Metric]) : QueryParams = {
-    QueryParams(queryParams.dimensionDefinitions, metrics , queryParams.start, queryParams.end)
+    QueryParams(queryParams.dimensionDefinitions, metrics , queryParams.start, queryParams.end, queryParams.timezoneOffset)
   }
 
   override def query(params: QueryParams): Future[List[IQueryResult]] = {

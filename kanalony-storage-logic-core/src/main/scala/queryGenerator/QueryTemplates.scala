@@ -20,6 +20,7 @@ object QueryTemplates {
     val equalityConstraintColumnsNotIncludingMetricPlaceholder = "%EQUALITY_CONS_DIMS_WITHOUT_METRIC%"
     val equalityConstraintColumnTypesNotIncludingMetricPlaceholder = "%EQUALITY_CONS_TYPES%"
     val equalityConstraintColumnsNotIncludingMetricEnumValuesPlaceholder = "%EQUALITY_CONS_DIMS_WITHOUT_METRIC_ENUM_VALUES%"
+    val rowValuesWithUpdatedOffsetPlaceholder = "%ROW_VALUES_WITH_UPDATED_OFFSET%"
 
     val content =
       """package kanalony.storage.logic.generated
@@ -34,7 +35,7 @@ object QueryTemplates {
     class %QUERY_NAME%(accessor : %TABLE_ACCESSOR_INTERFACE%) extends QueryBase[%QUERY_PARAMS_TYPE%, %TABLE_ROW_TYPE%] with %SUPPORTED_METRICS_PROVIDER% {
       private[logic] override def extractParams(params: QueryParams): %QUERY_PARAMS_TYPE% = {
         val (%EQUALITY_CONS_DIMS_WITHOUT_METRIC%) = QueryParamsValidator.extractEqualityConstraintParams[%EQUALITY_CONS_TYPES%]((%EQUALITY_CONS_DIMS_WITHOUT_METRIC_ENUM_VALUES%), params)
-        %QUERY_PARAMS_TYPE%(params.start, params.end, %EQUALITY_CONS_DIMS_WITHOUT_METRIC%, params.metrics.map(_.name))
+        %QUERY_PARAMS_TYPE%(params.startUtc, params.endUtc, %EQUALITY_CONS_DIMS_WITHOUT_METRIC%, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -58,6 +59,11 @@ object QueryTemplates {
       override def metricValueLocationIndex(): Int = %METRIC_VALUE_LOCATION%
 
       override private[logic] def extractMetric(row: %TABLE_ROW_TYPE%): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : %TABLE_ROW_TYPE%, timezoneOffsetFromUtc : Int) : %TABLE_ROW_TYPE% = {
+        %TABLE_ROW_TYPE%(%ROW_VALUES_WITH_UPDATED_OFFSET%)
+      }
+
     }"""
   }
 

@@ -127,6 +127,6 @@ class Application extends Controller {
       dimension => QueryDimensionDefinition(dimension , new DimensionUnconstrained, true)
     }
 
-    QueryParams(constrainedDimensionDefinitions ::: unconstrainedDimensionDefinitions, metricsInResult, new DateTime(req.from), new DateTime(req.to))
+    QueryParams(constrainedDimensionDefinitions ::: unconstrainedDimensionDefinitions, metricsInResult, new DateTime(req.from), new DateTime(req.to), req.utcOffset)
   }
 }

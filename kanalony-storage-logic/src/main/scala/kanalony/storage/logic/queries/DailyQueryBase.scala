@@ -81,7 +81,7 @@ abstract class DailyQueryBase(queryParams: QueryParams, queryLocator: IQueryLoca
       else { dimDef }
     })
 
-    val internalQueryParams = QueryParams(internalQueryDimensionDefinitions, params.metrics, params.start, params.end)
+    val internalQueryParams = QueryParams(internalQueryDimensionDefinitions, params.metrics, params.start, params.end, params.timezoneOffset)
     query.query(internalQueryParams)
          .map(qrList => qrList.map(aggregateByDay))
 
@@ -94,7 +94,7 @@ abstract class DailyQueryBase(queryParams: QueryParams, queryLocator: IQueryLoca
       case QueryDimensionDefinition(Dimensions.day, constraint, includeInResult) => QueryDimensionDefinition(Dimensions.hour, constraint, includeInResult)
       case dimensionDefinition: QueryDimensionDefinition => dimensionDefinition
     }
-    QueryParams(dimDefs, queryParams.metrics, queryParams.start, queryParams.end)
+    QueryParams(dimDefs, queryParams.metrics, queryParams.start, queryParams.end, queryParams.timezoneOffset)
   }
 
   override val supportedWellKnownMetrics: Set[Metric] = query.supportedWellKnownMetrics
