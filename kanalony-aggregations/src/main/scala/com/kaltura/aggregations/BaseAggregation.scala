@@ -37,10 +37,9 @@ abstract class BaseAggregation[AggKey:ClassTag, AggRes:TypeTag :ClassTag] extend
   val stateSpec = StateSpec.function(trackStateFunc _).timeout(Seconds(ttl))
 
   def save(aggregatedEvents: DStream[AggRes]) : Unit = {
+    aggregatedEvents.cache()
     tableMetadata.foreach {
       case (tableName, columns) => aggregatedEvents.foreachRDD({ rdd =>
-        println(s"writing to $keyspace.$tableName:")
-        rdd.foreach(println)
         rdd.saveToCassandra(keyspace, tableName, columns)
       })
     }
