@@ -1,4 +1,4 @@
-lazy val sparkVersion = "1.6.0"
+lazy val sparkVersion = "1.6.1"
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-core` = RootProject(file("../kanalony-core"))
 lazy val `kanalony-storage-access` = RootProject(file("../kanalony-storage-access"))
@@ -17,7 +17,9 @@ lazy val `kanalony-aggregations` = (project in file(".")).
       "com.datastax.cassandra"  %   "cassandra-driver-core"     % "3.0.0",
       "com.datastax.spark"      %% "spark-cassandra-connector"  % "1.5.0",
       "joda-time"               % "joda-time"                   % "2.8.2",
-      // Test
+      "org.apache.hadoop"       % "hadoop-aws"                  % "2.7.1",
+      "com.amazonaws"           % "aws-java-sdk"                % "1.7.4",
+// Test
       "org.scalatest"           %% "scalatest"                  % "2.2.4"    % "test"
     )
   ).dependsOn(`kanalony-model`, `kanalony-core`, `kanalony-storage-access`)
