@@ -1,0 +1,20 @@
+# Mandatory
+kanalony.events_enhancer.application_name=EventsEnrichment
+kanalony.events_enrichment.admin_partner_secret=<ADMIN_PARTNER_SECRET>
+kanalony.core.ip2location.data_filepath=/opt/kaltura/conf/geoip/IP-COUNTRY-CITY-ISP.BIN
+kanalony.events_aggregation.application_name=EventsAggregation
+
+# Optional
+# kanalony.events_enhancer.master=spark://localhost:7077
+# kanalony.events_enhancer.cassandra_host=localhost
+# kanalony.events_enhancer.kafka_brokers=localhost:9092
+# kanalony.events_enhancer.batch_duration=2
+# kanalony.events_enhancer.backpressure=true
+# kanalony.checkpoint_root_path=/tmp/checkpoint
+
+# kanalony.events_aggregations.kafka_brokers=localhost:9092
+# kanalony.events_aggregations.master=spark://localhost:7077
+# kanalony.events_aggregations.cassandra_host=localhost
+# kanalony.events_aggregations.batch_duration=10
+# kanalony.events_aggregations.concurrentJobs=10
+# kanalony.events_aggregations.backpressure=true
