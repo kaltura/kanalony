@@ -22,15 +22,11 @@ object PlayerEventParser extends Logging {
   def parsePlayerEvent(playerEvent: String): Option[RawPlayerEvent] = {
     try {
       val row:AccessLogRow = parse(playerEvent).extract[AccessLogRow]
-      val params = new mutable.ListMap[String,String]
-      UrlParser.parseUrl(row.request).foreach(pair =>
-        params(pair.key) = pair.value
-      )
       Some(RawPlayerEvent(row.eventTime,
                           row.remoteAddr,
                           row.proxyRemoteAddr,
                           row.userAgent,
-                          params.toMap))
+                          row.params))
     }
     catch {
       case e: Exception => {
@@ -58,7 +54,7 @@ object PlayerEventParser extends Logging {
   }
 
   def asJson(enrichedPlayerEvent: EnrichedPlayerEvent) : String = {
-    write(enrichedPlayerEvent);
+    write(enrichedPlayerEvent)
   }
 
 }

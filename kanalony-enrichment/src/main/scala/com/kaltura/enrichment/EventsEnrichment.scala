@@ -43,7 +43,7 @@ object EventsEnrichment extends App with Logging {
       .set("spark.cassandra.connection.keep_alive_ms","30000")
       .set("spark.streaming.backpressure.enabled", ConfigurationManager.getOrElse("kanalony.events_enhancer.backpressure","false"))
     val sparkContext = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","1").toInt))
+    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","5").toInt))
     ssc.checkpoint(checkpointDirectory)
 
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
@@ -54,9 +54,9 @@ object EventsEnrichment extends App with Logging {
     stream.transform { rdd =>
       offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
       rdd
-    }.map(_._2).
-      flatMap(PlayerEventParser.parsePlayerEvent).
-      foreachRDD { rdd =>
+    }
+      .flatMap(event => PlayerEventParser.parsePlayerEvent(event._2))
+      .foreachRDD { rdd =>
         enrichEvents(rdd)
         for (o <- offsetRanges) {
           println(s"${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
@@ -91,7 +91,7 @@ object EventsEnrichment extends App with Logging {
               rawPlayerEvent.params.getOrElse("userId","Unknown"),
               locationResolver.parseWithProxy(rawPlayerEvent.remoteAddr, rawPlayerEvent.proxyRemoteAddr),
               UserAgentResolver.resolve(rawPlayerEvent.userAgent),
-              UrlParser.getUrlParts(rawPlayerEvent.params.getOrElse("event:referrer","")),
+              UrlParser.getUrlParts(UrlParser.decodeUrl(rawPlayerEvent.params.getOrElse("event:referrer",""))),
               rawPlayerEvent.params.getOrElse("kalsig",""),
               rawPlayerEvent.params.getOrElse("categories",""),
               rawPlayerEvent.params.getOrElse("application",""),

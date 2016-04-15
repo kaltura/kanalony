@@ -8,5 +8,6 @@ case class AccessLogRow(
                         eventTime:DateTime,
                         remoteAddr:String,
                         proxyRemoteAddr:String,
-                        userAgent:String
+                        userAgent:String,
+                        params:Map[String,String]
                         )
