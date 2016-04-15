@@ -31,6 +31,16 @@ filter {
     rename => { "clientip" => "remoteIp"}
     rename => { "agent" => "userAgent"}
   }
+
+  urldecode {
+    field => "request"
+  }
+
+  kv {
+    source => "request"
+    field_split => "&?"
+    target => "params"
+  }
 }
 
 output {
@@ -39,6 +49,7 @@ output {
     topic_id => "player-events"
     acks => "1"
     batch_size => "2000"
+    message_key => "%{params[event:entryId]}"
     # codec => rubydebug
   }
   # for debug:
