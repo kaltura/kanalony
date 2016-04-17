@@ -66,40 +66,36 @@ object EventsEnrichment extends App with Logging {
     ssc
   }
 
-  def enrichByEntities(playerEvents:RDD[RawPlayerEvent]): RDD[RawPlayerEvent] = {
-    EnrichByEntry.enrich(EnrichByPartner.enrich(playerEvents))
-  }
-
   def enrichEvents(playerEvents:RDD[RawPlayerEvent]):Unit = {
-    enrichByEntities(playerEvents).
-      foreachPartition( eventsPart => {
+    playerEvents
+      .foreachPartition( eventsPart => {
         val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
         val producer = StreamManager.createProducer(kafkaBrokers)
         val locationResolver = new LocationResolver
+        val enrichByEntry = new EnrichByEntry
+        val enrichByPartner = new EnrichByPartner
         eventsPart.foreach(rawPlayerEvent => {
-          val eventType = rawPlayerEvent.params.get("event:eventType")
-          val partnerId = rawPlayerEvent.params.get("event:partnerId")
-          val entryId = rawPlayerEvent.params.get("event:entryId")
-          if (eventType.isDefined && partnerId.isDefined && entryId.isDefined) {
-            val eventTypeEnum = PlayerEventTypes(eventType.get)
+          if (rawPlayerEvent.isValid) {
+            val validPlayerEvent = enrichByEntry.enrich(enrichByPartner.enrich(rawPlayerEvent))
+            val eventTypeEnum = PlayerEventTypes(validPlayerEvent.eventType.get)
             val playerEvent = EnrichedPlayerEvent(
-              if (eventTypeEnum.equals(PlayerEventTypes.unknown)) eventType.get else eventTypeEnum.toString,
-              rawPlayerEvent.eventTime,
-              partnerId.get.toInt,
-              entryId.get,
-              rawPlayerEvent.params.getOrElse("event:flavourId",""),
-              rawPlayerEvent.params.getOrElse("userId","Unknown"),
-              locationResolver.parseWithProxy(rawPlayerEvent.remoteAddr, rawPlayerEvent.proxyRemoteAddr),
-              UserAgentResolver.resolve(rawPlayerEvent.userAgent),
-              UrlParser.getUrlParts(UrlParser.decodeUrl(rawPlayerEvent.params.getOrElse("event:referrer",""))),
-              rawPlayerEvent.params.getOrElse("kalsig",""),
-              rawPlayerEvent.params.getOrElse("categories",""),
-              rawPlayerEvent.params.getOrElse("application",""),
-              rawPlayerEvent.params.getOrElse("playbackContext",""),
-              rawPlayerEvent.params.getOrElse("playbackType",""),
-              rawPlayerEvent.params.getOrElse("customVar1",""),
-              rawPlayerEvent.params.getOrElse("customVar2",""),
-              rawPlayerEvent.params.getOrElse("customVar3","")
+              if (eventTypeEnum.equals(PlayerEventTypes.unknown)) validPlayerEvent.eventType.get else eventTypeEnum.toString,
+              validPlayerEvent.eventTime,
+              validPlayerEvent.partnerId.get,
+              validPlayerEvent.entryId.get,
+              validPlayerEvent.params.getOrElse("event:flavourId",""),
+              validPlayerEvent.params.getOrElse("userId","Unknown"),
+              locationResolver.parseWithProxy(validPlayerEvent.remoteAddr, validPlayerEvent.proxyRemoteAddr),
+              UserAgentResolver.resolve(validPlayerEvent.userAgent),
+              UrlParser.getUrlParts(UrlParser.decodeUrl(validPlayerEvent.params.getOrElse("event:referrer",""))),
+              validPlayerEvent.params.getOrElse("kalsig",""),
+              validPlayerEvent.params.getOrElse("categories",""),
+              validPlayerEvent.params.getOrElse("application",""),
+              validPlayerEvent.params.getOrElse("playbackContext",""),
+              validPlayerEvent.params.getOrElse("playbackType",""),
+              validPlayerEvent.params.getOrElse("customVar1",""),
+              validPlayerEvent.params.getOrElse("customVar2",""),
+              validPlayerEvent.params.getOrElse("customVar3","")
             )
             producer.send(new ProducerRecord[String,String]("enriched-player-events", playerEvent.entryId, PlayerEventParser.asJson(playerEvent)))
           }

@@ -12,8 +12,8 @@ import org.apache.spark.rdd.RDD
  */
 trait IEnrich[IDType <: Object,EnrichType <: Object] {
 
-  val maxCacheSize = 10000
-  val expireAfterWrite: (Long, TimeUnit) = Tuple2(24L, TimeUnit.HOURS)
+  val maxCacheSize = 100000
+  val expireAfterWrite: (Long, TimeUnit) = (1L, TimeUnit.HOURS)
   val localCache = buildLocalCache
 
   def buildLocalCache: LoadingCache[IDType, EnrichType] = {
@@ -27,6 +27,6 @@ trait IEnrich[IDType <: Object,EnrichType <: Object] {
       )
   }
   def loadEntity(id: IDType) : EnrichType
-  def enrich(playerEvents:RDD[RawPlayerEvent]):RDD[RawPlayerEvent]
+  def enrich(playerEvents:RawPlayerEvent):RawPlayerEvent
 }
 
