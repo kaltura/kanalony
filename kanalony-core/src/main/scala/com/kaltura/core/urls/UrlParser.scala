@@ -27,8 +27,12 @@ object UrlParser {
   }
 
   def getUrlParts(url: String) : UrlParts = {
-    val uri = new java.net.URI(url)
-    UrlParts(uri.getHost, uri.getAuthority + uri.getPath, url)
+    try {
+      val uri = new java.net.URI(url.replaceAll(" ","%20"))
+      UrlParts(uri.getHost, uri.getAuthority + uri.getPath, url)
+    } catch {
+      case e: Exception => UrlParts("N/A","N/A","N/A")
+    }
   }
 
   def decodeUrl(url: String) = java.net.URLDecoder.decode(url, "UTF-8")

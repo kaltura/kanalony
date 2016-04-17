@@ -1,13 +1,9 @@
 package com.kaltura.enrichment
 
 
-import java.util.concurrent.TimeUnit
-
-import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.kaltura.model.cache.EntryCache
 import com.kaltura.model.entities.Entry
 import com.kaltura.model.events.RawPlayerEvent
-import org.apache.spark.rdd.RDD
 
 /**
  * Created by ofirk on 16/02/2016.
