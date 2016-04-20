@@ -11,8 +11,13 @@ import scala.collection.JavaConversions._
 object EntryDAO extends DAOBase[Entry, String] {
   def getById(partnerId: Int, entryId:String): Option[Entry] = {
     withPartnerImpersonation(partnerId) { () =>
-      val categoriesSet = getEntryCategories(entryId)
-      Some(Entry(entryId, Some(categoriesSet.mkString(","))))
+      try {
+        val categoriesSet = getEntryCategories(entryId)
+        Some(Entry(entryId, Some(categoriesSet.mkString(","))))
+      }
+      catch {
+        case e: Exception => println(s"Error while fetching Entry data ($partnerId,$entryId):");e.printStackTrace();None
+      }
     }
   }
 
@@ -26,4 +31,3 @@ object EntryDAO extends DAOBase[Entry, String] {
   }
 
 }
-
