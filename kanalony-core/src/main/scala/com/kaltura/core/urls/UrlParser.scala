@@ -29,11 +29,16 @@ object UrlParser {
   def getUrlParts(url: String) : UrlParts = {
     try {
       val uri = new java.net.URI(url.replaceAll(" ","%20"))
-      UrlParts(uri.getHost, uri.getAuthority + uri.getPath, url)
+      UrlParts( defaultIfEmpty(uri.getHost),
+                defaultIfEmpty(uri.getAuthority,uri.getPath),
+                defaultIfEmpty(url))
     } catch {
       case e: Exception => UrlParts("N/A","N/A","N/A")
     }
   }
 
   def decodeUrl(url: String) = java.net.URLDecoder.decode(url, "UTF-8")
+
+  def defaultIfEmpty(urlPart:String) = if(urlPart == null || urlPart.isEmpty) "N/A" else urlPart
+  def defaultIfEmpty(urlPart1:String, urlPart2:String) = if(urlPart1 == null || urlPart1.isEmpty) "N/A" else if (urlPart2 == null) urlPart1 else urlPart1 + urlPart2
 }
