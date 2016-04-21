@@ -82,10 +82,21 @@ trait KSParserBase extends IPartnerSecretStore {
    * @return
    */
   def parseV2(encData:Array[Byte], partnerId: Int, partnerSecret: String): Option[KSData] = {
-    val decryptedKS = decryptKS(encData, partnerSecret)
-    val ksPairs = UrlParser.parseQueryString(decryptedKS)
-    val userPair = ksPairs.find(pair => pair.key.equals(KS_USER_KEY))
-    if (userPair.isDefined) Some(KSData(partnerId, userPair.get.value)) else Some(KSData(partnerId))
+    if (partnerSecret == null || partnerSecret.isEmpty) { // if secret is missing we can skip decryption...
+      Some(KSData(partnerId))
+    }
+    else {
+      try {
+        val decryptedKS = decryptKS(encData, partnerSecret)
+        val ksPairs = UrlParser.parseQueryString(decryptedKS)
+        val userPair = ksPairs.find(pair => pair.key.equals(KS_USER_KEY))
+        if (userPair.isDefined) Some(KSData(partnerId, userPair.get.value)) else Some(KSData(partnerId))
+      }
+      catch {
+        case e:Exception => println(s"Error decrypting KS for partnerId $partnerId"); Some(KSData(partnerId))
+      }
+
+    }
   }
 
   private def decode(ks:String): Array[Byte] = {
