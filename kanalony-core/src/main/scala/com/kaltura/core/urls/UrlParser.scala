@@ -33,7 +33,7 @@ object UrlParser {
                 defaultIfEmpty(uri.getAuthority,uri.getPath),
                 defaultIfEmpty(url))
     } catch {
-      case e: Exception => UrlParts("N/A","N/A","N/A")
+      case e: Exception => println(s"Error parsing url: $url, error: ${e.toString}"); UrlParts("N/A","N/A","N/A")
     }
   }
 
