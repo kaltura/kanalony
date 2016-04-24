@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class MinutelyAggPrtnEntryTableAccessor extends CassandraTable[MinutelyAggPrtnEntryTableAccessor, MinutelyAggPrtnEntryRow] with RootConnector {
+abstract class MinutelyAggPrtnEntryTableAccessor extends CassandraTable[MinutelyAggPrtnEntryTableAccessor, MinutelyAggPrtnEntryRow] with RootConnector with IMinutelyAggPrtnEntryTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object entry_id extends StringColumn(this)with PartitionKey[String]
@@ -39,29 +39,51 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, entryId : String, day : Int, metric : String) : SelectQuery[MinutelyAggPrtnEntryTableAccessor, MinutelyAggPrtnEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, entryId : String, day : Int, metric : String) : Future[List[MinutelyAggPrtnEntryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.day eqs day)
 .and(_.metric eqs metric)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnEntryTableAccessor, MinutelyAggPrtnEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnEntryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.day eqs day)
 .and(_.metric eqs metric)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], entryIdList : List[String], dayList : List[Int], metricList : List[String]) : SelectQuery[MinutelyAggPrtnEntryTableAccessor, MinutelyAggPrtnEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], entryIdList : List[String], dayList : List[Int], metricList : List[String]) : Future[List[MinutelyAggPrtnEntryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.day in dayList)
 .and(_.metric in metricList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnEntryTableAccessor, MinutelyAggPrtnEntryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnEntryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.day in dayList)
 .and(_.metric in metricList)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class MinutelyAggPrtnEntryRow(partnerId:Int,
+entryId:String,
+day:Int,
+metric:String,
+minute:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IMinutelyAggPrtnEntryTableAccessor {
+  def query(partnerId : Int, entryId : String, day : Int, metric : String) : Future[List[MinutelyAggPrtnEntryRow]]
+ def query(partnerId : Int, entryId : String, day : Int, metric : String, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnEntryRow]]
+def query(partnerIdList : List[Int], entryIdList : List[String], dayList : List[Int], metricList : List[String]) : Future[List[MinutelyAggPrtnEntryRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], dayList : List[Int], metricList : List[String], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnEntryRow]]
 }

@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class TensecsAggPrtnCountryOsClstBrowserTableAccessor extends CassandraTable[TensecsAggPrtnCountryOsClstBrowserTableAccessor, TensecsAggPrtnCountryOsClstBrowserRow] with RootConnector {
+abstract class TensecsAggPrtnCountryOsClstBrowserTableAccessor extends CassandraTable[TensecsAggPrtnCountryOsClstBrowserTableAccessor, TensecsAggPrtnCountryOsClstBrowserRow] with RootConnector with ITensecsAggPrtnCountryOsClstBrowserTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object country extends StringColumn(this)with PartitionKey[String]
@@ -45,21 +45,23 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int) : SelectQuery[TensecsAggPrtnCountryOsClstBrowserTableAccessor, TensecsAggPrtnCountryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.country eqs country)
 .and(_.operating_system eqs operatingSystem)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnCountryOsClstBrowserTableAccessor, TensecsAggPrtnCountryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.country eqs country)
 .and(_.operating_system eqs operatingSystem)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, browserStart : Int, browserEnd : Int) : SelectQuery[TensecsAggPrtnCountryOsClstBrowserTableAccessor, TensecsAggPrtnCountryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, browserStart : Int, browserEnd : Int) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.country eqs country)
 .and(_.operating_system eqs operatingSystem)
 .and(_.metric eqs metric)
@@ -68,22 +70,25 @@ value(row)
 .and(_.tensecs lt tensecsEnd)
 .and(_.browser gte browserStart)
 .and(_.browser lt browserEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int]) : SelectQuery[TensecsAggPrtnCountryOsClstBrowserTableAccessor, TensecsAggPrtnCountryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.country in countryList)
 .and(_.operating_system in operatingSystemList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnCountryOsClstBrowserTableAccessor, TensecsAggPrtnCountryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.country in countryList)
 .and(_.operating_system in operatingSystemList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, browserStart : Int, browserEnd : Int) : SelectQuery[TensecsAggPrtnCountryOsClstBrowserTableAccessor, TensecsAggPrtnCountryOsClstBrowserRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, browserStart : Int, browserEnd : Int) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.country in countryList)
 .and(_.operating_system in operatingSystemList)
 .and(_.metric in metricList)
@@ -92,6 +97,29 @@ def query(partnerIdList : List[Int], countryList : List[String], operatingSystem
 .and(_.tensecs lt tensecsEnd)
 .and(_.browser gte browserStart)
 .and(_.browser lt browserEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class TensecsAggPrtnCountryOsClstBrowserRow(partnerId:Int,
+country:String,
+operatingSystem:Int,
+metric:String,
+day:Int,
+tensecs:DateTime,
+browser:Int,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait ITensecsAggPrtnCountryOsClstBrowserTableAccessor {
+  def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]]
+ def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]]
+ def query(partnerId : Int, country : String, operatingSystem : Int, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime, browserStart : Int, browserEnd : Int) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]]
+def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]]
+ def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]]
+ def query(partnerIdList : List[Int], countryList : List[String], operatingSystemList : List[Int], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime, browserStart : Int, browserEnd : Int) : Future[List[TensecsAggPrtnCountryOsClstBrowserRow]]
 }

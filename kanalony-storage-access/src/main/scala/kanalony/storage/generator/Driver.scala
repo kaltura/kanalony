@@ -16,11 +16,18 @@ object Driver {
 
     tablesMetadata.foreach(tm => {
       val generatedEntity = new EntityClassGenerator(tm).generate().stripMargin
-      val generatedTableAcecssor = new TableAccessorGenerator(tm).generate().stripMargin
-      fs.printToFile(new File(EntityClassGenerator.getEntityName(tm) + ".scala"))(p=>(p.write(generatedEntity)))
-      fs.printToFile(new File(TableAccessorGenerator.generateClassName(tm) + ".scala"))(p=>(p.write(generatedTableAcecssor)))
+      val tableAccessorGenerator = new TableAccessorGenerator(tm)
+      val generatedTableAcecssor = tableAccessorGenerator.generate().stripMargin
+      val generatedInterface = tableAccessorGenerator.generateInterface().stripMargin
+      fs.printToFile(new File(TableAccessorGenerator.generateClassName(tm) + ".scala"))(
+        p => {
+          p.write({
+            generatedTableAcecssor + "\n\n" +
+              generatedEntity + "\n\n" +
+              generatedInterface
+          })
+        })
     })
-
     val dbClientFactory = DbClientFactoryGenerator.generate()
     fs.printToFile(new File("DbClientFactory.scala"))(p=>(p.write(dbClientFactory)))
   }

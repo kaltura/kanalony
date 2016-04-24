@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class HourlyAggPrtnReferrerClstEntryQuery extends QueryBase[HourlyAggPrtnReferrerClstEntryQueryParams, HourlyAggPrtnReferrerClstEntryRow] with IUserActivityQuery {
+    class HourlyAggPrtnReferrerClstEntryQuery(accessor : IHourlyAggPrtnReferrerClstEntryTableAccessor) extends QueryBase[HourlyAggPrtnReferrerClstEntryQueryParams, HourlyAggPrtnReferrerClstEntryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnReferrerClstEntryQueryParams = {
         val (partner_id,referrer) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.referrer), params)
-        HourlyAggPrtnReferrerClstEntryQueryParams(params.start, params.end, partner_id,referrer, params.metrics.map(_.name))
+        HourlyAggPrtnReferrerClstEntryQueryParams(params.startUtc, params.endUtc, partner_id,referrer, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnReferrerClstEntryQueryParams): Future[List[HourlyAggPrtnReferrerClstEntryRow]] = {
-        val rawQueryResult = HourlyAggPrtnReferrerClstEntryTableAccessor.query(params.partnerIdList,params.referrerList,params.months,params.metricList,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.referrerList,params.months,params.metricList,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -39,6 +37,11 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: HourlyAggPrtnReferrerClstEntryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnReferrerClstEntryRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnReferrerClstEntryRow = {
+        HourlyAggPrtnReferrerClstEntryRow(row.partnerId, row.referrer, row.month, row.metric, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.entryId, row.value)
+      }
+
     }
 
 case class HourlyAggPrtnReferrerClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], referrerList : List[String], metricList : List[String]) extends IMonthlyPartitionedQueryParams

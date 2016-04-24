@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class HourlyAggPrtnEntryClstPlaybackcontextQuery extends QueryBase[HourlyAggPrtnEntryClstPlaybackcontextQueryParams, HourlyAggPrtnEntryClstPlaybackcontextRow] with IUserActivityQuery {
+    class HourlyAggPrtnEntryClstPlaybackcontextQuery(accessor : IHourlyAggPrtnEntryClstPlaybackcontextTableAccessor) extends QueryBase[HourlyAggPrtnEntryClstPlaybackcontextQueryParams, HourlyAggPrtnEntryClstPlaybackcontextRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnEntryClstPlaybackcontextQueryParams = {
         val (partner_id,entry_id) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.entry), params)
-        HourlyAggPrtnEntryClstPlaybackcontextQueryParams(params.start, params.end, partner_id,entry_id, params.metrics.map(_.name))
+        HourlyAggPrtnEntryClstPlaybackcontextQueryParams(params.startUtc, params.endUtc, partner_id,entry_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnEntryClstPlaybackcontextQueryParams): Future[List[HourlyAggPrtnEntryClstPlaybackcontextRow]] = {
-        val rawQueryResult = HourlyAggPrtnEntryClstPlaybackcontextTableAccessor.query(params.partnerIdList,params.entryIdList,params.metricList,params.years,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.metricList,params.years,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -39,6 +37,11 @@ DimensionDefinition(Dimensions.playbackContext, new DimensionConstraintDeclarati
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: HourlyAggPrtnEntryClstPlaybackcontextRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnEntryClstPlaybackcontextRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnEntryClstPlaybackcontextRow = {
+        HourlyAggPrtnEntryClstPlaybackcontextRow(row.partnerId, row.entryId, row.metric, row.year, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.playbackContext, row.value)
+      }
+
     }
 
 case class HourlyAggPrtnEntryClstPlaybackcontextQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], entryIdList : List[String], metricList : List[String]) extends IYearlyPartitionedQueryParams

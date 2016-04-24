@@ -4,19 +4,17 @@ import com.kaltura.model.entities.{Metric, AggregationKind, Metrics}
 import kanalony.storage.DbClientFactory
 import kanalony.storage.generated._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Promise, Future}
 
 /**
- * Created by elad.benedict on 2/10/2016.
- */
+  * Created by elad.benedict on 2/10/2016.
+  */
 
 abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
   def supportsUserDefinedMetrics = false
 
   val groupingSeparator = "::"
-
-  val dbApi = DbClientFactory
 
   val metricValueHeaderName = "value"
 
@@ -28,11 +26,13 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
 
   private[logic] def extractMetric(row : TQueryRow): String
 
+  private[logic] def updateTimezoneOffset(row : TQueryRow, timezoneOffsetFromUtc : Int) : TQueryRow
+
   protected def getResultRow(row: TQueryRow): List[String]
 
   def metricValueLocationIndex: Int
 
-  def getGroupByKey(headerDimensionIndexes: List[Int]): (List[String]) => String = {
+  private def getGroupByKey(headerDimensionIndexes: List[Int]): (List[String]) => String = {
     row => {
       var groupValues: List[String] = List()
       headerDimensionIndexes.foreach(i => groupValues = groupValues :+ row(i))
@@ -40,7 +40,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def getGroupAggregatedValue(v: List[List[String]], metric : String): Double = {
+  private def getGroupAggregatedValue(v: List[List[String]], metric : String): Double = {
     val metricKind = Metrics.values.find(_.name == metric)
     val values = v.map(row => row(metricValueLocationIndex).toDouble)
     if (metricKind.isDefined && metricKind.get.aggregationKind == AggregationKind.Max)
@@ -53,7 +53,7 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def groupAndAggregate(params: QueryParams, metric: String): QueryResult => QueryResult = {
+  private def groupAndAggregate(params: QueryParams, metric: String): QueryResult => QueryResult = {
 
     val resultDimensions = params.dimensionDefinitions.filter(_.includeInResult).map(_.dimension)
 
@@ -84,38 +84,50 @@ abstract class QueryBase[TReq, TQueryRow] extends IQuery {
     }
   }
 
-  def groupByMetric: (List[TQueryRow]) => Map[String, List[TQueryRow]] = {
-    rows => rows.groupBy(extractMetric)
+  private def groupByMetric(params: QueryParams): (List[TQueryRow]) => Map[String, List[TQueryRow]] = {
+    rows => {
+      var res = rows.groupBy(extractMetric)
+      val missingMetrics = params.metrics.map(_.name).toSet -- res.keys
+      missingMetrics.foreach(m => res = res + (m -> List()))
+      res
+    }
   }
 
-  def processMetric(params: QueryParams): (Map[String, List[TQueryRow]]) => List[QueryResult] = {
+  private def processMetric(params: QueryParams): (Map[String, List[TQueryRow]]) => List[QueryResult] = {
     // For each (group of rows with the same) metric
     x => {
-      if (x.isEmpty)
-      {
-        List(QueryResult(getResultHeaders(), List()))
-      }
-      else {
-        x.map((kvp: (String, List[TQueryRow])) => {
-          // Turn to QueryResult
-          val processedRows = kvp._2.map(row => getResultRow(row))
-          val queryResult = QueryResult(getResultHeaders(), processedRows)
-          // Group by requested dimensions and aggregate
-          groupAndAggregate(params, kvp._1)(queryResult) // => Iterable[QueryResult]
-        }).toList
-      }
+      x.map((kvp: (String, List[TQueryRow])) => {
+        // Turn to QueryResult
+        val processedRows = kvp._2.map(row => getResultRow(row))
+        val queryResult = QueryResult(getResultHeaders(), processedRows)
+        // Group by requested dimensions and aggregate
+        groupAndAggregate(params, kvp._1)(queryResult) // => Iterable[QueryResult]
+      }).toList
+    }
+  }
+
+  def updateTimezoneOffset(params: QueryParams): (List[TQueryRow]) => List[TQueryRow] =  {
+    rows => {
+      rows.map(r => updateTimezoneOffset(r, params.timezoneOffset))
     }
   }
 
   def query(params: QueryParams): Future[List[IQueryResult]] = {
-    val inputParams = extractParams(params)
-    val retrievedRowsFuture = executeQuery(inputParams)
+    try {
+      val inputParams = extractParams(params)
+      val retrievedRowsFuture = executeQuery(inputParams)
 
-    retrievedRowsFuture
-      // Group retrieved data by metric
-      .map(groupByMetric)
-      // Calculate aggregation per metric
-      .map(processMetric(params))
+      retrievedRowsFuture
+        // Update row time data to the appropriate timezone
+        .map(updateTimezoneOffset(params))
+        // Group retrieved data by metric
+        .map(groupByMetric(params))
+        // Calculate aggregation per metric
+        .map(processMetric(params))
+    }
+    catch {
+      case e: Exception => Promise[List[IQueryResult]]().failure(e).future
+    }
   }
 
   override def isMetricSupported(metric: Metric): Boolean = {

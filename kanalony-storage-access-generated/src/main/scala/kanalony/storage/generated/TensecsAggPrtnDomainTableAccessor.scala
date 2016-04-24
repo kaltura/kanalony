@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class TensecsAggPrtnDomainTableAccessor extends CassandraTable[TensecsAggPrtnDomainTableAccessor, TensecsAggPrtnDomainRow] with RootConnector {
+abstract class TensecsAggPrtnDomainTableAccessor extends CassandraTable[TensecsAggPrtnDomainTableAccessor, TensecsAggPrtnDomainRow] with RootConnector with ITensecsAggPrtnDomainTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object domain extends StringColumn(this)with PartitionKey[String]
@@ -39,29 +39,51 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, domain : String, metric : String, day : Int) : SelectQuery[TensecsAggPrtnDomainTableAccessor, TensecsAggPrtnDomainRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, domain : String, metric : String, day : Int) : Future[List[TensecsAggPrtnDomainRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.domain eqs domain)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, domain : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnDomainTableAccessor, TensecsAggPrtnDomainRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, domain : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnDomainRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.domain eqs domain)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], domainList : List[String], metricList : List[String], dayList : List[Int]) : SelectQuery[TensecsAggPrtnDomainTableAccessor, TensecsAggPrtnDomainRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], domainList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnDomainRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.domain in domainList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], domainList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnDomainTableAccessor, TensecsAggPrtnDomainRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], domainList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnDomainRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.domain in domainList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class TensecsAggPrtnDomainRow(partnerId:Int,
+domain:String,
+metric:String,
+day:Int,
+tensecs:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait ITensecsAggPrtnDomainTableAccessor {
+  def query(partnerId : Int, domain : String, metric : String, day : Int) : Future[List[TensecsAggPrtnDomainRow]]
+ def query(partnerId : Int, domain : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnDomainRow]]
+def query(partnerIdList : List[Int], domainList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnDomainRow]]
+ def query(partnerIdList : List[Int], domainList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnDomainRow]]
 }

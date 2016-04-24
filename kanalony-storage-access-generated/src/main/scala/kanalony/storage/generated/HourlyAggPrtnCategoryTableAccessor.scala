@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnCategoryTableAccessor extends CassandraTable[HourlyAggPrtnCategoryTableAccessor, HourlyAggPrtnCategoryRow] with RootConnector {
+abstract class HourlyAggPrtnCategoryTableAccessor extends CassandraTable[HourlyAggPrtnCategoryTableAccessor, HourlyAggPrtnCategoryRow] with RootConnector with IHourlyAggPrtnCategoryTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object category extends StringColumn(this)with PartitionKey[String]
@@ -39,29 +39,51 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, category : String, metric : String, year : Int) : SelectQuery[HourlyAggPrtnCategoryTableAccessor, HourlyAggPrtnCategoryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, category : String, metric : String, year : Int) : Future[List[HourlyAggPrtnCategoryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.category eqs category)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, category : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnCategoryTableAccessor, HourlyAggPrtnCategoryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, category : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnCategoryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.category eqs category)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], categoryList : List[String], metricList : List[String], yearList : List[Int]) : SelectQuery[HourlyAggPrtnCategoryTableAccessor, HourlyAggPrtnCategoryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], categoryList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnCategoryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.category in categoryList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], categoryList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnCategoryTableAccessor, HourlyAggPrtnCategoryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], categoryList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnCategoryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.category in categoryList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnCategoryRow(partnerId:Int,
+category:String,
+metric:String,
+year:Int,
+hour:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnCategoryTableAccessor {
+  def query(partnerId : Int, category : String, metric : String, year : Int) : Future[List[HourlyAggPrtnCategoryRow]]
+ def query(partnerId : Int, category : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnCategoryRow]]
+def query(partnerIdList : List[Int], categoryList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnCategoryRow]]
+ def query(partnerIdList : List[Int], categoryList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnCategoryRow]]
 }

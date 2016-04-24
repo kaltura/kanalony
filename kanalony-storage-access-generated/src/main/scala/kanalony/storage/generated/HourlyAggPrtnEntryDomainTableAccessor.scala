@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnEntryDomainTableAccessor extends CassandraTable[HourlyAggPrtnEntryDomainTableAccessor, HourlyAggPrtnEntryDomainRow] with RootConnector {
+abstract class HourlyAggPrtnEntryDomainTableAccessor extends CassandraTable[HourlyAggPrtnEntryDomainTableAccessor, HourlyAggPrtnEntryDomainRow] with RootConnector with IHourlyAggPrtnEntryDomainTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object entry_id extends StringColumn(this)with PartitionKey[String]
@@ -42,33 +42,56 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, entryId : String, domain : String, metric : String, year : Int) : SelectQuery[HourlyAggPrtnEntryDomainTableAccessor, HourlyAggPrtnEntryDomainRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, entryId : String, domain : String, metric : String, year : Int) : Future[List[HourlyAggPrtnEntryDomainRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.domain eqs domain)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, domain : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnEntryDomainTableAccessor, HourlyAggPrtnEntryDomainRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, domain : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryDomainRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.domain eqs domain)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], entryIdList : List[String], domainList : List[String], metricList : List[String], yearList : List[Int]) : SelectQuery[HourlyAggPrtnEntryDomainTableAccessor, HourlyAggPrtnEntryDomainRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], entryIdList : List[String], domainList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnEntryDomainRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.domain in domainList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], domainList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnEntryDomainTableAccessor, HourlyAggPrtnEntryDomainRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], domainList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryDomainRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.domain in domainList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnEntryDomainRow(partnerId:Int,
+entryId:String,
+domain:String,
+metric:String,
+year:Int,
+hour:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnEntryDomainTableAccessor {
+  def query(partnerId : Int, entryId : String, domain : String, metric : String, year : Int) : Future[List[HourlyAggPrtnEntryDomainRow]]
+ def query(partnerId : Int, entryId : String, domain : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryDomainRow]]
+def query(partnerIdList : List[Int], entryIdList : List[String], domainList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnEntryDomainRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], domainList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryDomainRow]]
 }

@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class MinutelyAggPrtnCv1TableAccessor extends CassandraTable[MinutelyAggPrtnCv1TableAccessor, MinutelyAggPrtnCv1Row] with RootConnector {
+abstract class MinutelyAggPrtnCv1TableAccessor extends CassandraTable[MinutelyAggPrtnCv1TableAccessor, MinutelyAggPrtnCv1Row] with RootConnector with IMinutelyAggPrtnCv1TableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object custom_var1 extends StringColumn(this)with PartitionKey[String]
@@ -39,29 +39,51 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, customVar1 : String, metric : String, day : Int) : SelectQuery[MinutelyAggPrtnCv1TableAccessor, MinutelyAggPrtnCv1Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, customVar1 : String, metric : String, day : Int) : Future[List[MinutelyAggPrtnCv1Row]] = {
     select.where(_.partner_id eqs partnerId).and(_.custom_var1 eqs customVar1)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, customVar1 : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnCv1TableAccessor, MinutelyAggPrtnCv1Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, customVar1 : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnCv1Row]] = {
     select.where(_.partner_id eqs partnerId).and(_.custom_var1 eqs customVar1)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], customVar1List : List[String], metricList : List[String], dayList : List[Int]) : SelectQuery[MinutelyAggPrtnCv1TableAccessor, MinutelyAggPrtnCv1Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], customVar1List : List[String], metricList : List[String], dayList : List[Int]) : Future[List[MinutelyAggPrtnCv1Row]] = {
     select.where(_.partner_id in partnerIdList).and(_.custom_var1 in customVar1List)
 .and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], customVar1List : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnCv1TableAccessor, MinutelyAggPrtnCv1Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], customVar1List : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnCv1Row]] = {
     select.where(_.partner_id in partnerIdList).and(_.custom_var1 in customVar1List)
 .and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class MinutelyAggPrtnCv1Row(partnerId:Int,
+customVar1:String,
+metric:String,
+day:Int,
+minute:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IMinutelyAggPrtnCv1TableAccessor {
+  def query(partnerId : Int, customVar1 : String, metric : String, day : Int) : Future[List[MinutelyAggPrtnCv1Row]]
+ def query(partnerId : Int, customVar1 : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnCv1Row]]
+def query(partnerIdList : List[Int], customVar1List : List[String], metricList : List[String], dayList : List[Int]) : Future[List[MinutelyAggPrtnCv1Row]]
+ def query(partnerIdList : List[Int], customVar1List : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnCv1Row]]
 }

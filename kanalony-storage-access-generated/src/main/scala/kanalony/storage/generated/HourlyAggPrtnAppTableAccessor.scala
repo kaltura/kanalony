@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnAppTableAccessor extends CassandraTable[HourlyAggPrtnAppTableAccessor, HourlyAggPrtnAppRow] with RootConnector {
+abstract class HourlyAggPrtnAppTableAccessor extends CassandraTable[HourlyAggPrtnAppTableAccessor, HourlyAggPrtnAppRow] with RootConnector with IHourlyAggPrtnAppTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object application extends StringColumn(this)with PartitionKey[String]
@@ -39,29 +39,51 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, application : String, metric : String, year : Int) : SelectQuery[HourlyAggPrtnAppTableAccessor, HourlyAggPrtnAppRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, application : String, metric : String, year : Int) : Future[List[HourlyAggPrtnAppRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.application eqs application)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnAppTableAccessor, HourlyAggPrtnAppRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnAppRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.application eqs application)
 .and(_.metric eqs metric)
 .and(_.year eqs year)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int]) : SelectQuery[HourlyAggPrtnAppTableAccessor, HourlyAggPrtnAppRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnAppRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.application in applicationList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnAppTableAccessor, HourlyAggPrtnAppRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnAppRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.application in applicationList)
 .and(_.metric in metricList)
 .and(_.year in yearList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnAppRow(partnerId:Int,
+application:String,
+metric:String,
+year:Int,
+hour:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnAppTableAccessor {
+  def query(partnerId : Int, application : String, metric : String, year : Int) : Future[List[HourlyAggPrtnAppRow]]
+ def query(partnerId : Int, application : String, metric : String, year : Int, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnAppRow]]
+def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int]) : Future[List[HourlyAggPrtnAppRow]]
+ def query(partnerIdList : List[Int], applicationList : List[String], metricList : List[String], yearList : List[Int], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnAppRow]]
 }

@@ -7,7 +7,12 @@ import kanalony.storage.logic.queries.{DailyMaxQuery, DailyCountQuery}
  * Created by elad.benedict on 3/7/2016.
  */
 
-object ComputedDimensions extends ComputedQueryFactory[Dimensions.Value] {
+trait IComputedDimensions {
+  def getQueryCreator(value: Dimensions.Value): (QueryParams) => List[(IQuery, List[Metric])]
+  def values : Set[Dimensions.Value]
+}
+
+object ComputedDimensions extends ComputedQueryFactory[Dimensions.Value] with IComputedDimensions {
 
   val queryCreatorGetter = Map((Dimensions.day, dailyQueryCreator))
 
@@ -17,13 +22,13 @@ object ComputedDimensions extends ComputedQueryFactory[Dimensions.Value] {
       val dailyMaxMetrics = qp.metrics.filter(_.aggregationKind == AggregationKind.Max)
       if (dailyMaxMetrics.nonEmpty)
       {
-        res = res :+ (new DailyMaxQuery(qp), dailyMaxMetrics)
+        res = res :+ (new DailyMaxQuery(qp, QueryLocator), dailyMaxMetrics)
       }
 
       val dailyCountMetrics = qp.metrics.filter(_.aggregationKind == AggregationKind.Sum)
       if (dailyCountMetrics.nonEmpty)
       {
-        res = res :+ (new DailyCountQuery(qp), dailyCountMetrics)
+        res = res :+ (new DailyCountQuery(qp, QueryLocator), dailyCountMetrics)
       }
 
       res

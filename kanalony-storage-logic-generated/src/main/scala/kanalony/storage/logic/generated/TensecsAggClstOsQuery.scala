@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class TensecsAggClstOsQuery extends QueryBase[TensecsAggClstOsQueryParams, TensecsAggClstOsRow] with IUserActivityQuery {
+    class TensecsAggClstOsQuery(accessor : ITensecsAggClstOsTableAccessor) extends QueryBase[TensecsAggClstOsQueryParams, TensecsAggClstOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggClstOsQueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
-        TensecsAggClstOsQueryParams(params.start, params.end, partner_id, params.metrics.map(_.name))
+        TensecsAggClstOsQueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: TensecsAggClstOsQueryParams): Future[List[TensecsAggClstOsRow]] = {
-        val rawQueryResult = TensecsAggClstOsTableAccessor.query(params.partnerIdList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -38,6 +36,11 @@ DimensionDefinition(Dimensions.operatingSystem, new DimensionConstraintDeclarati
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: TensecsAggClstOsRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : TensecsAggClstOsRow, timezoneOffsetFromUtc : Int) : TensecsAggClstOsRow = {
+        TensecsAggClstOsRow(row.partnerId, row.metric, row.day, row.tensecs.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.operatingSystem, row.value)
+      }
+
     }
 
 case class TensecsAggClstOsQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams

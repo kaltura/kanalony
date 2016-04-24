@@ -10,7 +10,7 @@ import scala.concurrent.Future
 
 
 
-class DailyCountQuery(queryParams: QueryParams) extends DailyQueryBase(queryParams) {
+class DailyCountQuery(queryParams: QueryParams, queryLocator: IQueryLocator) extends DailyQueryBase(queryParams, queryLocator) {
   override def computeGroupAggregatedValue: (List[List[String]]) => Double = _.foldLeft(0.0)(_ + countFieldExtractor(_))
 }
 

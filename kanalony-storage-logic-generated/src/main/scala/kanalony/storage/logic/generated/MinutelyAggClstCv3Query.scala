@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class MinutelyAggClstCv3Query extends QueryBase[MinutelyAggClstCv3QueryParams, MinutelyAggClstCv3Row] with IUserActivityQuery {
+    class MinutelyAggClstCv3Query(accessor : IMinutelyAggClstCv3TableAccessor) extends QueryBase[MinutelyAggClstCv3QueryParams, MinutelyAggClstCv3Row] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggClstCv3QueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
-        MinutelyAggClstCv3QueryParams(params.start, params.end, partner_id, params.metrics.map(_.name))
+        MinutelyAggClstCv3QueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: MinutelyAggClstCv3QueryParams): Future[List[MinutelyAggClstCv3Row]] = {
-        val rawQueryResult = MinutelyAggClstCv3TableAccessor.query(params.partnerIdList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -38,6 +36,11 @@ DimensionDefinition(Dimensions.cf3, new DimensionConstraintDeclaration(QueryCons
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: MinutelyAggClstCv3Row): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : MinutelyAggClstCv3Row, timezoneOffsetFromUtc : Int) : MinutelyAggClstCv3Row = {
+        MinutelyAggClstCv3Row(row.partnerId, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.customVar3, row.value)
+      }
+
     }
 
 case class MinutelyAggClstCv3QueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams

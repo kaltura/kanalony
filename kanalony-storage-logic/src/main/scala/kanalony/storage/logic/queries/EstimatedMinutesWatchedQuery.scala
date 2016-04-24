@@ -10,7 +10,7 @@ import scala.concurrent.Future
  * Created by elad.benedict on 3/14/2016.
  */
 
-class EstimatedMinutesWatchedQuery(queryParams: QueryParams) extends ComputedQuery(Metrics.estimatedMinutesWatched, queryParams) {
+class EstimatedMinutesWatchedQuery(queryParams: QueryParams, queryLocator: IQueryLocator) extends ComputedQuery(Metrics.estimatedMinutesWatched, queryParams, queryLocator) {
   override val requiredMetrics: List[Metric] = List(Metrics.tenSecsViewed)
 
   override def computeValue(groupMetricsValues: List[SingleMetricValue]): Double = {

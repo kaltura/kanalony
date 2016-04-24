@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class MinutelyAggPrtnDeviceClstOsQuery extends QueryBase[MinutelyAggPrtnDeviceClstOsQueryParams, MinutelyAggPrtnDeviceClstOsRow] with IUserActivityQuery {
+    class MinutelyAggPrtnDeviceClstOsQuery(accessor : IMinutelyAggPrtnDeviceClstOsTableAccessor) extends QueryBase[MinutelyAggPrtnDeviceClstOsQueryParams, MinutelyAggPrtnDeviceClstOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnDeviceClstOsQueryParams = {
         val (partner_id,device) = QueryParamsValidator.extractEqualityConstraintParams[Int,Int]((Dimensions.partner,Dimensions.device), params)
-        MinutelyAggPrtnDeviceClstOsQueryParams(params.start, params.end, partner_id,device, params.metrics.map(_.name))
+        MinutelyAggPrtnDeviceClstOsQueryParams(params.startUtc, params.endUtc, partner_id,device, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: MinutelyAggPrtnDeviceClstOsQueryParams): Future[List[MinutelyAggPrtnDeviceClstOsRow]] = {
-        val rawQueryResult = MinutelyAggPrtnDeviceClstOsTableAccessor.query(params.partnerIdList,params.deviceList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.deviceList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -39,6 +37,11 @@ DimensionDefinition(Dimensions.operatingSystem, new DimensionConstraintDeclarati
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: MinutelyAggPrtnDeviceClstOsRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnDeviceClstOsRow, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnDeviceClstOsRow = {
+        MinutelyAggPrtnDeviceClstOsRow(row.partnerId, row.device, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.operatingSystem, row.value)
+      }
+
     }
 
 case class MinutelyAggPrtnDeviceClstOsQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], deviceList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams
