@@ -39,7 +39,7 @@ abstract class DailyQueryBase(queryParams: QueryParams, queryLocator: IQueryLoca
     val hourIndex = headersWithIndex.find(_._1.equals(Dimensions.hour.toString)).get._2
 
     rowData => relevantIndexes.map({
-      case h if h equals hourIndex => new DateTime(rowData(h)).toLocalDate.toString()
+      case h if h equals hourIndex => DateTime.parse(rowData(h)).toLocalDate.toString()
       case i => rowData(i)
     })
       .mkString(separator)
