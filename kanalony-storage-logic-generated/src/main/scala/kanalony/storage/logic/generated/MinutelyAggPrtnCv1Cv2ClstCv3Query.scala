@@ -4,13 +4,13 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class MinutelyAggPrtnCv1Cv2ClstCv3Query(accessor : IMinutelyAggPrtnCv1Cv2ClstCv3TableAccessor) extends QueryBase[MinutelyAggPrtnCv1Cv2ClstCv3QueryParams, MinutelyAggPrtnCv1Cv2ClstCv3Row] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnCv1Cv2ClstCv3QueryParams = {
         val (partner_id,custom_var1,custom_var2) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.cf1,Dimensions.cf2), params)
-        MinutelyAggPrtnCv1Cv2ClstCv3QueryParams(params.start, params.end, partner_id,custom_var1,custom_var2, params.metrics.map(_.name))
+        MinutelyAggPrtnCv1Cv2ClstCv3QueryParams(params.startUtc, params.endUtc, partner_id,custom_var1,custom_var2, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -38,6 +38,11 @@ DimensionDefinition(Dimensions.cf3, new DimensionConstraintDeclaration(QueryCons
       override def metricValueLocationIndex(): Int = 6
 
       override private[logic] def extractMetric(row: MinutelyAggPrtnCv1Cv2ClstCv3Row): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnCv1Cv2ClstCv3Row, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnCv1Cv2ClstCv3Row = {
+        MinutelyAggPrtnCv1Cv2ClstCv3Row(row.partnerId, row.customVar1, row.customVar2, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.customVar3, row.value)
+      }
+
     }
 
 case class MinutelyAggPrtnCv1Cv2ClstCv3QueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], customVar1List : List[String], customVar2List : List[String], metricList : List[String]) extends IDailyPartitionedQueryParams

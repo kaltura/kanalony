@@ -14,7 +14,7 @@ object QueryExecutor {
   def query(qp : QueryParams) : Future[IQueryResult] = {
     val queries = QueryLocator.locate(qp, ComputedDimensions, ComputedMetrics)
     val queryResults = queries.map(q => {
-      val queryParamsPerQuery = QueryParams(qp.dimensionDefinitions, q._2, qp.start, qp.end)
+      val queryParamsPerQuery = QueryParams(qp.dimensionDefinitions, q._2, qp.start, qp.end, qp.timezoneOffset)
       q._1.query(queryParamsPerQuery)
     })
     Future.sequence(queryResults)

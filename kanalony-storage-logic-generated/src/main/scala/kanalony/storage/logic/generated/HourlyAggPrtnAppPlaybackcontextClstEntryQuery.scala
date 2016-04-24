@@ -4,13 +4,13 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class HourlyAggPrtnAppPlaybackcontextClstEntryQuery(accessor : IHourlyAggPrtnAppPlaybackcontextClstEntryTableAccessor) extends QueryBase[HourlyAggPrtnAppPlaybackcontextClstEntryQueryParams, HourlyAggPrtnAppPlaybackcontextClstEntryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnAppPlaybackcontextClstEntryQueryParams = {
         val (partner_id,application,playback_context) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.application,Dimensions.playbackContext), params)
-        HourlyAggPrtnAppPlaybackcontextClstEntryQueryParams(params.start, params.end, partner_id,application,playback_context, params.metrics.map(_.name))
+        HourlyAggPrtnAppPlaybackcontextClstEntryQueryParams(params.startUtc, params.endUtc, partner_id,application,playback_context, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
@@ -38,6 +38,11 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override def metricValueLocationIndex(): Int = 6
 
       override private[logic] def extractMetric(row: HourlyAggPrtnAppPlaybackcontextClstEntryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnAppPlaybackcontextClstEntryRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnAppPlaybackcontextClstEntryRow = {
+        HourlyAggPrtnAppPlaybackcontextClstEntryRow(row.partnerId, row.application, row.playbackContext, row.month, row.metric, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.entryId, row.value)
+      }
+
     }
 
 case class HourlyAggPrtnAppPlaybackcontextClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], applicationList : List[String], playbackContextList : List[String], metricList : List[String]) extends IMonthlyPartitionedQueryParams

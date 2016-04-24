@@ -6,8 +6,8 @@ import kanalony.storage.logic.Dimensions
 import com.google.common.base.CaseFormat
 
 /**
- * Created by elad.benedict on 3/2/2016.
- */
+  * Created by elad.benedict on 3/2/2016.
+  */
 
 class QueryTypeGenerator(tm : TableMetadata) {
 
@@ -53,9 +53,16 @@ class QueryTypeGenerator(tm : TableMetadata) {
     res.replace("%Dims%", explicitNonMetricColumnExtendedInformation
       .filter(c => c.inPartitionKey || c.inClusteringKey)
       .map(cd => {
-                    val queryConstraint = if (cd.inPartitionKey) { "Equality"} else { "Range"}
-                    s"DimensionDefinition(Dimensions.${Dimensions.fromColumnName(cd.name).toString}, new DimensionConstraintDeclaration(QueryConstraint.${queryConstraint}))"
+        val queryConstraint = if (cd.inPartitionKey) { "Equality"} else { "Range"}
+        s"DimensionDefinition(Dimensions.${Dimensions.fromColumnName(cd.name).toString}, new DimensionConstraintDeclaration(QueryConstraint.${queryConstraint}))"
       }).mkString(",\n"))
+  }
+
+  def getRowValuesWithOffsetImplementation : String = {
+    extendedColumnInformation.map(_.name).map(column => column match {
+      case ColumnNames.hour | ColumnNames.minute | ColumnNames.tensecs => s"row.${EntityClassGenerator.getParamName(column)}.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60))"
+      case _ => s"row.${EntityClassGenerator.getParamName(column)}"
+    }).mkString(", ")
   }
 
   def generate() : String = {
@@ -73,6 +80,7 @@ class QueryTypeGenerator(tm : TableMetadata) {
       .replace(QueryTemplates.QueryClassTemplate.dimensionInformationImplementationPlaceholder, getDimensionInformationImplementation)
       .replace(QueryTemplates.QueryClassTemplate.metricValueLocationPlaceholder, getMetricValueLocation)
       .replace(QueryTemplates.QueryClassTemplate.tableRowTypePlaceholder, getTableRowType)
+      .replace(QueryTemplates.QueryClassTemplate.rowValuesWithUpdatedOffsetPlaceholder, getRowValuesWithOffsetImplementation)
   }
 }
 

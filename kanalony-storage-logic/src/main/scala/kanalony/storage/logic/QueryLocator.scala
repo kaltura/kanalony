@@ -43,7 +43,7 @@ class QueryLocator(availableQueries : List[IQuery]) extends IQueryLocator {
     val computedMetricQueries = requestedComputedMetrics.toList.flatMap(computedMetrics.getQueryCreator(_)(queryParams))
 
     val nonComputedMetrics = queryParams.metrics.toSet -- requestedComputedMetrics
-    val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end)
+    val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end, queryParams.timezoneOffset)
 
     if (nonComputedMetrics.isEmpty)
     {
