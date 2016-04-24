@@ -4,7 +4,7 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class MinutelyAggPrtnEntryClstReferrerQuery(accessor : IMinutelyAggPrtnEntryClstReferrerTableAccessor) extends QueryBase[MinutelyAggPrtnEntryClstReferrerQueryParams, MinutelyAggPrtnEntryClstReferrerRow] with IUserActivityQuery {
@@ -39,7 +39,7 @@ DimensionDefinition(Dimensions.referrer, new DimensionConstraintDeclaration(Quer
       override private[logic] def extractMetric(row: MinutelyAggPrtnEntryClstReferrerRow): String = row.metric
 
       override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnEntryClstReferrerRow, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnEntryClstReferrerRow = {
-        MinutelyAggPrtnEntryClstReferrerRow(row.partnerId, row.entryId, row.metric, row.day, row.minute.plusHours(timezoneOffsetFromUtc), row.referrer, row.value)
+        MinutelyAggPrtnEntryClstReferrerRow(row.partnerId, row.entryId, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.referrer, row.value)
       }
 
     }

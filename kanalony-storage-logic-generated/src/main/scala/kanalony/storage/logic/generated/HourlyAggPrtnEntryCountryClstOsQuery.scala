@@ -4,7 +4,7 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class HourlyAggPrtnEntryCountryClstOsQuery(accessor : IHourlyAggPrtnEntryCountryClstOsTableAccessor) extends QueryBase[HourlyAggPrtnEntryCountryClstOsQueryParams, HourlyAggPrtnEntryCountryClstOsRow] with IUserActivityQuery {
@@ -40,7 +40,7 @@ DimensionDefinition(Dimensions.operatingSystem, new DimensionConstraintDeclarati
       override private[logic] def extractMetric(row: HourlyAggPrtnEntryCountryClstOsRow): String = row.metric
 
       override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnEntryCountryClstOsRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnEntryCountryClstOsRow = {
-        HourlyAggPrtnEntryCountryClstOsRow(row.partnerId, row.entryId, row.country, row.year, row.metric, row.hour.plusHours(timezoneOffsetFromUtc), row.operatingSystem, row.value)
+        HourlyAggPrtnEntryCountryClstOsRow(row.partnerId, row.entryId, row.country, row.year, row.metric, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.operatingSystem, row.value)
       }
 
     }

@@ -4,7 +4,7 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class TensecsAggPrtnEntryDomainClstReferrerQuery(accessor : ITensecsAggPrtnEntryDomainClstReferrerTableAccessor) extends QueryBase[TensecsAggPrtnEntryDomainClstReferrerQueryParams, TensecsAggPrtnEntryDomainClstReferrerRow] with IUserActivityQuery {
@@ -40,7 +40,7 @@ DimensionDefinition(Dimensions.referrer, new DimensionConstraintDeclaration(Quer
       override private[logic] def extractMetric(row: TensecsAggPrtnEntryDomainClstReferrerRow): String = row.metric
 
       override private[logic] def updateTimezoneOffset(row : TensecsAggPrtnEntryDomainClstReferrerRow, timezoneOffsetFromUtc : Int) : TensecsAggPrtnEntryDomainClstReferrerRow = {
-        TensecsAggPrtnEntryDomainClstReferrerRow(row.partnerId, row.entryId, row.domain, row.metric, row.day, row.tensecs.plusHours(timezoneOffsetFromUtc), row.referrer, row.value)
+        TensecsAggPrtnEntryDomainClstReferrerRow(row.partnerId, row.entryId, row.domain, row.metric, row.day, row.tensecs.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.referrer, row.value)
       }
 
     }

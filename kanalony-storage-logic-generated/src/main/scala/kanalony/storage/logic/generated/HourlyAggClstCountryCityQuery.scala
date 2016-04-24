@@ -4,7 +4,7 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class HourlyAggClstCountryCityQuery(accessor : IHourlyAggClstCountryCityTableAccessor) extends QueryBase[HourlyAggClstCountryCityQueryParams, HourlyAggClstCountryCityRow] with IUserActivityQuery {
@@ -39,7 +39,7 @@ DimensionDefinition(Dimensions.city, new DimensionConstraintDeclaration(QueryCon
       override private[logic] def extractMetric(row: HourlyAggClstCountryCityRow): String = row.metric
 
       override private[logic] def updateTimezoneOffset(row : HourlyAggClstCountryCityRow, timezoneOffsetFromUtc : Int) : HourlyAggClstCountryCityRow = {
-        HourlyAggClstCountryCityRow(row.partnerId, row.metric, row.year, row.hour.plusHours(timezoneOffsetFromUtc), row.country, row.city, row.value)
+        HourlyAggClstCountryCityRow(row.partnerId, row.metric, row.year, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.country, row.city, row.value)
       }
 
     }

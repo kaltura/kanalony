@@ -4,7 +4,7 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class HourlyAggPrtnCv1Cv2Cv3Query(accessor : IHourlyAggPrtnCv1Cv2Cv3TableAccessor) extends QueryBase[HourlyAggPrtnCv1Cv2Cv3QueryParams, HourlyAggPrtnCv1Cv2Cv3Row] with IUserActivityQuery {
@@ -40,7 +40,7 @@ DimensionDefinition(Dimensions.hour, new DimensionConstraintDeclaration(QueryCon
       override private[logic] def extractMetric(row: HourlyAggPrtnCv1Cv2Cv3Row): String = row.metric
 
       override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnCv1Cv2Cv3Row, timezoneOffsetFromUtc : Int) : HourlyAggPrtnCv1Cv2Cv3Row = {
-        HourlyAggPrtnCv1Cv2Cv3Row(row.partnerId, row.customVar1, row.customVar2, row.customVar3, row.year, row.metric, row.hour.plusHours(timezoneOffsetFromUtc), row.value)
+        HourlyAggPrtnCv1Cv2Cv3Row(row.partnerId, row.customVar1, row.customVar2, row.customVar3, row.year, row.metric, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.value)
       }
 
     }

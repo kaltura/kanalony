@@ -4,7 +4,7 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class MinutelyAggPrtnEntryClstCv1Query(accessor : IMinutelyAggPrtnEntryClstCv1TableAccessor) extends QueryBase[MinutelyAggPrtnEntryClstCv1QueryParams, MinutelyAggPrtnEntryClstCv1Row] with IUserActivityQuery {
@@ -39,7 +39,7 @@ DimensionDefinition(Dimensions.cf1, new DimensionConstraintDeclaration(QueryCons
       override private[logic] def extractMetric(row: MinutelyAggPrtnEntryClstCv1Row): String = row.metric
 
       override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnEntryClstCv1Row, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnEntryClstCv1Row = {
-        MinutelyAggPrtnEntryClstCv1Row(row.partnerId, row.entryId, row.metric, row.day, row.minute.plusHours(timezoneOffsetFromUtc), row.customVar1, row.value)
+        MinutelyAggPrtnEntryClstCv1Row(row.partnerId, row.entryId, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.customVar1, row.value)
       }
 
     }

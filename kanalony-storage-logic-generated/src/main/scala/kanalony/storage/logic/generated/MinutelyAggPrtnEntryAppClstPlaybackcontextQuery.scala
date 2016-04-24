@@ -4,7 +4,7 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class MinutelyAggPrtnEntryAppClstPlaybackcontextQuery(accessor : IMinutelyAggPrtnEntryAppClstPlaybackcontextTableAccessor) extends QueryBase[MinutelyAggPrtnEntryAppClstPlaybackcontextQueryParams, MinutelyAggPrtnEntryAppClstPlaybackcontextRow] with IUserActivityQuery {
@@ -40,7 +40,7 @@ DimensionDefinition(Dimensions.playbackContext, new DimensionConstraintDeclarati
       override private[logic] def extractMetric(row: MinutelyAggPrtnEntryAppClstPlaybackcontextRow): String = row.metric
 
       override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnEntryAppClstPlaybackcontextRow, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnEntryAppClstPlaybackcontextRow = {
-        MinutelyAggPrtnEntryAppClstPlaybackcontextRow(row.partnerId, row.entryId, row.application, row.metric, row.day, row.minute.plusHours(timezoneOffsetFromUtc), row.playbackContext, row.value)
+        MinutelyAggPrtnEntryAppClstPlaybackcontextRow(row.partnerId, row.entryId, row.application, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.playbackContext, row.value)
       }
 
     }

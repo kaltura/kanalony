@@ -4,7 +4,7 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class TensecsAggClstCategoryQuery(accessor : ITensecsAggClstCategoryTableAccessor) extends QueryBase[TensecsAggClstCategoryQueryParams, TensecsAggClstCategoryRow] with IUserActivityQuery {
@@ -38,7 +38,7 @@ DimensionDefinition(Dimensions.category, new DimensionConstraintDeclaration(Quer
       override private[logic] def extractMetric(row: TensecsAggClstCategoryRow): String = row.metric
 
       override private[logic] def updateTimezoneOffset(row : TensecsAggClstCategoryRow, timezoneOffsetFromUtc : Int) : TensecsAggClstCategoryRow = {
-        TensecsAggClstCategoryRow(row.partnerId, row.metric, row.day, row.tensecs.plusHours(timezoneOffsetFromUtc), row.category, row.value)
+        TensecsAggClstCategoryRow(row.partnerId, row.metric, row.day, row.tensecs.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.category, row.value)
       }
 
     }
