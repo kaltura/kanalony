@@ -60,7 +60,7 @@ class QueryTypeGenerator(tm : TableMetadata) {
 
   def getRowValuesWithOffsetImplementation : String = {
     extendedColumnInformation.map(_.name).map(column => column match {
-      case ColumnNames.hour | ColumnNames.minute | ColumnNames.tensecs => s"row.${EntityClassGenerator.getParamName(column)}.plusHours(timezoneOffsetFromUtc)"
+      case ColumnNames.hour | ColumnNames.minute | ColumnNames.tensecs => s"row.${EntityClassGenerator.getParamName(column)}.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60))"
       case _ => s"row.${EntityClassGenerator.getParamName(column)}"
     }).mkString(", ")
   }

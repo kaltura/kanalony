@@ -29,7 +29,7 @@ object QueryTemplates {
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
     class %QUERY_NAME%(accessor : %TABLE_ACCESSOR_INTERFACE%) extends QueryBase[%QUERY_PARAMS_TYPE%, %TABLE_ROW_TYPE%] with %SUPPORTED_METRICS_PROVIDER% {
