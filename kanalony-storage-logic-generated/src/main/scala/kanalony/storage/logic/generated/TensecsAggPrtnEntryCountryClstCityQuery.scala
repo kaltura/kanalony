@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class TensecsAggPrtnEntryCountryClstCityQuery extends QueryBase[TensecsAggPrtnEntryCountryClstCityQueryParams, TensecsAggPrtnEntryCountryClstCityRow] with IUserActivityQuery {
+    class TensecsAggPrtnEntryCountryClstCityQuery(accessor : ITensecsAggPrtnEntryCountryClstCityTableAccessor) extends QueryBase[TensecsAggPrtnEntryCountryClstCityQueryParams, TensecsAggPrtnEntryCountryClstCityRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggPrtnEntryCountryClstCityQueryParams = {
         val (partner_id,entry_id,country) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.entry,Dimensions.country), params)
-        TensecsAggPrtnEntryCountryClstCityQueryParams(params.start, params.end, partner_id,entry_id,country, params.metrics.map(_.name))
+        TensecsAggPrtnEntryCountryClstCityQueryParams(params.startUtc, params.endUtc, partner_id,entry_id,country, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: TensecsAggPrtnEntryCountryClstCityQueryParams): Future[List[TensecsAggPrtnEntryCountryClstCityRow]] = {
-        val rawQueryResult = TensecsAggPrtnEntryCountryClstCityTableAccessor.query(params.partnerIdList,params.entryIdList,params.countryList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.countryList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -40,6 +38,11 @@ DimensionDefinition(Dimensions.city, new DimensionConstraintDeclaration(QueryCon
       override def metricValueLocationIndex(): Int = 6
 
       override private[logic] def extractMetric(row: TensecsAggPrtnEntryCountryClstCityRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : TensecsAggPrtnEntryCountryClstCityRow, timezoneOffsetFromUtc : Int) : TensecsAggPrtnEntryCountryClstCityRow = {
+        TensecsAggPrtnEntryCountryClstCityRow(row.partnerId, row.entryId, row.country, row.metric, row.day, row.tensecs.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.city, row.value)
+      }
+
     }
 
 case class TensecsAggPrtnEntryCountryClstCityQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], metricList : List[String]) extends IDailyPartitionedQueryParams

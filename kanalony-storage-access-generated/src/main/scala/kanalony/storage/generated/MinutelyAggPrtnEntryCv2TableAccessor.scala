@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class MinutelyAggPrtnEntryCv2TableAccessor extends CassandraTable[MinutelyAggPrtnEntryCv2TableAccessor, MinutelyAggPrtnEntryCv2Row] with RootConnector {
+abstract class MinutelyAggPrtnEntryCv2TableAccessor extends CassandraTable[MinutelyAggPrtnEntryCv2TableAccessor, MinutelyAggPrtnEntryCv2Row] with RootConnector with IMinutelyAggPrtnEntryCv2TableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object entry_id extends StringColumn(this)with PartitionKey[String]
@@ -42,33 +42,56 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, entryId : String, customVar2 : String, metric : String, day : Int) : SelectQuery[MinutelyAggPrtnEntryCv2TableAccessor, MinutelyAggPrtnEntryCv2Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, entryId : String, customVar2 : String, metric : String, day : Int) : Future[List[MinutelyAggPrtnEntryCv2Row]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.custom_var2 eqs customVar2)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, customVar2 : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnEntryCv2TableAccessor, MinutelyAggPrtnEntryCv2Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, customVar2 : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnEntryCv2Row]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.custom_var2 eqs customVar2)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], entryIdList : List[String], customVar2List : List[String], metricList : List[String], dayList : List[Int]) : SelectQuery[MinutelyAggPrtnEntryCv2TableAccessor, MinutelyAggPrtnEntryCv2Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], entryIdList : List[String], customVar2List : List[String], metricList : List[String], dayList : List[Int]) : Future[List[MinutelyAggPrtnEntryCv2Row]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.custom_var2 in customVar2List)
 .and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], customVar2List : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : SelectQuery[MinutelyAggPrtnEntryCv2TableAccessor, MinutelyAggPrtnEntryCv2Row, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], customVar2List : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnEntryCv2Row]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.custom_var2 in customVar2List)
 .and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.minute gte minuteStart)
 .and(_.minute lt minuteEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class MinutelyAggPrtnEntryCv2Row(partnerId:Int,
+entryId:String,
+customVar2:String,
+metric:String,
+day:Int,
+minute:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IMinutelyAggPrtnEntryCv2TableAccessor {
+  def query(partnerId : Int, entryId : String, customVar2 : String, metric : String, day : Int) : Future[List[MinutelyAggPrtnEntryCv2Row]]
+ def query(partnerId : Int, entryId : String, customVar2 : String, metric : String, day : Int, minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnEntryCv2Row]]
+def query(partnerIdList : List[Int], entryIdList : List[String], customVar2List : List[String], metricList : List[String], dayList : List[Int]) : Future[List[MinutelyAggPrtnEntryCv2Row]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], customVar2List : List[String], metricList : List[String], dayList : List[Int], minuteStart : DateTime, minuteEnd : DateTime) : Future[List[MinutelyAggPrtnEntryCv2Row]]
 }

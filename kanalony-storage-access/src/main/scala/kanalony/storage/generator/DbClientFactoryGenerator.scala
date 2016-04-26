@@ -11,7 +11,10 @@ object DbClientFactoryGenerator {
       .replace(dbClientFactoryTemplate.accessorObjectDefinitionsPlaceholder,
         TablesMetadata.metadata.map(tm => {
           val accessorName = TableAccessorGenerator.generateClassName(tm)
-          s"object ${accessorName} extends ${accessorName} with connector.Connector"
+          val interfaceName = TableAccessorGenerator.generateInterfaceName(tm)
+          val privateMemberName = s"${accessorName}Obj"
+          s"private object ${privateMemberName} extends ${accessorName} with connector.Connector with ${interfaceName}" + "\n" +
+          s"lazy val ${accessorName} : ${interfaceName} = ${privateMemberName}"
         }).mkString("\n"))
   }
 }

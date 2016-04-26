@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class MinutelyAggPrtnOsBrowserQuery extends QueryBase[MinutelyAggPrtnOsBrowserQueryParams, MinutelyAggPrtnOsBrowserRow] with IUserActivityQuery {
+    class MinutelyAggPrtnOsBrowserQuery(accessor : IMinutelyAggPrtnOsBrowserTableAccessor) extends QueryBase[MinutelyAggPrtnOsBrowserQueryParams, MinutelyAggPrtnOsBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnOsBrowserQueryParams = {
         val (partner_id,operating_system,browser) = QueryParamsValidator.extractEqualityConstraintParams[Int,Int,Int]((Dimensions.partner,Dimensions.operatingSystem,Dimensions.browser), params)
-        MinutelyAggPrtnOsBrowserQueryParams(params.start, params.end, partner_id,operating_system,browser, params.metrics.map(_.name))
+        MinutelyAggPrtnOsBrowserQueryParams(params.startUtc, params.endUtc, partner_id,operating_system,browser, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: MinutelyAggPrtnOsBrowserQueryParams): Future[List[MinutelyAggPrtnOsBrowserRow]] = {
-        val rawQueryResult = MinutelyAggPrtnOsBrowserTableAccessor.query(params.partnerIdList,params.operatingSystemList,params.browserList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.operatingSystemList,params.browserList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -39,6 +37,11 @@ DimensionDefinition(Dimensions.minute, new DimensionConstraintDeclaration(QueryC
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: MinutelyAggPrtnOsBrowserRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnOsBrowserRow, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnOsBrowserRow = {
+        MinutelyAggPrtnOsBrowserRow(row.partnerId, row.operatingSystem, row.browser, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.value)
+      }
+
     }
 
 case class MinutelyAggPrtnOsBrowserQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], operatingSystemList : List[Int], browserList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams

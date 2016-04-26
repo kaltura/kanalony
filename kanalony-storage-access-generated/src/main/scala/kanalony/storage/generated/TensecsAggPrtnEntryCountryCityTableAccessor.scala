@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class TensecsAggPrtnEntryCountryCityTableAccessor extends CassandraTable[TensecsAggPrtnEntryCountryCityTableAccessor, TensecsAggPrtnEntryCountryCityRow] with RootConnector {
+abstract class TensecsAggPrtnEntryCountryCityTableAccessor extends CassandraTable[TensecsAggPrtnEntryCountryCityTableAccessor, TensecsAggPrtnEntryCountryCityRow] with RootConnector with ITensecsAggPrtnEntryCountryCityTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object entry_id extends StringColumn(this)with PartitionKey[String]
@@ -45,14 +45,15 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, entryId : String, country : String, city : String, metric : String, day : Int) : SelectQuery[TensecsAggPrtnEntryCountryCityTableAccessor, TensecsAggPrtnEntryCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, entryId : String, country : String, city : String, metric : String, day : Int) : Future[List[TensecsAggPrtnEntryCountryCityRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.country eqs country)
 .and(_.city eqs city)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, country : String, city : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnEntryCountryCityTableAccessor, TensecsAggPrtnEntryCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, country : String, city : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryCountryCityRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.country eqs country)
 .and(_.city eqs city)
@@ -60,15 +61,17 @@ value(row)
 .and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], cityList : List[String], metricList : List[String], dayList : List[Int]) : SelectQuery[TensecsAggPrtnEntryCountryCityTableAccessor, TensecsAggPrtnEntryCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], cityList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnEntryCountryCityRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.country in countryList)
 .and(_.city in cityList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], cityList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnEntryCountryCityTableAccessor, TensecsAggPrtnEntryCountryCityRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], cityList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryCountryCityRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.country in countryList)
 .and(_.city in cityList)
@@ -76,6 +79,27 @@ def query(partnerIdList : List[Int], entryIdList : List[String], countryList : L
 .and(_.day in dayList)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class TensecsAggPrtnEntryCountryCityRow(partnerId:Int,
+entryId:String,
+country:String,
+city:String,
+metric:String,
+day:Int,
+tensecs:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait ITensecsAggPrtnEntryCountryCityTableAccessor {
+  def query(partnerId : Int, entryId : String, country : String, city : String, metric : String, day : Int) : Future[List[TensecsAggPrtnEntryCountryCityRow]]
+ def query(partnerId : Int, entryId : String, country : String, city : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryCountryCityRow]]
+def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], cityList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnEntryCountryCityRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], cityList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryCountryCityRow]]
 }

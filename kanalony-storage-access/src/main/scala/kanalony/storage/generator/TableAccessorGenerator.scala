@@ -1,7 +1,7 @@
 package kanalony.storage.generator
 
 import com.google.common.base.CaseFormat
-import kanalony.storage.generator.GenerationTemplates.{partitionKeyColumnDefinitionTemplate, clusteringKeyColumnDefinitionTemplate}
+import kanalony.storage.generator.GenerationTemplates.{tableAccessorInterfaceTemplate, partitionKeyColumnDefinitionTemplate, clusteringKeyColumnDefinitionTemplate}
 
 /**
  * Created by elad.benedict on 2/8/2016.
@@ -68,18 +68,30 @@ class TableAccessorGenerator(val tm : TableMetadata) {
         .mkString(", \n")
   }
 
-  private def generateQueryMethods(pkSingleValueEquality : Boolean) : String = {
-    val pkColumnQueryKind = if (pkSingleValueEquality) ColumnQueryKind.Equality else ColumnQueryKind.List
+  private def generateQueryMethods(pkSingleValueEquality : Boolean, signatureOnly : Boolean) : String = {
     val methodGenerator = new QueryMethodsGenerator(tm)
+    val queryGenerator = if (signatureOnly) { methodGenerator.generateQueryMethodSignature(_) } else { methodGenerator.generateQueryMethod(_) }
+
+    val pkColumnQueryKind = if (pkSingleValueEquality) ColumnQueryKind.Equality else ColumnQueryKind.List
     val partitionKeyQueryColumnDefs = tm.primaryKey.pk.columns.map(x => new QueryableColumnDefinition(x.name, x.typeName, pkColumnQueryKind, true, false))
-    var generatedQueries = methodGenerator.generateQueryMethod(partitionKeyQueryColumnDefs);
+    var generatedQueries = queryGenerator(partitionKeyQueryColumnDefs);
 
     val clusteringQueryColumnDefs = tm.primaryKey.ck.columns.map(x => new QueryableColumnDefinition(x.name, x.typeName, ColumnQueryKind.Range, false, true))
     for( i <- 1 to clusteringQueryColumnDefs.length) {
-      generatedQueries = generatedQueries + "\n " + methodGenerator.generateQueryMethod(partitionKeyQueryColumnDefs ::: clusteringQueryColumnDefs.take(i));
+      generatedQueries = generatedQueries + "\n " + queryGenerator(partitionKeyQueryColumnDefs ::: clusteringQueryColumnDefs.take(i))
     }
 
     generatedQueries
+  }
+
+  def generateIntrefaceName() = TableAccessorGenerator.generateInterfaceName(tm)
+
+  def generateInterface() : String  = {
+    var queryMethodsSignatures = generateQueryMethods(true, true)
+    queryMethodsSignatures = queryMethodsSignatures + "\n" + generateQueryMethods(false, true)
+    tableAccessorInterfaceTemplate.content
+      .replace(tableAccessorInterfaceTemplate.queryMethodsSignaturesPlaceholder, queryMethodsSignatures)
+      .replace(tableAccessorInterfaceTemplate.tableAccessorInterfaceNamePlaceholder, generateIntrefaceName())
   }
 
   def generate() = {
@@ -88,13 +100,14 @@ class TableAccessorGenerator(val tm : TableMetadata) {
     generatedContent = generatedContent + tableAccessorTemplate.content
 
     generatedContent = generatedContent.replace(tableAccessorTemplate.classNamePlaceholder, generateClassName())
+    generatedContent = generatedContent.replace(tableAccessorTemplate.interfaceNamePlaceholder, generateIntrefaceName())
     generatedContent = generatedContent.replace(tableAccessorTemplate.entityClassNamePlaceholder, generateEntityClassName())
     generatedContent = generatedContent.replace(tableAccessorTemplate.valuePopulationPlaceholder, generateValuePopulation())
     generatedContent = generatedContent.replace(tableAccessorTemplate.rowDecompositionPlaceholder, generateRowDecomposition())
     generatedContent = generatedContent.replace(tableAccessorTemplate.tableColDefsPlaceholder, generateTableColDefs())
     generatedContent = generatedContent.replace(tableAccessorTemplate.tableNamePlaceholder, generateTableName())
-    var queryMethods = generateQueryMethods(true)
-    queryMethods = queryMethods + "\n" + generateQueryMethods(false)
+    var queryMethods = generateQueryMethods(true, false)
+    queryMethods = queryMethods + "\n" + generateQueryMethods(false, false)
     generatedContent = generatedContent.replace(tableAccessorTemplate.queryMethodsPlaceholder, queryMethods)
 
     generatedContent
@@ -104,5 +117,9 @@ class TableAccessorGenerator(val tm : TableMetadata) {
 object TableAccessorGenerator{
   def generateClassName(tm : TableMetadata): String = {
     CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, tm.tableName) + "TableAccessor"
+  }
+
+  def generateInterfaceName(tm : TableMetadata) : String = {
+    s"I${generateClassName(tm)}"
   }
 }

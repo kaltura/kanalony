@@ -6,8 +6,8 @@ import kanalony.storage.logic.Dimensions
 import com.google.common.base.CaseFormat
 
 /**
- * Created by elad.benedict on 3/2/2016.
- */
+  * Created by elad.benedict on 3/2/2016.
+  */
 
 class QueryTypeGenerator(tm : TableMetadata) {
 
@@ -30,7 +30,6 @@ class QueryTypeGenerator(tm : TableMetadata) {
   def getTableQueryingImplementation : String = {
     def getEqualityArguments : String = extendedPartitionKeyColumnsInformation.map(x => s"params.${ParamsTypeGenerator.getParamName(x)}").mkString(",")
     QueryTemplates.TableQueryingTemplate.content
-      .replace(QueryTemplates.TableQueryingTemplate.tableAccessorNamePlaceholder, TableAccessorGenerator.generateClassName(tm))
       .replace(QueryTemplates.TableQueryingTemplate.allEqualityValuesPlaceholder, getEqualityArguments)
   }
 
@@ -54,14 +53,22 @@ class QueryTypeGenerator(tm : TableMetadata) {
     res.replace("%Dims%", explicitNonMetricColumnExtendedInformation
       .filter(c => c.inPartitionKey || c.inClusteringKey)
       .map(cd => {
-                    val queryConstraint = if (cd.inPartitionKey) { "Equality"} else { "Range"}
-                    s"DimensionDefinition(Dimensions.${Dimensions.fromColumnName(cd.name).toString}, new DimensionConstraintDeclaration(QueryConstraint.${queryConstraint}))"
+        val queryConstraint = if (cd.inPartitionKey) { "Equality"} else { "Range"}
+        s"DimensionDefinition(Dimensions.${Dimensions.fromColumnName(cd.name).toString}, new DimensionConstraintDeclaration(QueryConstraint.${queryConstraint}))"
       }).mkString(",\n"))
+  }
+
+  def getRowValuesWithOffsetImplementation : String = {
+    extendedColumnInformation.map(_.name).map(column => column match {
+      case ColumnNames.hour | ColumnNames.minute | ColumnNames.tensecs => s"row.${EntityClassGenerator.getParamName(column)}.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60))"
+      case _ => s"row.${EntityClassGenerator.getParamName(column)}"
+    }).mkString(", ")
   }
 
   def generate() : String = {
     QueryTemplates.QueryClassTemplate.content
       .replace(QueryTemplates.QueryClassTemplate.queryNamePlaceholder, getQueryName)
+      .replace(QueryTemplates.QueryClassTemplate.tableAccessorInterfacePlaceholder, TableAccessorGenerator.generateInterfaceName(tm))
       .replace(QueryTemplates.QueryClassTemplate.queryParamsClassNamePlaceholder, getQueryParamsTypeName)
       .replace(QueryTemplates.QueryClassTemplate.supportedMetricsProviderPlaceholder, getSupportedMetricsProvider)
       .replace(QueryTemplates.QueryClassTemplate.equalityConstraintColumnsNotIncludingMetricEnumValuesPlaceholder, getEqualityConstraintExplicitColumnsNotIncludingMetricsEnumValues)
@@ -73,6 +80,7 @@ class QueryTypeGenerator(tm : TableMetadata) {
       .replace(QueryTemplates.QueryClassTemplate.dimensionInformationImplementationPlaceholder, getDimensionInformationImplementation)
       .replace(QueryTemplates.QueryClassTemplate.metricValueLocationPlaceholder, getMetricValueLocation)
       .replace(QueryTemplates.QueryClassTemplate.tableRowTypePlaceholder, getTableRowType)
+      .replace(QueryTemplates.QueryClassTemplate.rowValuesWithUpdatedOffsetPlaceholder, getRowValuesWithOffsetImplementation)
   }
 }
 

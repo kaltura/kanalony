@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class HourlyAggPrtnCategoryQuery extends QueryBase[HourlyAggPrtnCategoryQueryParams, HourlyAggPrtnCategoryRow] with IUserActivityQuery {
+    class HourlyAggPrtnCategoryQuery(accessor : IHourlyAggPrtnCategoryTableAccessor) extends QueryBase[HourlyAggPrtnCategoryQueryParams, HourlyAggPrtnCategoryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnCategoryQueryParams = {
         val (partner_id,category) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.category), params)
-        HourlyAggPrtnCategoryQueryParams(params.start, params.end, partner_id,category, params.metrics.map(_.name))
+        HourlyAggPrtnCategoryQueryParams(params.startUtc, params.endUtc, partner_id,category, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnCategoryQueryParams): Future[List[HourlyAggPrtnCategoryRow]] = {
-        val rawQueryResult = HourlyAggPrtnCategoryTableAccessor.query(params.partnerIdList,params.categoryList,params.metricList,params.years,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.categoryList,params.metricList,params.years,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -38,6 +36,11 @@ DimensionDefinition(Dimensions.hour, new DimensionConstraintDeclaration(QueryCon
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: HourlyAggPrtnCategoryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnCategoryRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnCategoryRow = {
+        HourlyAggPrtnCategoryRow(row.partnerId, row.category, row.metric, row.year, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.value)
+      }
+
     }
 
 case class HourlyAggPrtnCategoryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], categoryList : List[String], metricList : List[String]) extends IYearlyPartitionedQueryParams

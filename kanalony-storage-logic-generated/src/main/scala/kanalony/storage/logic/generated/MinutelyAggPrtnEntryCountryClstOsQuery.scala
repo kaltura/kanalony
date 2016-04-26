@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class MinutelyAggPrtnEntryCountryClstOsQuery extends QueryBase[MinutelyAggPrtnEntryCountryClstOsQueryParams, MinutelyAggPrtnEntryCountryClstOsRow] with IUserActivityQuery {
+    class MinutelyAggPrtnEntryCountryClstOsQuery(accessor : IMinutelyAggPrtnEntryCountryClstOsTableAccessor) extends QueryBase[MinutelyAggPrtnEntryCountryClstOsQueryParams, MinutelyAggPrtnEntryCountryClstOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnEntryCountryClstOsQueryParams = {
         val (partner_id,entry_id,country) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.entry,Dimensions.country), params)
-        MinutelyAggPrtnEntryCountryClstOsQueryParams(params.start, params.end, partner_id,entry_id,country, params.metrics.map(_.name))
+        MinutelyAggPrtnEntryCountryClstOsQueryParams(params.startUtc, params.endUtc, partner_id,entry_id,country, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: MinutelyAggPrtnEntryCountryClstOsQueryParams): Future[List[MinutelyAggPrtnEntryCountryClstOsRow]] = {
-        val rawQueryResult = MinutelyAggPrtnEntryCountryClstOsTableAccessor.query(params.partnerIdList,params.entryIdList,params.countryList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.entryIdList,params.countryList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -40,6 +38,11 @@ DimensionDefinition(Dimensions.operatingSystem, new DimensionConstraintDeclarati
       override def metricValueLocationIndex(): Int = 6
 
       override private[logic] def extractMetric(row: MinutelyAggPrtnEntryCountryClstOsRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : MinutelyAggPrtnEntryCountryClstOsRow, timezoneOffsetFromUtc : Int) : MinutelyAggPrtnEntryCountryClstOsRow = {
+        MinutelyAggPrtnEntryCountryClstOsRow(row.partnerId, row.entryId, row.country, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.operatingSystem, row.value)
+      }
+
     }
 
 case class MinutelyAggPrtnEntryCountryClstOsQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], metricList : List[String]) extends IDailyPartitionedQueryParams

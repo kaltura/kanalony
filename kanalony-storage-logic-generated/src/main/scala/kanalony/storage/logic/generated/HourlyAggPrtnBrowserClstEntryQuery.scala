@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class HourlyAggPrtnBrowserClstEntryQuery extends QueryBase[HourlyAggPrtnBrowserClstEntryQueryParams, HourlyAggPrtnBrowserClstEntryRow] with IUserActivityQuery {
+    class HourlyAggPrtnBrowserClstEntryQuery(accessor : IHourlyAggPrtnBrowserClstEntryTableAccessor) extends QueryBase[HourlyAggPrtnBrowserClstEntryQueryParams, HourlyAggPrtnBrowserClstEntryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnBrowserClstEntryQueryParams = {
         val (partner_id,browser) = QueryParamsValidator.extractEqualityConstraintParams[Int,Int]((Dimensions.partner,Dimensions.browser), params)
-        HourlyAggPrtnBrowserClstEntryQueryParams(params.start, params.end, partner_id,browser, params.metrics.map(_.name))
+        HourlyAggPrtnBrowserClstEntryQueryParams(params.startUtc, params.endUtc, partner_id,browser, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnBrowserClstEntryQueryParams): Future[List[HourlyAggPrtnBrowserClstEntryRow]] = {
-        val rawQueryResult = HourlyAggPrtnBrowserClstEntryTableAccessor.query(params.partnerIdList,params.browserList,params.months,params.metricList,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.browserList,params.months,params.metricList,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -39,6 +37,11 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: HourlyAggPrtnBrowserClstEntryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnBrowserClstEntryRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnBrowserClstEntryRow = {
+        HourlyAggPrtnBrowserClstEntryRow(row.partnerId, row.browser, row.month, row.metric, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.entryId, row.value)
+      }
+
     }
 
 case class HourlyAggPrtnBrowserClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], browserList : List[Int], metricList : List[String]) extends IMonthlyPartitionedQueryParams

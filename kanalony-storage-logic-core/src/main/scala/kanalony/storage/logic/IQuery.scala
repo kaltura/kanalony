@@ -11,7 +11,7 @@ import scala.concurrent.Future
 
 trait IQuery {
   def isMetricSupported(metric: Metric) : Boolean
-  val supportedWellKnownMetrics : Set[Metric]
-  val dimensionInformation : List[IDimensionDefinition]
+  def supportedWellKnownMetrics : Set[Metric]
+  def dimensionInformation : List[IDimensionDefinition]
   def query(params : QueryParams) : Future[List[IQueryResult]] // IQueryResult per metric
 }

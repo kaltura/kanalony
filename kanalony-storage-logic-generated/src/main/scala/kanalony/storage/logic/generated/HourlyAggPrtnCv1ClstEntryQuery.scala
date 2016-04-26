@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class HourlyAggPrtnCv1ClstEntryQuery extends QueryBase[HourlyAggPrtnCv1ClstEntryQueryParams, HourlyAggPrtnCv1ClstEntryRow] with IUserActivityQuery {
+    class HourlyAggPrtnCv1ClstEntryQuery(accessor : IHourlyAggPrtnCv1ClstEntryTableAccessor) extends QueryBase[HourlyAggPrtnCv1ClstEntryQueryParams, HourlyAggPrtnCv1ClstEntryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnCv1ClstEntryQueryParams = {
         val (partner_id,custom_var1) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.cf1), params)
-        HourlyAggPrtnCv1ClstEntryQueryParams(params.start, params.end, partner_id,custom_var1, params.metrics.map(_.name))
+        HourlyAggPrtnCv1ClstEntryQueryParams(params.startUtc, params.endUtc, partner_id,custom_var1, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggPrtnCv1ClstEntryQueryParams): Future[List[HourlyAggPrtnCv1ClstEntryRow]] = {
-        val rawQueryResult = HourlyAggPrtnCv1ClstEntryTableAccessor.query(params.partnerIdList,params.customVar1List,params.months,params.metricList,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.customVar1List,params.months,params.metricList,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -39,6 +37,11 @@ DimensionDefinition(Dimensions.entry, new DimensionConstraintDeclaration(QueryCo
       override def metricValueLocationIndex(): Int = 5
 
       override private[logic] def extractMetric(row: HourlyAggPrtnCv1ClstEntryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggPrtnCv1ClstEntryRow, timezoneOffsetFromUtc : Int) : HourlyAggPrtnCv1ClstEntryRow = {
+        HourlyAggPrtnCv1ClstEntryRow(row.partnerId, row.customVar1, row.month, row.metric, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.entryId, row.value)
+      }
+
     }
 
 case class HourlyAggPrtnCv1ClstEntryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], customVar1List : List[String], metricList : List[String]) extends IMonthlyPartitionedQueryParams

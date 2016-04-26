@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class TensecsAggClstCategoryQuery extends QueryBase[TensecsAggClstCategoryQueryParams, TensecsAggClstCategoryRow] with IUserActivityQuery {
+    class TensecsAggClstCategoryQuery(accessor : ITensecsAggClstCategoryTableAccessor) extends QueryBase[TensecsAggClstCategoryQueryParams, TensecsAggClstCategoryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggClstCategoryQueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
-        TensecsAggClstCategoryQueryParams(params.start, params.end, partner_id, params.metrics.map(_.name))
+        TensecsAggClstCategoryQueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: TensecsAggClstCategoryQueryParams): Future[List[TensecsAggClstCategoryRow]] = {
-        val rawQueryResult = TensecsAggClstCategoryTableAccessor.query(params.partnerIdList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -38,6 +36,11 @@ DimensionDefinition(Dimensions.category, new DimensionConstraintDeclaration(Quer
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: TensecsAggClstCategoryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : TensecsAggClstCategoryRow, timezoneOffsetFromUtc : Int) : TensecsAggClstCategoryRow = {
+        TensecsAggClstCategoryRow(row.partnerId, row.metric, row.day, row.tensecs.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.category, row.value)
+      }
+
     }
 
 case class TensecsAggClstCategoryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams

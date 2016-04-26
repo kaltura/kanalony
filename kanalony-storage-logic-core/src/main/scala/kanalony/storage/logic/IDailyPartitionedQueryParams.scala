@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import org.joda.time.{Days, DateTime, Months}
+import org.joda.time.{DateTimeZone, Days, DateTime, Months}
 import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
 
 /**
@@ -10,9 +10,9 @@ trait IDailyPartitionedQueryParams {
   val startTime : DateTime
   val endTime : DateTime
   val days = {
-    val dayCount = Days.daysBetween(startTime, endTime).getDays
+    val dayCount = Days.daysBetween(startTime.withZone(DateTimeZone.UTC), endTime.withZone(DateTimeZone.UTC)).getDays
     (0 to dayCount).map(numOfDaysToAdd => {
-      val dayDateTime = startTime.plusDays(numOfDaysToAdd)
+      val dayDateTime = startTime.withZone(DateTimeZone.UTC).plusDays(numOfDaysToAdd)
       dayDateTime.getYearMonthDay
     }).toList
   }

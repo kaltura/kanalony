@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class HourlyAggPrtnEntryCountryClstOsTableAccessor extends CassandraTable[HourlyAggPrtnEntryCountryClstOsTableAccessor, HourlyAggPrtnEntryCountryClstOsRow] with RootConnector {
+abstract class HourlyAggPrtnEntryCountryClstOsTableAccessor extends CassandraTable[HourlyAggPrtnEntryCountryClstOsTableAccessor, HourlyAggPrtnEntryCountryClstOsRow] with RootConnector with IHourlyAggPrtnEntryCountryClstOsTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object entry_id extends StringColumn(this)with PartitionKey[String]
@@ -45,21 +45,23 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String) : SelectQuery[HourlyAggPrtnEntryCountryClstOsTableAccessor, HourlyAggPrtnEntryCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.country eqs country)
 .and(_.year eqs year)
 .and(_.metric eqs metric)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String, hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnEntryCountryClstOsTableAccessor, HourlyAggPrtnEntryCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.country eqs country)
 .and(_.year eqs year)
 .and(_.metric eqs metric)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String, hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : SelectQuery[HourlyAggPrtnEntryCountryClstOsTableAccessor, HourlyAggPrtnEntryCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String, hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.country eqs country)
 .and(_.year eqs year)
@@ -68,22 +70,25 @@ value(row)
 .and(_.hour lt hourEnd)
 .and(_.operating_system gte operatingSystemStart)
 .and(_.operating_system lt operatingSystemEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String]) : SelectQuery[HourlyAggPrtnEntryCountryClstOsTableAccessor, HourlyAggPrtnEntryCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String]) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.country in countryList)
 .and(_.year in yearList)
 .and(_.metric in metricList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime) : SelectQuery[HourlyAggPrtnEntryCountryClstOsTableAccessor, HourlyAggPrtnEntryCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.country in countryList)
 .and(_.year in yearList)
 .and(_.metric in metricList)
 .and(_.hour gte hourStart)
 .and(_.hour lt hourEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : SelectQuery[HourlyAggPrtnEntryCountryClstOsTableAccessor, HourlyAggPrtnEntryCountryClstOsRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.country in countryList)
 .and(_.year in yearList)
@@ -92,6 +97,29 @@ def query(partnerIdList : List[Int], entryIdList : List[String], countryList : L
 .and(_.hour lt hourEnd)
 .and(_.operating_system gte operatingSystemStart)
 .and(_.operating_system lt operatingSystemEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class HourlyAggPrtnEntryCountryClstOsRow(partnerId:Int,
+entryId:String,
+country:String,
+year:Int,
+metric:String,
+hour:DateTime,
+operatingSystem:Int,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait IHourlyAggPrtnEntryCountryClstOsTableAccessor {
+  def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]]
+ def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String, hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]]
+ def query(partnerId : Int, entryId : String, country : String, year : Int, metric : String, hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]]
+def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String]) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], countryList : List[String], yearList : List[Int], metricList : List[String], hourStart : DateTime, hourEnd : DateTime, operatingSystemStart : Int, operatingSystemEnd : Int) : Future[List[HourlyAggPrtnEntryCountryClstOsRow]]
 }

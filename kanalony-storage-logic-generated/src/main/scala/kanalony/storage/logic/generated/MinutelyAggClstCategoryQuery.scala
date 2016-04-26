@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class MinutelyAggClstCategoryQuery extends QueryBase[MinutelyAggClstCategoryQueryParams, MinutelyAggClstCategoryRow] with IUserActivityQuery {
+    class MinutelyAggClstCategoryQuery(accessor : IMinutelyAggClstCategoryTableAccessor) extends QueryBase[MinutelyAggClstCategoryQueryParams, MinutelyAggClstCategoryRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggClstCategoryQueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
-        MinutelyAggClstCategoryQueryParams(params.start, params.end, partner_id, params.metrics.map(_.name))
+        MinutelyAggClstCategoryQueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: MinutelyAggClstCategoryQueryParams): Future[List[MinutelyAggClstCategoryRow]] = {
-        val rawQueryResult = MinutelyAggClstCategoryTableAccessor.query(params.partnerIdList,params.metricList,params.days,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.metricList,params.days,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -38,6 +36,11 @@ DimensionDefinition(Dimensions.category, new DimensionConstraintDeclaration(Quer
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: MinutelyAggClstCategoryRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : MinutelyAggClstCategoryRow, timezoneOffsetFromUtc : Int) : MinutelyAggClstCategoryRow = {
+        MinutelyAggClstCategoryRow(row.partnerId, row.metric, row.day, row.minute.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.category, row.value)
+      }
+
     }
 
 case class MinutelyAggClstCategoryQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], metricList : List[String]) extends IDailyPartitionedQueryParams

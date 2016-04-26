@@ -11,7 +11,7 @@ import scala.concurrent.Future
  * Created by elad.benedict on 3/7/2016.
  */
 
-abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
+abstract class DailyQueryBase(queryParams: QueryParams, queryLocator: IQueryLocator) extends IQuery {
 
   if (!queryParams.dimensionDefinitions.map(_.dimension).contains(Dimensions.day))
   {
@@ -19,11 +19,11 @@ abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
   }
 
   val updatedQueryParams = convertQueryParams(queryParams)
-  val queryLocationResult = QueryLocator.locate(updatedQueryParams)
+  val queryLocationResult = queryLocator.locate(updatedQueryParams, ComputedDimensions, ComputedMetrics)
 
-  if (queryLocationResult.length > 1)
+  if (queryLocationResult.length < 1)
   {
-    throw new IllegalArgumentException("A daily query should be mapped to exactly one hourly table")
+    throw new IllegalArgumentException("No suitable hourly query found for this daily query")
   }
 
   val query = queryLocationResult.head._1
@@ -39,7 +39,7 @@ abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
     val hourIndex = headersWithIndex.find(_._1.equals(Dimensions.hour.toString)).get._2
 
     rowData => relevantIndexes.map({
-      case h if h equals hourIndex => new DateTime(rowData(h)).toLocalDate.toString()
+      case h if h equals hourIndex => DateTime.parse(rowData(h)).toLocalDate.toString()
       case i => rowData(i)
     })
       .mkString(separator)
@@ -81,7 +81,7 @@ abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
       else { dimDef }
     })
 
-    val internalQueryParams = QueryParams(internalQueryDimensionDefinitions, params.metrics, params.start, params.end)
+    val internalQueryParams = QueryParams(internalQueryDimensionDefinitions, params.metrics, params.start, params.end, params.timezoneOffset)
     query.query(internalQueryParams)
          .map(qrList => qrList.map(aggregateByDay))
 
@@ -94,7 +94,7 @@ abstract class DailyQueryBase(queryParams: QueryParams) extends IQuery {
       case QueryDimensionDefinition(Dimensions.day, constraint, includeInResult) => QueryDimensionDefinition(Dimensions.hour, constraint, includeInResult)
       case dimensionDefinition: QueryDimensionDefinition => dimensionDefinition
     }
-    QueryParams(dimDefs, queryParams.metrics, queryParams.start, queryParams.end)
+    QueryParams(dimDefs, queryParams.metrics, queryParams.start, queryParams.end, queryParams.timezoneOffset)
   }
 
   override val supportedWellKnownMetrics: Set[Metric] = query.supportedWellKnownMetrics

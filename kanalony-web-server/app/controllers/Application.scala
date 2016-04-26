@@ -4,7 +4,8 @@ import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.queries.model._
 import kanalony.storage.logic._
 import model._
-import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.{LocalDateTime, DateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.Implicits._
 import play.api.mvc._
@@ -91,6 +92,11 @@ class Application extends Controller {
     extractValues(dimensions, Dimensions.withName(_), s => new InvalidDimensionException(s))
   }
 
+  def extractTime(time : String) : LocalDateTime = {
+    val formatter = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm")
+    formatter.parseLocalDateTime(time)
+  }
+
   def createConstraint(dimension: Dimensions.Value, values: List[String]) : IDimensionConstraint = {
     try {
       dimension match {
@@ -127,6 +133,6 @@ class Application extends Controller {
       dimension => QueryDimensionDefinition(dimension , new DimensionUnconstrained, true)
     }
 
-    QueryParams(constrainedDimensionDefinitions ::: unconstrainedDimensionDefinitions, metricsInResult, new DateTime(req.from), new DateTime(req.to))
+    QueryParams(constrainedDimensionDefinitions ::: unconstrainedDimensionDefinitions, metricsInResult, extractTime(req.from), extractTime(req.to), req.utcOffset)
   }
 }

@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class TensecsAggPrtnEntryReferrerTableAccessor extends CassandraTable[TensecsAggPrtnEntryReferrerTableAccessor, TensecsAggPrtnEntryReferrerRow] with RootConnector {
+abstract class TensecsAggPrtnEntryReferrerTableAccessor extends CassandraTable[TensecsAggPrtnEntryReferrerTableAccessor, TensecsAggPrtnEntryReferrerRow] with RootConnector with ITensecsAggPrtnEntryReferrerTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object entry_id extends StringColumn(this)with PartitionKey[String]
@@ -42,33 +42,56 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, entryId : String, referrer : String, metric : String, day : Int) : SelectQuery[TensecsAggPrtnEntryReferrerTableAccessor, TensecsAggPrtnEntryReferrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, entryId : String, referrer : String, metric : String, day : Int) : Future[List[TensecsAggPrtnEntryReferrerRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.referrer eqs referrer)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, entryId : String, referrer : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnEntryReferrerTableAccessor, TensecsAggPrtnEntryReferrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, entryId : String, referrer : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryReferrerRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.entry_id eqs entryId)
 .and(_.referrer eqs referrer)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], entryIdList : List[String], referrerList : List[String], metricList : List[String], dayList : List[Int]) : SelectQuery[TensecsAggPrtnEntryReferrerTableAccessor, TensecsAggPrtnEntryReferrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], entryIdList : List[String], referrerList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnEntryReferrerRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.referrer in referrerList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], entryIdList : List[String], referrerList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnEntryReferrerTableAccessor, TensecsAggPrtnEntryReferrerRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], entryIdList : List[String], referrerList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryReferrerRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.entry_id in entryIdList)
 .and(_.referrer in referrerList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class TensecsAggPrtnEntryReferrerRow(partnerId:Int,
+entryId:String,
+referrer:String,
+metric:String,
+day:Int,
+tensecs:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait ITensecsAggPrtnEntryReferrerTableAccessor {
+  def query(partnerId : Int, entryId : String, referrer : String, metric : String, day : Int) : Future[List[TensecsAggPrtnEntryReferrerRow]]
+ def query(partnerId : Int, entryId : String, referrer : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryReferrerRow]]
+def query(partnerIdList : List[Int], entryIdList : List[String], referrerList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnEntryReferrerRow]]
+ def query(partnerIdList : List[Int], entryIdList : List[String], referrerList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnEntryReferrerRow]]
 }

@@ -12,16 +12,13 @@ class EntityClassGenerator(val tableMetadata: TableMetadata) {
   }
 
   def generate() = {
-    var generatedContent = GenerationTemplates.packageTemplate.content + "\n";
     val entityTemplate = GenerationTemplates.entityClassTemplate;
     val entityTemplateContent = entityTemplate.content
     val columns = tableMetadata.columns
     val generatedColumnsDefs = generateClassColumns(columns)
-    generatedContent = generatedContent + entityTemplateContent;
-    generatedContent = generatedContent.replace(entityTemplate.classNamePlaceholder, EntityClassGenerator.getEntityName(tableMetadata))
-    generatedContent = generatedContent.replace(entityTemplate.colDefsPlaceholder, generatedColumnsDefs)
-    println(generatedContent)
-    generatedContent
+    entityTemplateContent
+      .replace(entityTemplate.classNamePlaceholder, EntityClassGenerator.getEntityName(tableMetadata))
+      .replace(entityTemplate.colDefsPlaceholder, generatedColumnsDefs)
   }
 }
 

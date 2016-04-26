@@ -4,21 +4,19 @@ package kanalony.storage.logic.generated
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
-    import org.joda.time.DateTime
+    import org.joda.time.{DateTimeZone, DateTime}
     import scala.concurrent.Future
 
-    class HourlyAggClstDeviceQuery extends QueryBase[HourlyAggClstDeviceQueryParams, HourlyAggClstDeviceRow] with IUserActivityQuery {
+    class HourlyAggClstDeviceQuery(accessor : IHourlyAggClstDeviceTableAccessor) extends QueryBase[HourlyAggClstDeviceQueryParams, HourlyAggClstDeviceRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggClstDeviceQueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
-        HourlyAggClstDeviceQueryParams(params.start, params.end, partner_id, params.metrics.map(_.name))
+        HourlyAggClstDeviceQueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
       }
 
       override def supportsUserDefinedMetrics = true
 
       private[logic] override def executeQuery(params: HourlyAggClstDeviceQueryParams): Future[List[HourlyAggClstDeviceRow]] = {
-        val rawQueryResult = HourlyAggClstDeviceTableAccessor.query(params.partnerIdList,params.metricList,params.years,params.startTime,params.endTime)
-      .fetch()(dbApi.session, scala.concurrent.ExecutionContext.Implicits.global, dbApi.keyspace)
-    rawQueryResult
+        accessor.query(params.partnerIdList,params.metricList,params.years,params.startTime,params.endTime)
       }
 
       override private[logic] def getResultHeaders(): List[String] =  {
@@ -38,6 +36,11 @@ DimensionDefinition(Dimensions.device, new DimensionConstraintDeclaration(QueryC
       override def metricValueLocationIndex(): Int = 4
 
       override private[logic] def extractMetric(row: HourlyAggClstDeviceRow): String = row.metric
+
+      override private[logic] def updateTimezoneOffset(row : HourlyAggClstDeviceRow, timezoneOffsetFromUtc : Int) : HourlyAggClstDeviceRow = {
+        HourlyAggClstDeviceRow(row.partnerId, row.metric, row.year, row.hour.withZone(DateTimeZone.forOffsetHoursMinutes(timezoneOffsetFromUtc / 60, timezoneOffsetFromUtc % 60)), row.device, row.value)
+      }
+
     }
 
 case class HourlyAggClstDeviceQueryParams(startTime : DateTime, endTime : DateTime, partnerIdList : List[Int], metricList : List[String]) extends IYearlyPartitionedQueryParams

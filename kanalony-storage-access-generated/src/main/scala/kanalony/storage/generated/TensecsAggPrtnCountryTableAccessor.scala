@@ -5,7 +5,7 @@ import com.websudos.phantom.builder._
 import shapeless.HNil
 import scala.concurrent.Future
 
-abstract class TensecsAggPrtnCountryTableAccessor extends CassandraTable[TensecsAggPrtnCountryTableAccessor, TensecsAggPrtnCountryRow] with RootConnector {
+abstract class TensecsAggPrtnCountryTableAccessor extends CassandraTable[TensecsAggPrtnCountryTableAccessor, TensecsAggPrtnCountryRow] with RootConnector with ITensecsAggPrtnCountryTableAccessor {
 
   object partner_id extends IntColumn(this)with PartitionKey[Int]
 object country extends StringColumn(this)with PartitionKey[String]
@@ -39,29 +39,51 @@ value(row)
       .future()
   }
 
-  def query(partnerId : Int, country : String, metric : String, day : Int) : SelectQuery[TensecsAggPrtnCountryTableAccessor, TensecsAggPrtnCountryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+  def query(partnerId : Int, country : String, metric : String, day : Int) : Future[List[TensecsAggPrtnCountryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.country eqs country)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerId : Int, country : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnCountryTableAccessor, TensecsAggPrtnCountryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerId : Int, country : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnCountryRow]] = {
     select.where(_.partner_id eqs partnerId).and(_.country eqs country)
 .and(_.metric eqs metric)
 .and(_.day eqs day)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
-def query(partnerIdList : List[Int], countryList : List[String], metricList : List[String], dayList : List[Int]) : SelectQuery[TensecsAggPrtnCountryTableAccessor, TensecsAggPrtnCountryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+def query(partnerIdList : List[Int], countryList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnCountryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.country in countryList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
- def query(partnerIdList : List[Int], countryList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : SelectQuery[TensecsAggPrtnCountryTableAccessor, TensecsAggPrtnCountryRow, Unlimited, Unordered, Unspecified, Chainned, HNil] = {
+ def query(partnerIdList : List[Int], countryList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnCountryRow]] = {
     select.where(_.partner_id in partnerIdList).and(_.country in countryList)
 .and(_.metric in metricList)
 .and(_.day in dayList)
 .and(_.tensecs gte tensecsStart)
 .and(_.tensecs lt tensecsEnd)
+    .fetch()(session, scala.concurrent.ExecutionContext.Implicits.global, space)
   }
 
+}
+
+import org.joda.time.DateTime
+case class TensecsAggPrtnCountryRow(partnerId:Int,
+country:String,
+metric:String,
+day:Int,
+tensecs:DateTime,
+value:Long)
+
+
+import scala.concurrent.Future
+
+trait ITensecsAggPrtnCountryTableAccessor {
+  def query(partnerId : Int, country : String, metric : String, day : Int) : Future[List[TensecsAggPrtnCountryRow]]
+ def query(partnerId : Int, country : String, metric : String, day : Int, tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnCountryRow]]
+def query(partnerIdList : List[Int], countryList : List[String], metricList : List[String], dayList : List[Int]) : Future[List[TensecsAggPrtnCountryRow]]
+ def query(partnerIdList : List[Int], countryList : List[String], metricList : List[String], dayList : List[Int], tensecsStart : DateTime, tensecsEnd : DateTime) : Future[List[TensecsAggPrtnCountryRow]]
 }
