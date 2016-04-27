@@ -1,6 +1,7 @@
 package com.kaltura.core.urls
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Try
 
 /**
  * Parses URLs
@@ -37,7 +38,7 @@ object UrlParser {
     }
   }
 
-  def decodeUrl(url: String) = java.net.URLDecoder.decode(url, "UTF-8")
+  def decodeUrl(url: String) = Try(java.net.URLDecoder.decode(url, "UTF-8")).getOrElse("")
 
   def defaultIfEmpty(urlPart:String) = if(urlPart == null || urlPart.isEmpty) "N/A" else urlPart
   def defaultIfEmpty(urlPart1:String, urlPart2:String) = if(urlPart1 == null || urlPart1.isEmpty) "N/A" else if (urlPart2 == null) urlPart1 else urlPart1 + urlPart2
