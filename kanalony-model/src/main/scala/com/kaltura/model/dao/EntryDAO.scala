@@ -1,6 +1,7 @@
 package com.kaltura.model.dao
 
 import com.kaltura.client.types.KalturaCategoryEntryFilter
+import com.kaltura.core.utils.KalturaImpersonationClient
 import com.kaltura.model.entities.Entry
 
 import scala.collection.JavaConversions._
@@ -10,9 +11,9 @@ import scala.collection.JavaConversions._
  */
 object EntryDAO extends DAOBase[Entry, String] {
   def getById(partnerId: Int, entryId:String): Option[Entry] = {
-    withPartnerImpersonation(partnerId) { () =>
+    withPartnerImpersonation(partnerId) { kalturaAPI =>
       try {
-        val categoriesSet = getEntryCategories(entryId)
+        val categoriesSet = getEntryCategories(kalturaAPI, entryId)
         Some(Entry(entryId, Some(categoriesSet.mkString(","))))
       }
       catch {
@@ -21,7 +22,7 @@ object EntryDAO extends DAOBase[Entry, String] {
     }
   }
 
-  def getEntryCategories(entryId: String): Set[String] = {
+  def getEntryCategories(kalturaAPI: KalturaImpersonationClient ,entryId: String): Set[String] = {
     val categoriesSet = scala.collection.mutable.Set[String]()
     val categoryEntryFilter = new KalturaCategoryEntryFilter()
     categoryEntryFilter.entryIdEqual = entryId

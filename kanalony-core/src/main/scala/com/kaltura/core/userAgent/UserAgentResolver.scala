@@ -1,28 +1,41 @@
 package com.kaltura.core.userAgent
 
+import java.util.concurrent.TimeUnit
+
+import com.google.common.cache.{CacheLoader, CacheBuilder}
 import com.kaltura.core.userAgent.enums.{Device, OperatingSystem, Browser}
 
 
 /**
  * Resolves browser and operating system from user agent string
  */
-object UserAgentResolver {
+object UserAgentResolver extends Serializable {
 
-  private val cache = scala.collection.mutable.HashMap.empty[String, UserAgent] // TODO - use Guava cache
-  def resolve(ua:String): UserAgent = {
-    cache.getOrElseUpdate(ua, parse(ua))
-  }
+  private val maxCacheSize = 100000
+  private val expireAfterAccess: (Long, TimeUnit) = (1L, TimeUnit.HOURS)
+  private val cache = buildCache
+
   /**
    * Returns and UserAgent class describing the browser and operating system corresponding to the provided user-agent string
    * @param ua
    * @return
    */
-  private def parse(ua:String): UserAgent = {
-    val userAgent = eu.bitwalker.useragentutils.UserAgent.parseUserAgentString(ua)
+  def resolve(ua:String): UserAgent = {
+    val userAgent = cache.get(ua)
     val operatingSystem = userAgent.getOperatingSystem
     UserAgent(Browser.withName(userAgent.getBrowser.getName),
               OperatingSystem.withName(operatingSystem.getName),
               Device.withName(operatingSystem.getDeviceType.getName))
   }
 
+  private def buildCache = {
+    CacheBuilder.newBuilder()
+      .maximumSize(maxCacheSize)
+      .expireAfterAccess(expireAfterAccess._1, expireAfterAccess._2)
+      .build(
+        new CacheLoader[String ,eu.bitwalker.useragentutils.UserAgent]() {
+          override def load(ua: String) = eu.bitwalker.useragentutils.UserAgent.parseUserAgentString(ua)
+        }
+      )
+  }
 }
