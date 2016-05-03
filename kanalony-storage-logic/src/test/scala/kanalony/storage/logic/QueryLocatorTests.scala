@@ -3,7 +3,7 @@ package kanalony.storage.test.logic.queries
 import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic.queries.model._
 import kanalony.storage.logic._
-import org.joda.time.{DateTime}
+import org.joda.time.{LocalDateTime, DateTime}
 import org.scalamock.function.StubFunction1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
@@ -43,7 +43,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new LocalDateTime(1), new LocalDateTime(1000))
       val availableQueries = List(createQuery(List(Dimensions.partner), List(), Set(Metrics.play))) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
       val ql = createQueryLocator(availableQueries)
       intercept[QueryNotSupportedException] {
@@ -55,7 +55,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new LocalDateTime(1), new LocalDateTime(1000))
       val availableQueries = List(createQuery(List(Dimensions.partner), List(Dimensions.entry), Set(Metrics.play))) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
       val ql = createQueryLocator(availableQueries)
       intercept[QueryNotSupportedException] {
@@ -67,7 +67,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play, Metrics.playerImpression), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play, Metrics.playerImpression), new LocalDateTime(1), new LocalDateTime(1000))
       val availableQueries = List(createQuery(List(Dimensions.partner, Dimensions.entry), List(), Set(Metrics.play))) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
       val ql = createQueryLocator(availableQueries)
       intercept[QueryNotSupportedException] {
@@ -79,7 +79,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play), new LocalDateTime(1), new LocalDateTime(1000))
       val resQuery = createQuery(List(Dimensions.partner, Dimensions.entry), List(), Set(Metrics.play, Metrics.playRatio))
       val availableQueries = List(resQuery) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
       val ql = createQueryLocator(availableQueries)
@@ -93,7 +93,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs(Set(Dimensions.day))
 
-      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1")), createDayDimensionDefinition()), List(Metrics.play), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1")), createDayDimensionDefinition()), List(Metrics.play), new LocalDateTime(1), new LocalDateTime(1000))
       val resQuery = createQuery(List(Dimensions.partner, Dimensions.entry, Dimensions.hour), List(), Set(Metrics.play, Metrics.playRatio))
       val ql = createQueryLocator(List())
       val locatedQueries = ql.locate(params, computedDimensions, computedMetrics)
@@ -106,7 +106,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs(Set(), Set(Metrics.peakView))
 
-      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1")), createHourDimensionDefinition()), List(Metrics.peakView), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1")), createHourDimensionDefinition()), List(Metrics.peakView), new LocalDateTime(1), new LocalDateTime(1000))
       val resQuery = createQuery(List(Dimensions.partner, Dimensions.entry, Dimensions.hour), List(), Set(Metrics.play, Metrics.playRatio))
       val ql = createQueryLocator(List())
       val locatedQueries = ql.locate(params, computedDimensions, computedMetrics)
@@ -120,7 +120,7 @@ class QueryLocatorTests extends FunSpec with MockFactory with BeforeAndAfterEach
 
       initStubs()
 
-      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play, Metrics.bufferingTime), new DateTime(1), new DateTime(1000))
+      val params = QueryParams(List(createPartnerDimensionDefinition(Set(1)),createEntryDimensionDefinition(Set("1"))), List(Metrics.play, Metrics.bufferingTime), new LocalDateTime(1), new LocalDateTime(1000))
       val resQuery1 = createQuery(List(Dimensions.partner, Dimensions.entry), List(), Set(Metrics.play, Metrics.playRatio))
       val resQuery2 = createQuery(List(Dimensions.partner, Dimensions.entry), List(), Set(Metrics.play, Metrics.bufferingTime))
       val availableQueries = List(resQuery1) ::: List(resQuery2) ::: List(createQuery(List(Dimensions.partner), List(Dimensions.browser), Set(Metrics.play)))
