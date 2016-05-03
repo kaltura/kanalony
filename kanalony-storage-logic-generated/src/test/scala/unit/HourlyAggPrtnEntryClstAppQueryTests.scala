@@ -5,7 +5,7 @@ import kanalony.storage.generated.{HourlyAggPrtnEntryClstAppRow, IHourlyAggPrtnE
 import kanalony.storage.logic.queries.model.{DimensionUnconstrained, DimensionRangeConstraint, DimensionEqualityConstraint, QueryDimensionDefinition}
 import kanalony.storage.logic.{QueryResult, Dimensions, QueryParams}
 import kanalony.storage.logic.generated.HourlyAggPrtnEntryClstAppQuery
-import org.joda.time.{DateTime}
+import org.joda.time.{DateTimeZone, LocalDateTime, DateTime}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.concurrent.{ScalaFutures}
@@ -37,8 +37,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         Dimensions.partner,
         new DimensionEqualityConstraint[Int](Set(1, 2)), true)),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1, DateTimeZone.UTC),
+        new LocalDateTime(1000, DateTimeZone.UTC))
 
       whenReady(query.query(params).failed){ e =>
         e shouldBe a [IllegalArgumentException]
@@ -46,30 +46,30 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
     })
 
     it("Should query table with the correct parameters")({
-      configureStub(List(1,2),List("1","2"),List("play"),List(1970),new DateTime(1), new DateTime(1000),
-        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1),"app",5)))
+      configureStub(List(1,2),List("1","2"),List("play"),List(1970),new DateTime(1, DateTimeZone.UTC), new DateTime(1000, DateTimeZone.UTC),
+        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1, DateTimeZone.UTC),"app",5)))
 
       val params = QueryParams(List(
         createPartnerDimensionDefintion(Set(1, 2)),
         createEntryDimensionDefintion(Set("1", "2"))),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1, DateTimeZone.UTC),
+        new LocalDateTime(1000, DateTimeZone.UTC))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","entry","play"),List(List("1","1","5.0"))))) }
     })
 
     it("Should aggregate correctly when there are no group by columns (i.e. cross-partner)")({
-      configureStub(List(1,2),List("1","2"),List("play"),List(1970),new DateTime(1), new DateTime(1000),
-        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1),"app",5),
-            HourlyAggPrtnEntryClstAppRow(2,"1","play",1970, new DateTime(1),"app",1)))
+      configureStub(List(1,2),List("1","2"),List("play"),List(1970),new DateTime(1, DateTimeZone.UTC), new DateTime(1000, DateTimeZone.UTC),
+        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1, DateTimeZone.UTC),"app",5),
+            HourlyAggPrtnEntryClstAppRow(2,"1","play",1970, new DateTime(1, DateTimeZone.UTC),"app",1)))
 
       val params = QueryParams(List(
         createPartnerDimensionDefintion(Set(1, 2), false),
         createEntryDimensionDefintion(Set("1", "2"), false)),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1, DateTimeZone.UTC),
+        new LocalDateTime(1000, DateTimeZone.UTC))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("play"),List(List("6.0"))))) }
     })
@@ -83,35 +83,35 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
     })
 
     it("Should aggregate correctly over several metrics")({
-      configureStub(List(1),List("1"),List("play","playerImpression"),List(1970),new DateTime(1), new DateTime(1000),
-        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1).plusMinutes(5),"app",1),
-          HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1).plusMinutes(5),"app",2),
-          HourlyAggPrtnEntryClstAppRow(1,"1","playerImpression",1970, new DateTime(1),"app",3),
-          HourlyAggPrtnEntryClstAppRow(1,"1","playerImpression",1970, new DateTime(1).plusHours(1),"app",4)))
+      configureStub(List(1),List("1"),List("play","playerImpression"),List(1970),new DateTime(1, DateTimeZone.UTC), new DateTime(1000, DateTimeZone.UTC),
+        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1, DateTimeZone.UTC).plusMinutes(5),"app",1),
+          HourlyAggPrtnEntryClstAppRow(1,"1","play",1970, new DateTime(1, DateTimeZone.UTC).plusMinutes(5),"app",2),
+          HourlyAggPrtnEntryClstAppRow(1,"1","playerImpression",1970, new DateTime(1, DateTimeZone.UTC),"app",3),
+          HourlyAggPrtnEntryClstAppRow(1,"1","playerImpression",1970, new DateTime(1, DateTimeZone.UTC).plusHours(1),"app",4)))
 
       val params = QueryParams(List(
         createPartnerDimensionDefintion(Set(1)),
         createEntryDimensionDefintion(Set("1"))),
         List(Metrics.play, Metrics.playerImpression),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1, DateTimeZone.UTC),
+        new LocalDateTime(1000, DateTimeZone.UTC))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "entry", "play"),List(List("1", "1", "3.0"))), QueryResult(List("partner", "entry", "playerImpression"),List(List("1", "1", "7.0"))))) }
     })
 
     it("Should aggregate correctly over max-logic metric")({
-      configureStub(List(1),List("1"),List("peakView"),List(1970),new DateTime(1), new DateTime(1000),
-        List(HourlyAggPrtnEntryClstAppRow(1,"1","peakView",1970, new DateTime(1).plusMinutes(1),"app",1),
-          HourlyAggPrtnEntryClstAppRow(1,"1","peakView",1970, new DateTime(1).plusMinutes(2),"app",200),
-          HourlyAggPrtnEntryClstAppRow(1,"1","peakView",1970, new DateTime(1).plusMinutes(3),"app",3),
-          HourlyAggPrtnEntryClstAppRow(1,"1","peakView",1970, new DateTime(1).plusHours(4),"app",4)))
+      configureStub(List(1),List("1"),List("peakView"),List(1970),new DateTime(1, DateTimeZone.UTC).withZone(DateTimeZone.UTC), new DateTime(1000, DateTimeZone.UTC).withZone(DateTimeZone.UTC),
+        List(HourlyAggPrtnEntryClstAppRow(1,"1","peakView",1970, new DateTime(1, DateTimeZone.UTC).plusMinutes(1),"app",1),
+          HourlyAggPrtnEntryClstAppRow(1,"1","peakView",1970, new DateTime(1, DateTimeZone.UTC).plusMinutes(2),"app",200),
+          HourlyAggPrtnEntryClstAppRow(1,"1","peakView",1970, new DateTime(1, DateTimeZone.UTC).plusMinutes(3),"app",3),
+          HourlyAggPrtnEntryClstAppRow(1,"1","peakView",1970, new DateTime(1, DateTimeZone.UTC).plusHours(4),"app",4)))
 
       val params = QueryParams(List(
         createPartnerDimensionDefintion(Set(1)),
         createEntryDimensionDefintion(Set("1"))),
         List(Metrics.peakView),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1, DateTimeZone.UTC),
+        new LocalDateTime(1000, DateTimeZone.UTC))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "entry", "peakView"),List(List("1", "1", "200.0"))))) }
     })
@@ -119,27 +119,27 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
 
     it("Should query table with the correct parameters when time spans more than a single year")({
 
-      val start = new DateTime(2015,12,31,1,1)
-      val end = new DateTime(2016,1,1,1,1)
+      val start = new DateTime(2015,12,31,1,1, DateTimeZone.UTC)
+      val end = new DateTime(2016,1,1,1,1, DateTimeZone.UTC)
 
       configureStub(List(1,2),List("1","2"),List("play"),List(2015,2016),start, end,
-        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start.plusHours(3) ,"app",5),
-             HourlyAggPrtnEntryClstAppRow(1,"2","play",2016, end.minusHours(1),"app",3)))
+        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start.toDateTime().plusHours(3) ,"app",5),
+             HourlyAggPrtnEntryClstAppRow(1,"2","play",2016, end.toDateTime.minusHours(1),"app",3)))
 
       val params = QueryParams(List(
         createPartnerDimensionDefintion(Set(1, 2)),
         createEntryDimensionDefintion(Set("1", "2"))),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","entry","play"),List(List("1","2","3.0"),List("1","1","5.0"))))) }
     })
 
     it("Should aggregate over columns in partition key and clustering key")({
 
-      val start = new DateTime(2015,12,31,1,1)
-      val end = new DateTime(2016,1,1,1,1)
+      val start = new DateTime(2015,12,31,1,1,DateTimeZone.UTC)
+      val end = new DateTime(2016,1,1,1,1,DateTimeZone.UTC)
 
       configureStub(List(1),List("1","2"),List("play"),List(2015,2016),start, end,
         List(HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start.plusHours(3) ,"app",5),
@@ -149,16 +149,16 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createPartnerDimensionDefintion(Set(1)),
         createEntryDimensionDefintion(Set("1", "2"), false)),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","play"),List(List("1","8.0"))))) }
     })
 
     it("Should aggregate hourly data")({
 
-      val start = new DateTime(2015,12,31,1,1)
-      val end = new DateTime(2016,1,1,1,1)
+      val start = new DateTime(2015,12,31,1,1,DateTimeZone.UTC)
+      val end = new DateTime(2016,1,1,1,1,DateTimeZone.UTC)
 
       configureStub(List(1),List("1","2"),List("play"),List(2015,2016),start, end,
         List(HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start.plusHours(3) ,"app",5),
@@ -170,10 +170,10 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createEntryDimensionDefintion(Set("1", "2"), false),
         createHourDimensionDefintion(true)),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
-      whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "hour", "play"),List(List("1", "2016-01-01T00:01:00.000+02:00", "3.0"), List("1", "2015-12-31T04:06:00.000+02:00", "5.0"), List("1", "2015-12-31T04:01:00.000+02:00", "5.0"))))) }
+      whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "hour", "play"),List(List("1", "2016-01-01T00:01:00.000Z", "3.0"), List("1", "2015-12-31T04:01:00.000Z", "5.0"), List("1", "2015-12-31T04:06:00.000Z", "5.0"))))) }
     })
 
     it("Should return a correct response when there are no relevant rows in the DB")({
@@ -185,15 +185,15 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createPartnerDimensionDefintion(Set(1, 2)),
         createEntryDimensionDefintion(Set("1", "2"))),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1, DateTimeZone.UTC),
+        new LocalDateTime(1000, DateTimeZone.UTC))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","entry","play"),List()))) }
     })
 
     it("Should display data per application")({
-      val start = new DateTime(2015,12,31,1,1)
-      val end = new DateTime(2016,1,1,1,1)
+      val start = new DateTime(2015,12,31,1,1,DateTimeZone.UTC)
+      val end = new DateTime(2016,1,1,1,1,DateTimeZone.UTC)
 
       configureStub(List(1),List("1","2"),List("play"),List(2015,2016),start, end,
         List(HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start,"app1",5),
@@ -205,8 +205,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createEntryDimensionDefintion(Set("1", "2"), false),
         createAppDimensionDefintion(true)),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "application", "play"),List(List("1", "app2", "5.0"), List("1", "app1", "5.0"), List("1", "app3", "3.0"))))) }
     })
