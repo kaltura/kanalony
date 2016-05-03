@@ -8,7 +8,7 @@ import org.joda.time.{LocalDateTime, DateTimeZone, DateTime}
  * Created by elad.benedict on 2/14/2016.
  */
 
-case class QueryParams(dimensionDefinitions : List[IQueryDimensionDefinition], metrics : List[Metric], start : LocalDateTime, end : LocalDateTime, timezoneOffset : Int) {
+case class QueryParams(dimensionDefinitions : List[IQueryDimensionDefinition], metrics : List[Metric], start : LocalDateTime, end : LocalDateTime, timezoneOffset : Int = 0) {
   val timezoneOffsetHours = timezoneOffset / 60
   val timezoneOffsetMinutes = timezoneOffset % 60
 
