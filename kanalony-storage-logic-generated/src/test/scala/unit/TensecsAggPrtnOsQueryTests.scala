@@ -5,7 +5,7 @@ import kanalony.storage.generated.{TensecsAggPrtnOsRow, ITensecsAggPrtnOsTableAc
 import kanalony.storage.logic.generated.{TensecsAggPrtnOsQuery}
 import kanalony.storage.logic.queries.model.{DimensionEqualityConstraint, DimensionUnconstrained, QueryDimensionDefinition}
 import kanalony.storage.logic.{Dimensions, QueryParams, QueryResult}
-import org.joda.time.DateTime
+import org.joda.time.{LocalDateTime, DateTime}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
@@ -37,8 +37,8 @@ class TensecsAggPrtnOsQueryTests extends FunSpec with MockFactory with BeforeAnd
         Dimensions.partner,
         new DimensionEqualityConstraint[Int](Set(1, 2)), true)),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params).failed){ e =>
         e shouldBe a [IllegalArgumentException]
@@ -53,8 +53,8 @@ class TensecsAggPrtnOsQueryTests extends FunSpec with MockFactory with BeforeAnd
         createPartnerDimensionDefintion(Set(1, 2)),
         createOsDimensionDefintion(Set(1, 2))),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","operatingSystem","play"),List(List("1","1","5.0"))))) }
     })
@@ -68,8 +68,8 @@ class TensecsAggPrtnOsQueryTests extends FunSpec with MockFactory with BeforeAnd
         createPartnerDimensionDefintion(Set(1, 2), false),
         createOsDimensionDefintion(Set(1, 2), false)),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("play"),List(List("6.0"))))) }
     })
@@ -93,8 +93,8 @@ class TensecsAggPrtnOsQueryTests extends FunSpec with MockFactory with BeforeAnd
         createPartnerDimensionDefintion(Set(1)),
         createOsDimensionDefintion(Set(1))),
         List(Metrics.play, Metrics.playerImpression),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "operatingSystem", "play"),List(List("1", "1", "3.0"))), QueryResult(List("partner", "operatingSystem", "playerImpression"),List(List("1", "1", "7.0"))))) }
     })
@@ -110,8 +110,8 @@ class TensecsAggPrtnOsQueryTests extends FunSpec with MockFactory with BeforeAnd
         createPartnerDimensionDefintion(Set(1)),
         createOsDimensionDefintion(Set(1))),
         List(Metrics.peakView),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "operatingSystem", "peakView"),List(List("1", "1", "200.0"))))) }
     })
@@ -130,8 +130,8 @@ class TensecsAggPrtnOsQueryTests extends FunSpec with MockFactory with BeforeAnd
         createPartnerDimensionDefintion(Set(1, 2)),
         createOsDimensionDefintion(Set(1, 2))),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","operatingSystem","play"),List(List("1","2","3.0"),List("1","1","5.0"))))) }
     })
@@ -149,8 +149,8 @@ class TensecsAggPrtnOsQueryTests extends FunSpec with MockFactory with BeforeAnd
         createPartnerDimensionDefintion(Set(1)),
         createOsDimensionDefintion(Set(1, 2), false)),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","play"),List(List("1","8.0"))))) }
     })
@@ -164,8 +164,8 @@ class TensecsAggPrtnOsQueryTests extends FunSpec with MockFactory with BeforeAnd
         createPartnerDimensionDefintion(Set(1, 2)),
         createOsDimensionDefintion(Set(1, 2))),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","operatingSystem","play"),List()))) }
     })

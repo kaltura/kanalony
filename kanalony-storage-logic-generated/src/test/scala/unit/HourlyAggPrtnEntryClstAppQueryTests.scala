@@ -5,7 +5,7 @@ import kanalony.storage.generated.{HourlyAggPrtnEntryClstAppRow, IHourlyAggPrtnE
 import kanalony.storage.logic.queries.model.{DimensionUnconstrained, DimensionRangeConstraint, DimensionEqualityConstraint, QueryDimensionDefinition}
 import kanalony.storage.logic.{QueryResult, Dimensions, QueryParams}
 import kanalony.storage.logic.generated.HourlyAggPrtnEntryClstAppQuery
-import org.joda.time.{DateTime}
+import org.joda.time.{LocalDateTime, DateTime}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.concurrent.{ScalaFutures}
@@ -37,8 +37,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         Dimensions.partner,
         new DimensionEqualityConstraint[Int](Set(1, 2)), true)),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params).failed){ e =>
         e shouldBe a [IllegalArgumentException]
@@ -53,8 +53,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createPartnerDimensionDefintion(Set(1, 2)),
         createEntryDimensionDefintion(Set("1", "2"))),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","entry","play"),List(List("1","1","5.0"))))) }
     })
@@ -68,8 +68,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createPartnerDimensionDefintion(Set(1, 2), false),
         createEntryDimensionDefintion(Set("1", "2"), false)),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("play"),List(List("6.0"))))) }
     })
@@ -93,8 +93,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createPartnerDimensionDefintion(Set(1)),
         createEntryDimensionDefintion(Set("1"))),
         List(Metrics.play, Metrics.playerImpression),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "entry", "play"),List(List("1", "1", "3.0"))), QueryResult(List("partner", "entry", "playerImpression"),List(List("1", "1", "7.0"))))) }
     })
@@ -110,8 +110,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createPartnerDimensionDefintion(Set(1)),
         createEntryDimensionDefintion(Set("1"))),
         List(Metrics.peakView),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "entry", "peakView"),List(List("1", "1", "200.0"))))) }
     })
@@ -123,15 +123,15 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
       val end = new DateTime(2016,1,1,1,1)
 
       configureStub(List(1,2),List("1","2"),List("play"),List(2015,2016),start, end,
-        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start.plusHours(3) ,"app",5),
-             HourlyAggPrtnEntryClstAppRow(1,"2","play",2016, end.minusHours(1),"app",3)))
+        List(HourlyAggPrtnEntryClstAppRow(1,"1","play",2015, start.toDateTime().plusHours(3) ,"app",5),
+             HourlyAggPrtnEntryClstAppRow(1,"2","play",2016, end.toDateTime.minusHours(1),"app",3)))
 
       val params = QueryParams(List(
         createPartnerDimensionDefintion(Set(1, 2)),
         createEntryDimensionDefintion(Set("1", "2"))),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","entry","play"),List(List("1","2","3.0"),List("1","1","5.0"))))) }
     })
@@ -149,8 +149,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createPartnerDimensionDefintion(Set(1)),
         createEntryDimensionDefintion(Set("1", "2"), false)),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","play"),List(List("1","8.0"))))) }
     })
@@ -170,8 +170,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createEntryDimensionDefintion(Set("1", "2"), false),
         createHourDimensionDefintion(true)),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "hour", "play"),List(List("1", "2016-01-01T00:01:00.000+02:00", "3.0"), List("1", "2015-12-31T04:06:00.000+02:00", "5.0"), List("1", "2015-12-31T04:01:00.000+02:00", "5.0"))))) }
     })
@@ -185,8 +185,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createPartnerDimensionDefintion(Set(1, 2)),
         createEntryDimensionDefintion(Set("1", "2"))),
         List(Metrics.play),
-        new DateTime(1),
-        new DateTime(1000))
+        new LocalDateTime(1),
+        new LocalDateTime(1000))
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner","entry","play"),List()))) }
     })
@@ -205,8 +205,8 @@ class HourlyAggPrtnEntryClstAppQueryTests extends FunSpec with MockFactory with 
         createEntryDimensionDefintion(Set("1", "2"), false),
         createAppDimensionDefintion(true)),
         List(Metrics.play),
-        start,
-        end)
+        start.toLocalDateTime,
+        end.toLocalDateTime)
 
       whenReady(query.query(params)){ res => assert(res == List(QueryResult(List("partner", "application", "play"),List(List("1", "app2", "5.0"), List("1", "app1", "5.0"), List("1", "app3", "3.0"))))) }
     })
