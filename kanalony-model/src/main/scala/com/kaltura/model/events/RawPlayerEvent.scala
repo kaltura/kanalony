@@ -9,14 +9,14 @@ case class RawPlayerEvent(eventTime: DateTime,
                           params: Map[String,String]) {
   lazy val partnerId: Option[Int] = {
     try {
-      Some(params.get("event:partnerId").get.toInt)
+      Some(params.get("partnerId").get.toInt)
     } catch {
       case e: Exception => None
     }
   }
 
-  lazy val eventType: Option[String] = params.get("event:eventType")
-  lazy val entryId: Option[String] = params.get("event:entryId")
+  lazy val eventType: Option[String] = params.get("eventType")
+  lazy val entryId: Option[String] = params.get("entryId")
 
   def isValid: Boolean = eventType.isDefined && eventType.get.nonEmpty && partnerId.isDefined && entryId.isDefined && entryId.get.nonEmpty
 }
