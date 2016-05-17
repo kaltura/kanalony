@@ -66,10 +66,10 @@ class EnrichmentSpec extends SparkFunSuite
   }
 
   test("RawPlayerEvents enrichment and re-produce them back to kafka") {
-    val eventsFileName = ConfigurationManager.getOrElse("kanalony.events_enhancer.events_file",s"kanalony-enrichment/src/test/resources/events.log")
+    val eventsFileName = ConfigurationManager.getOrElse("kanalony.events_enhancer.events_file",s"kanalony-enrichment/src/test/resources/events.txt")
     val events = Source.fromFile(eventsFileName).getLines.toList
 
-    val expectedEvents = Source.fromFile(s"kanalony-enrichment/src/test/resources/enrichedEvents.log").getLines()
+    val expectedEvents = Source.fromFile(s"kanalony-enrichment/src/test/resources/enrichedEvents.txt").getLines()
 
     val playerEventsTopic = Set("player-events")
     val enrichedPlayerEventsTopic = Set("enriched-player-events")
@@ -113,7 +113,7 @@ class EnrichmentSpec extends SparkFunSuite
       assert(allReceived.size === events.length - 1,
         "didn't get expected number of messages, messages:\n" + allReceived.mkString("\n"))
     }
-    ssc.awaitTerminationOrTimeout(60000)
+    ssc.awaitTerminationOrTimeout(10000)
     ssc.stop()
 
 
