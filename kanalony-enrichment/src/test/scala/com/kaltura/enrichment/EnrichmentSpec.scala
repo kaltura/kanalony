@@ -5,15 +5,18 @@ import java.io.File
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
+import kafka.message.MessageAndMetadata
+import org.apache.spark._
 import org.apache.spark.streaming.kafka.KafkaTestingUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.util.SparkUtils
-import org.apache.spark.{Logging, SparkConf, SparkContext, SparkFunSuite}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.duration._
+import scala.io.Source
 import scala.language.postfixOps
 
 /**
@@ -63,27 +66,20 @@ class EnrichmentSpec extends SparkFunSuite
   }
 
   test("RawPlayerEvents enrichment and re-produce them back to kafka") {
-    val playerEvent =
-    """{
-      "@version":"1",
-      "@timestamp":"2016-02-03T17:13:46.390Z",
-      "host":"Ofirs-MacBook-Pro.local",
-      "request":"/api_v3/index.php?service=stats&action=collect&kalsig=1ebb5aea0c5f253fd8c578febe6a752f&clientTag=kdp%3Av3%2E9%2E2&event%3AobjectType=KalturaStatsEvent&event%3AsessionId=C90BFCFC%2D2EBF%2D5893%2D892D%2D2121162F414A&apiVersion=3%2E1%2E5&event%3AisFirstInSession=false&event%3Aduration=194&ignoreNull=1&event%3AeventType=13&event%3Aseek=false&event%3Areferrer=http%253A%2F%2Fabc%2Ego%2Ecom%2Fshows%2Fthe%2Dbachelorette%2Fvideo%2Fmost%2Drecent%2FVDKA0%5Flawz79v7&event%3AentryId=1%5Frkxi9ngj&ks=djJ8MTg4MzUwMXzEaWhcz5Cg8KcOg5yakEmfP1wORFURE4efFI67YsJw1JR11xJQfMCsPH7oqejLKBjUtxX1OjixhHwquZlFfnMl8teqc8t6NA3VjpbIfD0WngANAB0m_1VocYCohJQTfRM=&event%3AeventTimestamp=1435075182567&event%3AuiconfId=23521211&event%3ApartnerId=1883501&event%3AcurrentPoint=18&event%3AclientVer=3%2E0%3Av3%2E9%2E2-13",
-      "proxyRemoteAddr":"8.8.8.8",
-      "eventTime":"2016-02-03T17:13:46.000Z",
-      "remoteAddr":"127.0.0.1",
-      "userAgent":"\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:38.0) Gecko/20100101 Firefox/38.0\""
-    }"""
+    val eventsFileName = ConfigurationManager.getOrElse("kanalony.events_enhancer.events_file",s"kanalony-enrichment/src/test/resources/events.log")
+    val events = Source.fromFile(eventsFileName).getLines.toList
+
+    val expectedEvents = Source.fromFile(s"kanalony-enrichment/src/test/resources/enrichedEvents.log").getLines()
 
     val playerEventsTopic = Set("player-events")
     val enrichedPlayerEventsTopic = Set("enriched-player-events")
-    val data = Array.fill(10)(playerEvent)
+
     val allReceived = new ArrayBuffer[EnrichedPlayerEvent] with mutable.SynchronizedBuffer[EnrichedPlayerEvent]
 
     kafkaTestUtils.createTopic(enrichedPlayerEventsTopic.last)
     playerEventsTopic.foreach(t => {
-      kafkaTestUtils.createTopic(t, 20)
-      kafkaTestUtils.sendMessages(t, data)
+      kafkaTestUtils.createTopic(t, 10)
+      kafkaTestUtils.sendMessages(t, events.toArray)
     })
 
 
@@ -92,7 +88,8 @@ class EnrichmentSpec extends SparkFunSuite
       "auto.offset.reset" -> "smallest"
     )
 
-    ssc = new StreamingContext(sparkConf, Seconds(2))
+    ssc = new StreamingContext(sparkConf, Seconds(60))
+    val messageHandler = (m: MessageAndMetadata[String, String]) => (m.topic, m.partition, m.offset, m.message)
     val stream = withClue("Error creating direct stream") {
       StreamManager.createStream(ssc, playerEventsTopic, kafkaParams)
     }
@@ -101,23 +98,31 @@ class EnrichmentSpec extends SparkFunSuite
       StreamManager.createStream(ssc, kafkaTestUtils.brokerAddress, enrichedPlayerEventsTopic)
     }
 
+
     stream.map(_._2).
       flatMap(PlayerEventParser.parsePlayerEvent).
       foreachRDD { rdd =>
-        kafkaTestUtils.sendMessages(playerEventsTopic.last, data)
         EventsEnrichment.enrichEvents(rdd)
       }
 
-    /*enrichedStream.map(_._2).
-      flatMap(PlayerEventParser.parseEnhancedPlayerEvent).foreachRDD(rdd => allReceived ++= rdd.collect())*/
+    enrichedStream.map(_._2).
+      flatMap(PlayerEventParser.parseEnhancedPlayerEvent).foreachRDD(rdd => allReceived ++= rdd.collect())
 
     ssc.start()
-    /*eventually(timeout(30000 seconds), interval(1 seconds)) {
-      assert(allReceived.size === data.length,
+    eventually(timeout(300 seconds), interval(5 seconds)) {
+      assert(allReceived.size === events.length - 1,
         "didn't get expected number of messages, messages:\n" + allReceived.mkString("\n"))
-    }*/
-    ssc.awaitTerminationOrTimeout(1000000)
+    }
+    ssc.awaitTerminationOrTimeout(60000)
     ssc.stop()
+
+
+    val expectedEnrichedEvents = expectedEvents.flatMap(PlayerEventParser.parseEnhancedPlayerEvent)
+    while (expectedEnrichedEvents.hasNext) {
+      var event = expectedEnrichedEvents.next
+      assert(allReceived.contains(event) === true, event + " is missing ")
+    }
+
   }
 
 

@@ -33,9 +33,6 @@ object EnrichmentTest extends App with Logging {
       .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
       .set("spark.cassandra.connection.keep_alive_ms","30000")
       .set("spark.streaming.backpressure.enabled", ConfigurationManager.getOrElse("kanalony.events_enhancer.backpressure","false"))
-    //val sparkContext = new SparkContext(sparkConf)
-    //val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","1").toInt))
-    //
 
     val eventsFileName = ConfigurationManager.getOrElse("kanalony.events_enhancer.events_file","/tmp/events.log")
     val events = Source.fromFile(eventsFileName).getLines.toList
@@ -56,18 +53,14 @@ object EnrichmentTest extends App with Logging {
       flatMap(PlayerEventParser.parsePlayerEvent).
       foreachRDD { rdd =>
         enrichEvents(rdd)
-
       }
 
-
-
-
     // Start the computation
-  ssc.start()
+    ssc.start()
 
 
-  ssc.awaitTerminationOrTimeout(1200000)
-  ssc.stop()
+    ssc.awaitTerminationOrTimeout(1200000)
+    ssc.stop()
 
 
   }
