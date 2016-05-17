@@ -5,7 +5,7 @@ import com.kaltura.core.utils.{KalturaImpersonationClient, KalturaAPIFactory}
 
 trait DAOBase[T, IDType]{
 
-  def withPartnerImpersonation[A](partnerId:Int)(execution: (KalturaImpersonationClient) => A): A = {
+  def withPartnerImpersonation[A](partnerId:Int, action:String, naVal:A)(execution: (KalturaImpersonationClient) => A): A = {
     val kalturaAPI = KalturaAPIFactory.getClient
     kalturaAPI.setPartnerId(partnerId)
     try {
@@ -16,8 +16,9 @@ trait DAOBase[T, IDType]{
           kalturaAPI.setKs(KalturaAPIFactory.resetKS)
           execution(kalturaAPI)
         }
-        else throw kae
+        else System.err.println(s"Unable to $action for partner $partnerId):");kae.printStackTrace();naVal
       }
+      case e: Exception => System.err.println(s"Unable to $action for partner $partnerId):");e.printStackTrace();naVal
     } finally {
       kalturaAPI.removePartnerId()
     }

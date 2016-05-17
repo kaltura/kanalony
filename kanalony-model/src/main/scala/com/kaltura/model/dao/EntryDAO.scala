@@ -11,14 +11,9 @@ import scala.collection.JavaConversions._
  */
 object EntryDAO extends DAOBase[Entry, String] {
   def getById(partnerId: Int, entryId:String): Option[Entry] = {
-    withPartnerImpersonation(partnerId) { kalturaAPI =>
-      try {
-        val categoriesSet = getEntryCategories(kalturaAPI, entryId)
-        Some(Entry(entryId, Some(categoriesSet.mkString(","))))
-      }
-      catch {
-        case e: Exception => println(s"Error while fetching Entry data ($partnerId,$entryId):");e.printStackTrace();None
-      }
+    withPartnerImpersonation(partnerId, s"fetch entry data for entry $entryId", Some(Entry(entryId))) { kalturaAPI =>
+      val categoriesSet = getEntryCategories(kalturaAPI, entryId)
+      Some(Entry(entryId, Some(categoriesSet.mkString(","))))
     }
   }
 

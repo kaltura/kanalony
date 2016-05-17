@@ -8,14 +8,9 @@ import com.kaltura.model.entities.Partner
 object PartnerDAO extends DAOBase[Partner, Int] with MetaLog[BaseLog] {
 
   def getById(id: Int): Option[Partner] = {
-    withPartnerImpersonation(id) { kalturaAPI =>
-      try {
-        val partner = kalturaAPI.getPartnerService.get(id)
-        Some(Partner(id, Option(partner.adminSecret), Option(partner.crmId)))
-      }
-      catch {
-        case e: Exception => println(s"Error while fetching Partner data ($id):");e.printStackTrace();None
-      }
+    withPartnerImpersonation(id,"get partner data", Some(Partner(id))) { kalturaAPI =>
+      val partner = kalturaAPI.getPartnerService.get(id)
+      Some(Partner(id, Option(partner.adminSecret), Option(partner.crmId)))
     }
   }
 }
