@@ -6,7 +6,7 @@ import kanalony.storage.logic.queries.{DailyMaxQuery, DailyCountQuery}
 import kanalony.storage.logic.queries.model.{DimensionUnconstrained, DimensionRangeConstraint, DimensionEqualityConstraint, QueryDimensionDefinition}
 import kanalony.storage.logic._
 import kanalony.storage.logic.generated.{Queries, HourlyAggPrtnEntryClstAppQuery}
-import org.joda.time.{DateTime}
+import org.joda.time.{LocalDateTime, DateTime}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.concurrent.{ScalaFutures}
@@ -36,13 +36,13 @@ abstract class DailyQueryTestsBase[T <: IQuery] extends FunSpec with MockFactory
   describe("DailyCountQueryTests tests") {
     it("Should throw when query params don't contain 'day' dimension")({
       intercept[IllegalArgumentException] {
-        dailyQueryCreatorWithStub(QueryParams(List(), List(), new DateTime(1), new DateTime(2)))
+        dailyQueryCreatorWithStub(QueryParams(List(), List(), new LocalDateTime(1), new LocalDateTime(2)))
       }
     })
 
     it("Should throw when no relevant hourly queries are found for the requested daily query")({
-      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)), createDayDimensionDefintion()), List(), new DateTime(1), new DateTime(2))
-      val expectedParams = QueryParams(List(createPartnerDimensionDefintion(Set(1)), createHourDimensionDefintion()), List(), new DateTime(1), new DateTime(2))
+      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)), createDayDimensionDefintion()), List(), new LocalDateTime(1), new LocalDateTime(2))
+      val expectedParams = QueryParams(List(createPartnerDimensionDefintion(Set(1)), createHourDimensionDefintion()), List(), new LocalDateTime(1), new LocalDateTime(2))
       configureStub(expectedParams, List())
       intercept[IllegalArgumentException] {
         dailyQueryCreatorWithStub(params)
@@ -50,8 +50,8 @@ abstract class DailyQueryTestsBase[T <: IQuery] extends FunSpec with MockFactory
     })
 
     it("Should convert day dimension to hour dimension when locating an appropriate query")({
-      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)), createDayDimensionDefintion()), List(), new DateTime(1), new DateTime(2))
-      val expectedParams = QueryParams(List(createPartnerDimensionDefintion(Set(1)), createHourDimensionDefintion()), List(), new DateTime(1), new DateTime(2))
+      val params = QueryParams(List(createPartnerDimensionDefintion(Set(1)), createDayDimensionDefintion()), List(), new LocalDateTime(1), new LocalDateTime(2))
+      val expectedParams = QueryParams(List(createPartnerDimensionDefintion(Set(1)), createHourDimensionDefintion()), List(), new LocalDateTime(1), new LocalDateTime(2))
       configureMock(expectedParams, List((stub[IQuery], List()))) // The response is meaningless for this test - just use some IQuery
       dailyQueryCreatorWithMock(params)
       // Assertion done by the Mock

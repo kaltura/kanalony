@@ -7,10 +7,10 @@ import model._
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.{LocalDateTime, DateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
-import model.Implicits._
 import play.api.mvc._
-import argonaut._
+import argonaut._, Argonaut._
 import scala.concurrent._
+import model.Implicits._
 
 class Application extends Controller {
 
@@ -22,12 +22,12 @@ class Application extends Controller {
       val analyticsRequestOption = request.body.asJson map { input => Parse.decodeEither[AnalyticsRequest](input.toString) }
 
       if (analyticsRequestOption.isEmpty) {
-        return wrapWithPromise(BadRequest("Invalid input - ensure proper JSON is supplied with the mandatory fields supplied and that the supplied MIME type is application/json"))
+        return wrapWithPromise(BadRequest(createErrorJsonResponse("incorrectContentType", "Ensure Content-Type is set to application/json and that the supplied JSON is valid")))
       }
 
       val analyticsRequest = analyticsRequestOption.get.toEither
       if (analyticsRequest.isLeft) {
-        return wrapWithPromise(BadRequest(s"Invalid input - ${analyticsRequest.left.get}"))
+        return wrapWithPromise(BadRequest(createErrorJsonResponse("invalidInput", analyticsRequest.left.get)))
       }
 
       val queryParams = requestToQueryParams(analyticsRequest.right.get)
@@ -41,20 +41,27 @@ class Application extends Controller {
           Ok(formattedResponse.data).as(formattedResponse.mime)
         }
       } recover {
-        case e : Exception => BadRequest(e.getMessage)
+        case e : Exception => InternalServerError(createErrorJsonResponse("generalError", e.getMessage))
       }
     }
     catch {
+      case e : InvalidDimensionException => {
+        return wrapWithPromise(BadRequest(createErrorJsonResponse("unsupportedDimension", e.dimensionName)))
+      }
       case e: QueryNotSupportedException => {
-        return wrapWithPromise(BadRequest(e.getMessage))
+        return wrapWithPromise(NotFound(createErrorJsonResponse("unsupportedQuery", e.getMessage)))
       }
       case e: IllegalArgumentException => {
-        return wrapWithPromise(BadRequest(e.getMessage))
+        return wrapWithPromise(BadRequest(createErrorJsonResponse("invalidInput", e.getMessage)))
       }
       case e: Exception => {
-        return wrapWithPromise(InternalServerError(e.getMessage))
+        return wrapWithPromise(InternalServerError(createErrorJsonResponse("generalError", e.getMessage)))
       }
     }
+  }
+
+  private def createErrorJsonResponse(kind : String, data : String) = {
+    ErrorResponse(kind, data).asJson.toString()
   }
 
   def wrapWithPromise(res : Result): Future[Result] = {
