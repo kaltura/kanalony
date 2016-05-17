@@ -1,5 +1,7 @@
 package com.kaltura.enrichment
 
+import com.datastax.driver.core.querybuilder.QueryBuilder
+import com.kaltura.core.cassandra.ClusterManager
 import com.kaltura.core.ip2location.LocationResolver
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.urls.UrlParser
@@ -12,8 +14,8 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{Logging, SparkConf, SparkContext}
-
+import org.apache.spark.{Logging, SparkConf, SparkContext, TaskContext}
+import com.kaltura.core.utils.ReadableTimeUnits._
 
 object EventsEnrichment extends App with Logging {
 
@@ -48,8 +50,11 @@ object EventsEnrichment extends App with Logging {
 
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
     val topics = Set("player-events")
+    val keySpace = "kanalony_mng"
+    val tableName = "hourly_partitions"
 
     var offsetRanges = Array[OffsetRange]()
+
     val stream = StreamManager.createStream(ssc, kafkaBrokers, topics)
     stream.transform { rdd =>
       offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
@@ -57,16 +62,32 @@ object EventsEnrichment extends App with Logging {
     }
       .flatMap(event => PlayerEventParser.parsePlayerEvent(event._2))
       .foreachRDD { rdd =>
-        enrichEvents(rdd)
-        for (o <- offsetRanges) {
-          println(s"${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
-        }
+        enrichEvents(rdd, "enriched-player-events", "erroneous-player-events")
+
+        rdd.foreachPartition(part => {
+          val cassandraSession = ClusterManager.getSession
+          if(part.hasNext) {
+            val partitionId = TaskContext.getPartitionId()
+            val firstEventHour = part.next().eventTime.hourOfDay().roundFloorCopy()
+            val o = offsetRanges(partitionId)
+            cassandraSession.execute(QueryBuilder
+              .insertInto(keySpace, tableName)
+              .value("hour", firstEventHour.getMillis)
+              .value("topic", o.topic)
+              .value("partition", o.partition)
+              .value("offset", o.fromOffset)
+              .using(QueryBuilder.ttl(2 day))
+            )
+            println(s"$firstEventHour --> ${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
+          }
+        })
+
       }
 
     ssc
   }
 
-  def enrichEvents(playerEvents:RDD[RawPlayerEvent]):Unit = {
+  def enrichEvents(playerEvents:RDD[RawPlayerEvent], enrichedEventsTopic: String, erroneousEventsTopic: String):Unit = {
     playerEvents
       .foreachPartition( eventsPart => {
         val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
@@ -97,10 +118,10 @@ object EventsEnrichment extends App with Logging {
               validPlayerEvent.params.getOrElse("customVar2",""),
               validPlayerEvent.params.getOrElse("customVar3","")
             )
-            producer.send(new ProducerRecord[String,String]("enriched-player-events", playerEvent.entryId, PlayerEventParser.asJson(playerEvent)))
+            producer.send(new ProducerRecord[String,String](enrichedEventsTopic, playerEvent.entryId, PlayerEventParser.asJson(playerEvent)))
           }
           else { // Handle a case where partnerId or eventType are missing
-            producer.send(new ProducerRecord[String,String]("erroneous-player-events", rawPlayerEvent.eventTime.toString, PlayerEventParser.asJson(rawPlayerEvent)))
+            producer.send(new ProducerRecord[String,String](erroneousEventsTopic, rawPlayerEvent.eventTime.toString, PlayerEventParser.asJson(rawPlayerEvent)))
           }
         })
         producer.close()

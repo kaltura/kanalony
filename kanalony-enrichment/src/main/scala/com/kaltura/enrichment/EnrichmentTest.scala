@@ -52,7 +52,7 @@ object EnrichmentTest extends App with Logging {
     ssc.queueStream(rddQueue).
       flatMap(PlayerEventParser.parsePlayerEvent).
       foreachRDD { rdd =>
-        enrichEvents(rdd)
+        enrichEvents(rdd,"enriched-player-events","erroneous-player-events")
       }
 
     // Start the computation

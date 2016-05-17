@@ -102,7 +102,7 @@ class EnrichmentSpec extends SparkFunSuite
     stream.map(_._2).
       flatMap(PlayerEventParser.parsePlayerEvent).
       foreachRDD { rdd =>
-        EventsEnrichment.enrichEvents(rdd)
+        EventsEnrichment.enrichEvents(rdd, enrichedPlayerEventsTopic.head, "erroneous-player-events")
       }
 
     enrichedStream.map(_._2).
