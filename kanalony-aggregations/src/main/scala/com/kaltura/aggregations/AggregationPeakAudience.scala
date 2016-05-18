@@ -8,6 +8,7 @@ import com.kaltura.model.events.EnrichedPlayerEvent
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, State, StateSpec, Time}
 import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
+import com.datastax.spark.connector.streaming._
 
 abstract class AggregationPeakAudience extends BaseAggregation[AggregationKey, PartnerRes] {
 
@@ -33,21 +34,20 @@ abstract class AggregationPeakAudience extends BaseAggregation[AggregationKey, P
   }
 
   override def aggregate(enrichedEvents: DStream[EnrichedPlayerEvent]) : Unit = {
-    try {
+    if (enrichedEvents.context.sparkContext.getConf.get("spark.kanalony.events_aggregations.enabled_aggregations","").split(",").contains(this.getClass.getSimpleName.stripSuffix("$"))) {
       val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
       val aggregatedEvents = aggregatedBatchEvents.mapWithState(stateSpec)
 
-      val peakAudience = aggregatedEvents.map({case (k,v) => (AggregationKey(k.partnerId, k.metric, getAggrTime(k.time)), v)}).mapWithState(maxStateSpec)
-      save(prepareForSave(peakAudience));
-
-    } catch {
-      case e: IllegalArgumentException => println("Failed to update state");
+      val peakAudience = aggregatedEvents.map({ case (k, v) => (AggregationKey(k.partnerId, k.metric, getAggrTime(k.time)), v) }).mapWithState(maxStateSpec)
+      save(prepareForSave(peakAudience))
     }
   }
 
+  val viewEvent = PlayerEventTypes.view.toString
+
   // return audience for 10 secs
   override def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]): DStream[(AggregationKey, Long)] = {
-    enrichedEvents.filter(e => e.eventType.equals(PlayerEventTypes.view.toString) && e.playbackType.equals("Live")).map(ev => (aggKey(ev), 1L)).reduceByKey(_ + _)
+    enrichedEvents.filter(e => e.eventType.equals(viewEvent) && e.playbackType.equals("Live")).map(ev => (aggKey(ev), 1L)).reduceByKey(_ + _)
   }
 }
 object HourlyAggregationPeakAudience extends AggregationPeakAudience with IAggregateHourly {
@@ -59,11 +59,5 @@ object HourlyAggregationPeakAudience extends AggregationPeakAudience with IAggre
 object MinutelyAggregationPeakAudience extends AggregationPeakAudience with IAggregateMinutely {
   override lazy val tableMetadata: Map[String, SomeColumns] = Map(
     "minutely_agg" -> toSomeColumns(columns :+("day", "day"))
-  )
-}
-
-object TenSecsAggregationPeakAudience extends AggregationPeakAudience with IAggregateTenSecs {
-  override lazy val tableMetadata: Map[String, SomeColumns] = Map(
-    "tensecs_agg" -> toSomeColumns(columns :+("day", "day"))
   )
 }

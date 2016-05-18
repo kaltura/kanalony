@@ -2,10 +2,14 @@ package com.kaltura.aggregations
 
 import java.io.File
 
+import com.esotericsoftware.kryo.Kryo
+import com.kaltura.aggregations.keys._
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
+import de.javakaffee.kryoserializers.jodatime.JodaDateTimeSerializer
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.serializer.KryoRegistrator
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
@@ -23,7 +27,7 @@ object EventsAggregation extends App with Logging {
   override def main(args: Array[String]) {
 
     setStreamingLogLevels
-    val applicationName = ConfigurationManager.get("kanalony.events_aggregation.application_name")
+    val applicationName = ConfigurationManager.get("kanalony.events_aggregations.application_name")
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
     val checkpointDirectory = s"$checkpointRootPath/$applicationName"
     // Get StreamingContext from checkpoint data or create a new one
@@ -42,11 +46,13 @@ object EventsAggregation extends App with Logging {
   def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String)] = List()): StreamingContext = {
 
     val sparkConf = new SparkConf()
-      .setAppName(ConfigurationManager.get("kanalony.events_aggregation.application_name"))
+      .setAppName(ConfigurationManager.get("kanalony.events_aggregations.application_name"))
       .setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]"))
       .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
       .set("spark.cassandra.connection.keep_alive_ms","30000")
       .set("spark.streaming.concurrentJobs",ConfigurationManager.getOrElse("kanalony.events_aggregations.concurrentJobs", "10"))
+      .set("spark.scheduler.mode", "FAIR")
+      //.set("spark.kanalony.events_aggregations.enabled_aggregations","HourlyAggregationByApplication,HourlyAggregationByApplicationPlaybackContext")
     val defaultParallelism = ConfigurationManager.getOrElse("kanalony.events_aggregations.default_parallelism", null)
     if (defaultParallelism != null)
       sparkConf.set("spark.default.parallelism", defaultParallelism)
@@ -62,37 +68,44 @@ object EventsAggregation extends App with Logging {
     val parsedEnrichedEvents = stream.
       flatMap(ev => PlayerEventParser.parseEnhancedPlayerEvent(ev._2))
     parsedEnrichedEvents.cache()
-    //aggregators.foreach(aggregate(_, parsedEnrichedEvents))
-    /*HourlyAggregationByApplication.aggregate(parsedEnrichedEvents)
+
+    // 2600 events/sec
+    /**
+     * 0. HourlyAggregationByApplication,HourlyAggregationByApplicationPlaybackContext,HourlyAggregationByBrowser,HourlyAggregationByCountry,HourlyAggregationByCountryBrowser,HourlyAggregationByCountryCity,HourlyAggregationByCountryOperatingSystem,HourlyAggregationByCountryOperatingSystemBrowser,HourlyAggregationByDevice,HourlyAggregationByDeviceOperatingSystem
+     */
+    HourlyAggregationByApplication.aggregate(parsedEnrichedEvents)
     HourlyAggregationByApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
     HourlyAggregationByBrowser.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByCategory.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountry.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryCity.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByCustomVar1.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByCustomVar1CustomVar2.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByCustomVar2.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByCustomVar3.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDevice.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
+
+    /**
+     * 1. HourlyAggregationByOperatingSystem,HourlyAggregationByOperatingSystemBrowser,HourlyAggregationByPartner,HourlyAggregationByPlaybackContext,HourlyAggregationPeakAudience,HourlyAggregationByDomain,HourlyAggregationByDomainReferrer,HourlyAggregationByEntry,HourlyAggregationByEntryApplication,HourlyAggregationByEntryApplicationPlaybackContext
+     */
+
+    HourlyAggregationByOperatingSystem.aggregate(parsedEnrichedEvents)
+    HourlyAggregationByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+    HourlyAggregationByPartner.aggregate(parsedEnrichedEvents)
+    HourlyAggregationByPlaybackContext.aggregate(parsedEnrichedEvents)
+    HourlyAggregationPeakAudience.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDomain.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntry.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryApplication.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
+
+    /**
+     * 2. HourlyAggregationByEntryBrowser,HourlyAggregationByEntryCountry,HourlyAggregationByEntryCountryCity,HourlyAggregationByEntryDevice,HourlyAggregationByEntryDeviceOperatingSystem,HourlyAggregationByEntryDomain,HourlyAggregationByEntryDomainReferrer,HourlyAggregationByEntryOperatingSystem,HourlyAggregationByEntryOperatingSystemBrowser,HourlyAggregationByEntryPlaybackContext
+     */
+
     HourlyAggregationByEntryBrowser.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryCategory.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryCountry.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryCountryCity.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryCustomVar1.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryCustomVar1CustomVar2.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryCustomVar2.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryCustomVar3.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryDevice.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryDomain.aggregate(parsedEnrichedEvents)
@@ -100,64 +113,114 @@ object EventsAggregation extends App with Logging {
     HourlyAggregationByEntryOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByOperatingSystem.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByPartner.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByPlaybackContext.aggregate(parsedEnrichedEvents)
-    HourlyAggregationPeakAudience.aggregate(parsedEnrichedEvents)*/
-    MinutelyAggregationByApplication.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByBrowser.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByCategory.aggregate(parsedEnrichedEvents)
+
+    // 1600 events/s, 20 Cores, 8 Concurrent
+    /**
+     * 3. MinutelyAggregationByEntry,MinutelyAggregationByEntryBrowser,MinutelyAggregationByEntryCountry,MinutelyAggregationByEntryCountryCity,MinutelyAggregationByEntryDevice,MinutelyAggregationByEntryDeviceOperatingSystem,MinutelyAggregationByEntryDomain,MinutelyAggregationByEntryOperatingSystem,MinutelyAggregationByEntryOperatingSystemBrowser
+     */
+    MinutelyAggregationByEntry.aggregate(parsedEnrichedEvents)
+    MinutelyAggregationByEntryBrowser.aggregate(parsedEnrichedEvents)
+    MinutelyAggregationByEntryCountry.aggregate(parsedEnrichedEvents)
+    MinutelyAggregationByEntryCountryCity.aggregate(parsedEnrichedEvents)
+    MinutelyAggregationByEntryDevice.aggregate(parsedEnrichedEvents)
+    MinutelyAggregationByEntryDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
+    MinutelyAggregationByEntryDomain.aggregate(parsedEnrichedEvents)
+    MinutelyAggregationByEntryOperatingSystem.aggregate(parsedEnrichedEvents)
+    MinutelyAggregationByEntryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
+
+    /**
+     * Custom by Entry:
+     * 4. MinutelyAggregationByEntryCustomVar1,MinutelyAggregationByEntryCustomVar1CustomVar2,MinutelyAggregationByEntryCustomVar1CustomVar2CustomVar3,MinutelyAggregationByEntryCustomVar2,MinutelyAggregationByEntryCustomVar3,HourlyAggregationByntryCustomVar1,HourlyAggregationByEntryCustomVar1CustomVar2,HourlyAggregationByEntryCustomVar1CustomVar2CustomVar3,HourlyAggregationByEntryCustomVar2,HourlyAggregationByEntryCustomVar3
+     */
+    val parsedEnrichedEventsWithCustomVars = parsedEnrichedEvents.filter(event => event.customVar1.nonEmpty || event.customVar2.nonEmpty || event.customVar3.nonEmpty)
+    MinutelyAggregationByEntryCustomVar1.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByEntryCustomVar1CustomVar2.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByEntryCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByEntryCustomVar2.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByEntryCustomVar3.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByEntryCustomVar1.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByEntryCustomVar1CustomVar2.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByEntryCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByEntryCustomVar2.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByEntryCustomVar3.aggregate(parsedEnrichedEventsWithCustomVars)
+
+    /**
+     * Custom
+     * 5. HourlyAggregationByCustomVar1,HourlyAggregationByCustomVar1CustomVar2,HourlyAggregationByCustomVar1CustomVar2CustomVar3,HourlyAggregationByCustomVar2,HourlyAggregationByCustomVar3,MinutelyAggregationByCustomVar1,MinutelyAggregationByCustomVar1CustomVar2,MinutelyAggregationByCustomVar1CustomVar2CustomVar3,MinutelyAggregationByCustomVar2,MinutelyAggregationByCustomVar3
+     */
+    HourlyAggregationByCustomVar1.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByCustomVar1CustomVar2.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByCustomVar2.aggregate(parsedEnrichedEventsWithCustomVars)
+    HourlyAggregationByCustomVar3.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByCustomVar1.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByCustomVar1CustomVar2.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByCustomVar2.aggregate(parsedEnrichedEventsWithCustomVars)
+    MinutelyAggregationByCustomVar3.aggregate(parsedEnrichedEventsWithCustomVars)
+
+
+
+    /**
+     * 6. MinutelyAggregationByPartner,MinutelyAggregationByCountry,MinutelyAggregationByCountryBrowser,MinutelyAggregationByCountryCity,MinutelyAggregationByCountryOperatingSystem,MinutelyAggregationByCountryOperatingSystemBrowser
+     */
+    MinutelyAggregationByPartner.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByCountry.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByCountryBrowser.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByCountryCity.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByCountryOperatingSystem.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByCustomVar1.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByCustomVar1CustomVar2.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByCustomVar2.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByCustomVar3.aggregate(parsedEnrichedEvents)
+
+    /**
+     * 7. MinutelyAggregationByBrowser,MinutelyAggregationByDevice,MinutelyAggregationByDeviceOperatingSystem,MinutelyAggregationByDomain,MinutelyAggregationByOperatingSystem,MinutelyAggregationByOperatingSystemBrowser,MinutelyAggregationPeakAudience
+     */
+    MinutelyAggregationByBrowser.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByDevice.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByDomain.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntry.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryApplication.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryBrowser.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryCountry.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryCountryCity.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryCustomVar1.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryCustomVar1CustomVar2.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryCustomVar1CustomVar2CustomVar3.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryCustomVar2.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryCustomVar3.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryDevice.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryDomain.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryOperatingSystem.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByOperatingSystem.aggregate(parsedEnrichedEvents)
     MinutelyAggregationByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByPartner.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationByPlaybackContext.aggregate(parsedEnrichedEvents)
-    MinutelyAggregationPeakAudience.aggregate(parsedEnrichedEvents)
-    TenSecsAggregationByApplication.aggregate(parsedEnrichedEvents)
+    //MinutelyAggregationPeakAudience.aggregate(parsedEnrichedEvents)
+
+    /**
+     * 8. TenSecsAggregationByCountry,TenSecsAggregationByCountryCity,TenSecsAggregationByDomain,TenSecsAggregationByPartner,TenSecsAggregationByEntry,TenSecsAggregationByEntryCountry,TenSecsAggregationByEntryCountryCity,TenSecsAggregationByEntryDomain
+     */
     TenSecsAggregationByCountry.aggregate(parsedEnrichedEvents)
     TenSecsAggregationByCountryCity.aggregate(parsedEnrichedEvents)
     TenSecsAggregationByDomain.aggregate(parsedEnrichedEvents)
-    TenSecsAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
+    TenSecsAggregationByPartner.aggregate(parsedEnrichedEvents)
     TenSecsAggregationByEntry.aggregate(parsedEnrichedEvents)
-    TenSecsAggregationByEntryApplication.aggregate(parsedEnrichedEvents)
     TenSecsAggregationByEntryCountry.aggregate(parsedEnrichedEvents)
     TenSecsAggregationByEntryCountryCity.aggregate(parsedEnrichedEvents)
     TenSecsAggregationByEntryDomain.aggregate(parsedEnrichedEvents)
-    TenSecsAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
-    TenSecsAggregationByPartner.aggregate(parsedEnrichedEvents)
+
+
+    // MinutelyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
+    // MinutelyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
+    // TenSecsAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
+    // MinutelyAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
+    // TenSecsAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
+
+    /**
+     * 9. MinutelyAggregationByEntryApplication,TenSecsAggregationByEntryApplication,TenSecsAggregationByApplication,MinutelyAggregationByApplication,MinutelyAggregationByApplicationPlaybackContext,MinutelyAggregationByEntryApplicationPlaybackContext,MinutelyAggregationByEntryPlaybackContext,MinutelyAggregationByPlaybackContext,MinutelyAggregationByCategory,HourlyAggregationByEntryCategory,HourlyAggregationByCategory
+     */
+    val parsedEnrichedEventsWithApplication = parsedEnrichedEvents.filter(event => event.application.nonEmpty)
+    MinutelyAggregationByEntryApplication.aggregate(parsedEnrichedEventsWithApplication)
+    TenSecsAggregationByEntryApplication.aggregate(parsedEnrichedEventsWithApplication)
+    TenSecsAggregationByApplication.aggregate(parsedEnrichedEventsWithApplication)
+    MinutelyAggregationByApplication.aggregate(parsedEnrichedEventsWithApplication)
+
+    val parsedEnrichedEventsWithPlaybackContext = parsedEnrichedEvents.filter(event => event.playbackContext.nonEmpty)
+    MinutelyAggregationByApplicationPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    MinutelyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    MinutelyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    MinutelyAggregationByPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+
+    val parsedEnrichedEventsWithCategory = parsedEnrichedEvents.filter(event => event.playbackContext.nonEmpty)
+    MinutelyAggregationByCategory.aggregate(parsedEnrichedEventsWithCategory)
+    HourlyAggregationByEntryCategory.aggregate(parsedEnrichedEvents)
+    HourlyAggregationByCategory.aggregate(parsedEnrichedEvents)
+
     ssc
   }
 
@@ -194,4 +257,10 @@ object EventsAggregation extends App with Logging {
     im.reflectMethod(method)(events)
   }
 
+}
+
+class CustomKryoRegistrator extends KryoRegistrator {
+  override def registerClasses(kryo: Kryo) {
+    kryo.register(classOf[org.joda.time.DateTime], new JodaDateTimeSerializer)
+  }
 }

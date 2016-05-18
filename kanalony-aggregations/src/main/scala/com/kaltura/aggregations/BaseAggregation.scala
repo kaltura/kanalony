@@ -2,11 +2,13 @@ package com.kaltura.aggregations
 
 import com.datastax.spark.connector._
 import com.kaltura.model.events.EnrichedPlayerEvent
+import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
+import com.datastax.spark.connector.streaming._
 
 
 
@@ -16,7 +18,7 @@ abstract class BaseAggregation[AggKey:ClassTag, AggRes:TypeTag :ClassTag] extend
   val keyspace = "kanalony_agg"
 
   def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]) : DStream[(AggKey,Long)] =
-    enrichedEvents.map(e => (aggKey(e),1L)).reduceByKey(_ + _)
+    enrichedEvents.map(e => (aggKey(e), 1L)).reduceByKey(_ + _) //.reduceByKey((x: Long, y: Long) => x + y, 2 * enrichedEvents.context.sparkContext.defaultParallelism)
 
   def aggKey(e: EnrichedPlayerEvent): AggKey
 
@@ -39,16 +41,16 @@ abstract class BaseAggregation[AggKey:ClassTag, AggRes:TypeTag :ClassTag] extend
   def save(aggregatedEvents: DStream[AggRes]) : Unit = {
     aggregatedEvents.cache()
     tableMetadata.foreach {
-      case (tableName, columns) => aggregatedEvents.foreachRDD({ rdd =>
-        rdd.saveToCassandra(keyspace, tableName, columns)
-      })
+      case (tableName, columns) => aggregatedEvents.saveToCassandra(keyspace, tableName, columns)
     }
   }
 
   def aggregate(enrichedEvents: DStream[EnrichedPlayerEvent]) : Unit = {
-    val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
-    val aggregatedEvents = aggregatedBatchEvents.mapWithState[Long,(AggKey, Long)](stateSpec)
-    save(prepareForSave(aggregatedEvents))
+    if (enrichedEvents.conf.get("spark.kanalony.events_aggregations.enabled_aggregations","").split(",").contains(this.getClass.getSimpleName.stripSuffix("$"))) {
+      val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
+      val aggregatedEvents = aggregatedBatchEvents.mapWithState[Long,(AggKey, Long)](stateSpec)
+      save(prepareForSave(aggregatedEvents))
+    }
   }
 
   def toSomeColumns( columnNames: List[(String, String)] ) : SomeColumns =

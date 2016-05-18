@@ -25,7 +25,7 @@ object DummyEnrichedEventsProducer extends App{
     var playerEvent4: EnrichedPlayerEvent = null
 
 
-    val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
+    val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enrichment.kafka_brokers","127.0.0.1:9092")
     val producer = StreamManager.createProducer(kafkaBrokers)
 
     var i = 0
