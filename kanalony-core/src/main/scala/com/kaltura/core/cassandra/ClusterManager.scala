@@ -8,7 +8,7 @@ import com.kaltura.core.utils.ConfigurationManager
  */
 object ClusterManager {
   private val cluster = Cluster.builder()
-            .addContactPoint(ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
+            .addContactPoint(ConfigurationManager.getOrElse("kanalony.events_enrichment.cassandra_host","127.0.0.1"))
             .build()
 
   private val session = cluster.connect()
