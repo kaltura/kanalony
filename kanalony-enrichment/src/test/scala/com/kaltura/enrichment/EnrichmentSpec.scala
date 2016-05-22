@@ -31,7 +31,7 @@ class EnrichmentSpec extends SparkFunSuite
   val sparkConf = new SparkConf()
     .setMaster("local[24]")
     .setAppName(this.getClass.getSimpleName)
-    .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
+    .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enrichment.cassandra_host","127.0.0.1"))
     .set("spark.cassandra.connection.keep_alive_ms","30000")
 
   private var sc: SparkContext = _
@@ -66,7 +66,7 @@ class EnrichmentSpec extends SparkFunSuite
   }
 
   test("RawPlayerEvents enrichment and re-produce them back to kafka") {
-    val eventsFileName = ConfigurationManager.getOrElse("kanalony.events_enhancer.events_file",s"kanalony-enrichment/src/test/resources/events.txt")
+    val eventsFileName = ConfigurationManager.getOrElse("kanalony.events_enrichment.events_file",s"kanalony-enrichment/src/test/resources/events.txt")
     val events = Source.fromFile(eventsFileName).getLines.toList
 
     val expectedEvents = Source.fromFile(s"kanalony-enrichment/src/test/resources/enrichedEvents.txt").getLines()

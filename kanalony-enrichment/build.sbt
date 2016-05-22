@@ -1,4 +1,4 @@
-lazy val sparkVersion = "1.6.0"
+lazy val sparkVersion = "1.6.1"
 lazy val json4sVersion = "3.2.10"
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-core` = RootProject(file("../kanalony-core"))

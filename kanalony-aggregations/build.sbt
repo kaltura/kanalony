@@ -19,6 +19,7 @@ lazy val `kanalony-aggregations` = (project in file(".")).
       "joda-time"               % "joda-time"                   % "2.8.2",
       "org.apache.hadoop"       % "hadoop-aws"                  % "2.7.1",
       "com.amazonaws"           % "aws-java-sdk"                % "1.7.4",
+      "de.javakaffee"           % "kryo-serializers"            % "0.37",
 // Test
       "org.scalatest"           %% "scalatest"                  % "2.2.4"    % "test"
     )

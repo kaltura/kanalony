@@ -22,7 +22,7 @@ object EventsEnrichment extends App with Logging {
   override def main(args: Array[String]) {
 
     setStreamingLogLevels
-    val applicationName = ConfigurationManager.get("kanalony.events_enhancer.application_name")
+    val applicationName = ConfigurationManager.get("kanalony.events_enrichment.application_name")
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
     val checkpointDirectory = s"$checkpointRootPath/$applicationName"
     // Get StreamingContext from checkpoint data or create a new one
@@ -39,16 +39,16 @@ object EventsEnrichment extends App with Logging {
 
   def createSparkStreamingContext(checkpointDirectory: String): StreamingContext = {
     val sparkConf = new SparkConf()
-      .setAppName(ConfigurationManager.get("kanalony.events_enhancer.application_name"))
-      .setMaster(ConfigurationManager.getOrElse("kanalony.events_enhancer.master","local[8]"))
-      .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enhancer.cassandra_host","127.0.0.1"))
+      .setAppName(ConfigurationManager.get("kanalony.events_enrichment.application_name"))
+      .setMaster(ConfigurationManager.getOrElse("kanalony.events_enrichment.master","local[8]"))
+      .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_enrichment.cassandra_host","127.0.0.1"))
       .set("spark.cassandra.connection.keep_alive_ms","30000")
-      .set("spark.streaming.backpressure.enabled", ConfigurationManager.getOrElse("kanalony.events_enhancer.backpressure","false"))
+      .set("spark.streaming.backpressure.enabled", ConfigurationManager.getOrElse("kanalony.events_enrichment.backpressure","false"))
     val sparkContext = new SparkContext(sparkConf)
-    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enhancer.batch_duration","5").toInt))
+    val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_enrichment.batch_duration","5").toInt))
     ssc.checkpoint(checkpointDirectory)
 
-    val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
+    val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enrichment.kafka_brokers","127.0.0.1:9092")
     val topics = Set("player-events")
     val keySpace = "kanalony_mng"
     val tableName = "hourly_partitions"
@@ -90,7 +90,7 @@ object EventsEnrichment extends App with Logging {
   def enrichEvents(playerEvents:RDD[RawPlayerEvent], enrichedEventsTopic: String, erroneousEventsTopic: String):Unit = {
     playerEvents
       .foreachPartition( eventsPart => {
-        val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enhancer.kafka_brokers","127.0.0.1:9092")
+        val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enrichment.kafka_brokers","127.0.0.1:9092")
         val producer = StreamManager.createProducer(kafkaBrokers)
         val locationResolver = new LocationResolver
         val enrichByEntry = new EnrichByEntry
