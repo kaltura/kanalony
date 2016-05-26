@@ -71,4 +71,8 @@ object ConfigurationManager extends Serializable with MetaLog[BaseLog]{
   def getOrElse(configKey: String, defaultValue: String): String = {
     Try(configData(configKey)).getOrElse(defaultValue)
   }
+
+  def set(configKey: String, configValue: String): Unit = {
+    configData(configKey) = configValue
+  }
 }

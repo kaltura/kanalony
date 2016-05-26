@@ -27,9 +27,12 @@ object EventsAggregation extends App with Logging {
   override def main(args: Array[String]) {
 
     setStreamingLogLevels
-    val applicationName = ConfigurationManager.get("kanalony.events_aggregations.application_name")
+    val (enabledAggregations, applicationSuffix) = if (args.isEmpty) ("","") else (args(0),args(1))
+    val applicationName = ConfigurationManager.get("kanalony.events_aggregations.application_name") + applicationSuffix
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
     val checkpointDirectory = s"$checkpointRootPath/$applicationName"
+
+    ConfigurationManager.set("kanalony.events_aggregations.enabled_aggregations",enabledAggregations)
     // Get StreamingContext from checkpoint data or create a new one
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
@@ -46,13 +49,11 @@ object EventsAggregation extends App with Logging {
   def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String)] = List()): StreamingContext = {
 
     val sparkConf = new SparkConf()
-      .setAppName(ConfigurationManager.get("kanalony.events_aggregations.application_name"))
       .setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]"))
       .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
       .set("spark.cassandra.connection.keep_alive_ms","30000")
       .set("spark.streaming.concurrentJobs",ConfigurationManager.getOrElse("kanalony.events_aggregations.concurrentJobs", "10"))
       .set("spark.scheduler.mode", "FAIR")
-      //.set("spark.kanalony.events_aggregations.enabled_aggregations","HourlyAggregationByApplication,HourlyAggregationByApplicationPlaybackContext")
     val defaultParallelism = ConfigurationManager.getOrElse("kanalony.events_aggregations.default_parallelism", null)
     if (defaultParallelism != null)
       sparkConf.set("spark.default.parallelism", defaultParallelism)
