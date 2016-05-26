@@ -1,6 +1,7 @@
 package com.kaltura.aggregations
 
 import com.datastax.spark.connector._
+import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming._
@@ -46,7 +47,7 @@ abstract class BaseAggregation[AggKey:ClassTag, AggRes:TypeTag :ClassTag] extend
   }
 
   def aggregate(enrichedEvents: DStream[EnrichedPlayerEvent]) : Unit = {
-    if (enrichedEvents.conf.get("spark.kanalony.events_aggregations.enabled_aggregations","").split(",").contains(this.getClass.getSimpleName.stripSuffix("$"))) {
+    if (ConfigurationManager.get("kanalony.events_aggregations.enabled_aggregations").split(",").contains(this.getClass.getSimpleName.stripSuffix("$"))) {
       val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
       val aggregatedEvents = aggregatedBatchEvents.mapWithState[Long,(AggKey, Long)](stateSpec)
       save(prepareForSave(aggregatedEvents))

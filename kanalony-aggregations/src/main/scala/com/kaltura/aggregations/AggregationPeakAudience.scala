@@ -3,6 +3,7 @@ package com.kaltura.aggregations
 
 import com.datastax.spark.connector.{SomeColumns, _}
 import com.kaltura.aggregations.keys.AggregationKey
+import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.entities.{PlayerEventTypes, Metrics}
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.apache.spark.streaming.dstream.DStream
@@ -34,7 +35,7 @@ abstract class AggregationPeakAudience extends BaseAggregation[AggregationKey, P
   }
 
   override def aggregate(enrichedEvents: DStream[EnrichedPlayerEvent]) : Unit = {
-    if (enrichedEvents.context.sparkContext.getConf.get("spark.kanalony.events_aggregations.enabled_aggregations","").split(",").contains(this.getClass.getSimpleName.stripSuffix("$"))) {
+    if (ConfigurationManager.get("kanalony.events_aggregations.enabled_aggregations").split(",").contains(this.getClass.getSimpleName.stripSuffix("$"))) {
       val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
       val aggregatedEvents = aggregatedBatchEvents.mapWithState(stateSpec)
 
