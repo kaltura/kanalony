@@ -1,1 +1,1 @@
-CREATE KEYSPACE IF NOT EXISTS kanalony_agg WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}  AND durable_writes = true;
+CREATE KEYSPACE IF NOT EXISTS kanalony_agg WITH replication = {'class': 'NetworkTopologyStrategy', 'us-west-2':'2'}  AND durable_writes = true;

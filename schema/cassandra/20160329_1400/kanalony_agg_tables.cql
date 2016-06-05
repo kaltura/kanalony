@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_clst_cv2 (
     PRIMARY KEY ((partner_id,custom_var1,metric,day), minute,custom_var2)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_app (
     partner_id int,
@@ -21,7 +22,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_app (
     PRIMARY KEY ((partner_id,metric,day), tensecs,application)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_city (
     partner_id int,
@@ -34,7 +36,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_city (
     PRIMARY KEY ((partner_id,country,city,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_country_city (
     partner_id int,
@@ -47,7 +50,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_country_city (
     PRIMARY KEY ((partner_id,metric,day), minute,country,city)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry (
     partner_id int,
@@ -59,7 +63,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry (
     PRIMARY KEY ((partner_id,entry_id,month,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country_os_clst_browser (
     partner_id int,
@@ -73,7 +78,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country_os_clst_browser
     PRIMARY KEY ((partner_id,country,operating_system,metric,day), tensecs,browser)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_domain_clst_referrer (
     partner_id int,
@@ -86,7 +92,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_domain_clst_referrer (
     PRIMARY KEY ((partner_id,domain,metric,year), hour,referrer)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_domain (
     partner_id int,
@@ -98,7 +105,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_domain (
     PRIMARY KEY ((partner_id,domain,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_os (
     partner_id int,
@@ -110,7 +118,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_os (
     PRIMARY KEY ((partner_id,operating_system,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app_clst_playbackcontext (
     partner_id int,
@@ -123,7 +132,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app_clst_playbackconte
     PRIMARY KEY ((partner_id,application,metric,day), minute,playback_context)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app_clst_playbackcontext (
     partner_id int,
@@ -136,7 +146,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app_clst_playbackcontext
     PRIMARY KEY ((partner_id,application,metric,year), hour,playback_context)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country_clst_os_browser (
     partner_id int,
@@ -150,7 +161,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country_clst_os_browser
     PRIMARY KEY ((partner_id,country,metric,day), tensecs,operating_system,browser)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2 (
     partner_id int,
@@ -163,7 +175,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2 (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country (
     partner_id int,
@@ -175,7 +188,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country (
     PRIMARY KEY ((partner_id,country,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app (
     partner_id int,
@@ -187,7 +201,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app (
     PRIMARY KEY ((partner_id,application,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device_clst_os (
     partner_id int,
@@ -200,7 +215,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device_clst_os (
     PRIMARY KEY ((partner_id,device,metric,day), minute,operating_system)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device_clst_os (
     partner_id int,
@@ -213,7 +229,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device_clst_os (
     PRIMARY KEY ((partner_id,device,metric,year), hour,operating_system)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_playbackcontext (
     partner_id int,
@@ -225,7 +242,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_playbackcontext (
     PRIMARY KEY ((partner_id,playback_context,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_os (
     partner_id int,
@@ -238,7 +256,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_os (
     PRIMARY KEY ((partner_id,country,metric,day), minute,operating_system)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_clst_cv2 (
     partner_id int,
@@ -251,7 +270,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_clst_cv2 (
     PRIMARY KEY ((partner_id,custom_var1,year,metric), hour,custom_var2)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_country (
     partner_id int,
@@ -263,7 +283,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_country (
     PRIMARY KEY ((partner_id,metric,year), hour,country)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_browser (
     partner_id int,
@@ -276,7 +297,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_browser (
     PRIMARY KEY ((partner_id,country,year,metric), hour,browser)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_entry (
     partner_id int,
@@ -288,7 +310,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_entry (
     PRIMARY KEY ((partner_id,day,metric), tensecs,entry_id)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_os_clst_browser (
     partner_id int,
@@ -302,7 +325,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_os_clst_browser 
     PRIMARY KEY ((partner_id,country,operating_system,metric,year), hour,browser)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1 (
     partner_id int,
@@ -314,7 +338,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1 (
     PRIMARY KEY ((partner_id,custom_var1,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv3 (
     partner_id int,
@@ -326,7 +351,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv3 (
     PRIMARY KEY ((partner_id,custom_var3,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv2 (
     partner_id int,
@@ -338,7 +364,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv2 (
     PRIMARY KEY ((partner_id,custom_var2,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_cv1 (
     partner_id int,
@@ -350,7 +377,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_cv1 (
     PRIMARY KEY ((partner_id,year,metric), hour,custom_var1)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_cv3 (
     partner_id int,
@@ -362,7 +390,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_cv3 (
     PRIMARY KEY ((partner_id,year,metric), hour,custom_var3)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_cv2 (
     partner_id int,
@@ -374,7 +403,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_cv2 (
     PRIMARY KEY ((partner_id,year,metric), hour,custom_var2)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_city (
     partner_id int,
@@ -387,7 +417,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_city (
     PRIMARY KEY ((partner_id,country,metric,day), minute,city)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_referrer (
     partner_id int,
@@ -399,7 +430,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_referrer (
     PRIMARY KEY ((partner_id,referrer,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os (
     partner_id int,
@@ -411,7 +443,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os (
     PRIMARY KEY ((partner_id,operating_system,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_device (
     partner_id int,
@@ -423,7 +456,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_device (
     PRIMARY KEY ((partner_id,metric,year), hour,device)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_referrer (
     partner_id int,
@@ -435,7 +469,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_referrer (
     PRIMARY KEY ((partner_id,metric,year), hour,referrer)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_domain (
     partner_id int,
@@ -447,7 +482,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_domain (
     PRIMARY KEY ((partner_id,metric,day), minute,domain)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os_clst_browser (
     partner_id int,
@@ -460,7 +496,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os_clst_browser (
     PRIMARY KEY ((partner_id,operating_system,metric,day), minute,browser)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_referrer (
     partner_id int,
@@ -472,7 +509,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_referrer (
     PRIMARY KEY ((partner_id,referrer,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_playbackcontext (
     partner_id int,
@@ -484,7 +522,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_playbackcontext (
     PRIMARY KEY ((partner_id,playback_context,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2_clst_cv3 (
     partner_id int,
@@ -498,7 +537,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2_clst_cv3 (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,metric,day), minute,custom_var3)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_os_browser (
     partner_id int,
@@ -512,7 +552,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_os_browse
     PRIMARY KEY ((partner_id,country,metric,day), minute,operating_system,browser)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device_os (
     partner_id int,
@@ -525,7 +566,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device_os (
     PRIMARY KEY ((partner_id,device,operating_system,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1 (
     partner_id int,
@@ -537,7 +579,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1 (
     PRIMARY KEY ((partner_id,custom_var1,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_device (
     partner_id int,
@@ -549,7 +592,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_device (
     PRIMARY KEY ((partner_id,metric,day), minute,device)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv3 (
     partner_id int,
@@ -561,7 +605,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv3 (
     PRIMARY KEY ((partner_id,custom_var3,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv2 (
     partner_id int,
@@ -573,7 +618,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv2 (
     PRIMARY KEY ((partner_id,custom_var2,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os_browser (
     partner_id int,
@@ -586,7 +632,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os_browser (
     PRIMARY KEY ((partner_id,operating_system,browser,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_os (
     partner_id int,
@@ -599,7 +646,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_os (
     PRIMARY KEY ((partner_id,country,year,metric), hour,operating_system)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_browser (
     partner_id int,
@@ -611,7 +659,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_browser (
     PRIMARY KEY ((partner_id,metric,day), minute,browser)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2_cv3 (
     partner_id int,
@@ -625,7 +674,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2_cv3 (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,custom_var3,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_entry (
     partner_id int,
@@ -637,7 +687,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_entry (
     PRIMARY KEY ((partner_id,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_os_browser (
     partner_id int,
@@ -651,7 +702,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_os_browser (
     PRIMARY KEY ((partner_id,country,operating_system,browser,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_country (
     partner_id int,
@@ -663,7 +715,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_country (
     PRIMARY KEY ((partner_id,metric,day), minute,country)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device_os (
     partner_id int,
@@ -676,7 +729,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device_os (
     PRIMARY KEY ((partner_id,device,operating_system,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2 (
     partner_id int,
@@ -689,7 +743,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2 (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_os (
     partner_id int,
@@ -701,7 +756,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_os (
     PRIMARY KEY ((partner_id,metric,day), tensecs,operating_system)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_browser (
     partner_id int,
@@ -713,7 +769,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_browser (
     PRIMARY KEY ((partner_id,metric,year), hour,browser)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_domain (
     partner_id int,
@@ -725,7 +782,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_domain (
     PRIMARY KEY ((partner_id,metric,year), hour,domain)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_referrer (
     partner_id int,
@@ -737,7 +795,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_referrer (
     PRIMARY KEY ((partner_id,metric,day), tensecs,referrer)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_app (
     partner_id int,
@@ -749,7 +808,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_app (
     PRIMARY KEY ((partner_id,metric,year), hour,application)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country (
     partner_id int,
@@ -761,7 +821,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country (
     PRIMARY KEY ((partner_id,country,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2_cv3 (
     partner_id int,
@@ -775,7 +836,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2_cv3 (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,custom_var3,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os_clst_browser (
     partner_id int,
@@ -788,7 +850,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os_clst_browser (
     PRIMARY KEY ((partner_id,operating_system,metric,year), hour,browser)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country_city (
     partner_id int,
@@ -801,7 +864,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country_city (
     PRIMARY KEY ((partner_id,country,city,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2_clst_cv3 (
     partner_id int,
@@ -815,7 +879,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2_clst_cv3 (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,year,metric), hour,custom_var3)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device (
     partner_id int,
@@ -827,7 +892,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device (
     PRIMARY KEY ((partner_id,device,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_os (
     partner_id int,
@@ -839,7 +905,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_os (
     PRIMARY KEY ((partner_id,metric,year), hour,operating_system)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_entry (
     partner_id int,
@@ -851,7 +918,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_entry (
     PRIMARY KEY ((partner_id,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_browser (
     partner_id int,
@@ -864,7 +932,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_browser (
     PRIMARY KEY ((partner_id,country,metric,day), minute,browser)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country_clst_city (
     partner_id int,
@@ -877,7 +946,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country_clst_city (
     PRIMARY KEY ((partner_id,country,metric,day), tensecs,city)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_app (
     partner_id int,
@@ -889,7 +959,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_app (
     PRIMARY KEY ((partner_id,metric,day), minute,application)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_country_city (
     partner_id int,
@@ -902,7 +973,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_country_city (
     PRIMARY KEY ((partner_id,metric,day), tensecs,country,city)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app_playbackcontext (
     partner_id int,
@@ -915,7 +987,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app_playbackcontext (
     PRIMARY KEY ((partner_id,application,playback_context,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry (
     partner_id int,
@@ -927,7 +1000,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry (
     PRIMARY KEY ((partner_id,entry_id,day,metric), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os_browser (
     partner_id int,
@@ -940,7 +1014,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os_browser (
     PRIMARY KEY ((partner_id,operating_system,browser,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_domain_clst_referrer (
     partner_id int,
@@ -953,7 +1028,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_domain_clst_referrer (
     PRIMARY KEY ((partner_id,domain,metric,day), tensecs,referrer)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_os (
     partner_id int,
@@ -965,7 +1041,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_os (
     PRIMARY KEY ((partner_id,metric,day), minute,operating_system)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_domain_clst_referrer (
     partner_id int,
@@ -978,7 +1055,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_domain_clst_referrer (
     PRIMARY KEY ((partner_id,domain,metric,day), minute,referrer)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_referrer (
     partner_id int,
@@ -990,7 +1068,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_referrer (
     PRIMARY KEY ((partner_id,metric,day), minute,referrer)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_playbackcontext (
     partner_id int,
@@ -1002,7 +1081,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_playbackcontext (
     PRIMARY KEY ((partner_id,metric,year), hour,playback_context)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_domain (
     partner_id int,
@@ -1014,7 +1094,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_domain (
     PRIMARY KEY ((partner_id,metric,day), tensecs,domain)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app_playbackcontext (
     partner_id int,
@@ -1027,7 +1108,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app_playbackcontext (
     PRIMARY KEY ((partner_id,application,playback_context,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_playbackcontext (
     partner_id int,
@@ -1039,7 +1121,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_playbackcontext (
     PRIMARY KEY ((partner_id,metric,day), minute,playback_context)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_os_browser (
     partner_id int,
@@ -1053,7 +1136,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_os_browser 
     PRIMARY KEY ((partner_id,country,metric,year), hour,operating_system,browser)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_app (
     partner_id int,
@@ -1065,7 +1149,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_app (
     PRIMARY KEY ((partner_id,application,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device (
     partner_id int,
@@ -1077,7 +1162,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device (
     PRIMARY KEY ((partner_id,device,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry (
     partner_id int,
@@ -1089,7 +1175,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry (
     PRIMARY KEY ((partner_id,entry_id,day,metric), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_os_clst_browser (
     partner_id int,
@@ -1103,7 +1190,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_os_clst_browse
     PRIMARY KEY ((partner_id,country,operating_system,metric,day), minute,browser)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_country (
     partner_id int,
@@ -1115,7 +1203,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_country (
     PRIMARY KEY ((partner_id,metric,day), tensecs,country)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_referrer (
     partner_id int,
@@ -1127,7 +1216,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_referrer (
     PRIMARY KEY ((partner_id,referrer,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg (
     partner_id int,
@@ -1138,7 +1228,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg (
     PRIMARY KEY ((partner_id,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_domain (
     partner_id int,
@@ -1150,7 +1241,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_domain (
     PRIMARY KEY ((partner_id,domain,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_browser (
     partner_id int,
@@ -1162,7 +1254,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_browser (
     PRIMARY KEY ((partner_id,browser,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_cv1 (
     partner_id int,
@@ -1174,7 +1267,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_cv1 (
     PRIMARY KEY ((partner_id,metric,day), minute,custom_var1)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_cv3 (
     partner_id int,
@@ -1186,7 +1280,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_cv3 (
     PRIMARY KEY ((partner_id,metric,day), minute,custom_var3)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_cv2 (
     partner_id int,
@@ -1198,7 +1293,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_cv2 (
     PRIMARY KEY ((partner_id,metric,day), minute,custom_var2)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_city (
     partner_id int,
@@ -1211,7 +1307,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_city (
     PRIMARY KEY ((partner_id,country,city,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os (
     partner_id int,
@@ -1223,7 +1320,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os (
     PRIMARY KEY ((partner_id,operating_system,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_country_city (
     partner_id int,
@@ -1236,7 +1334,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_country_city (
     PRIMARY KEY ((partner_id,metric,year), hour,country,city)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_domain (
     partner_id int,
@@ -1248,7 +1347,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_domain (
     PRIMARY KEY ((partner_id,domain,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_city (
     partner_id int,
@@ -1261,7 +1361,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_city (
     PRIMARY KEY ((partner_id,country,metric,year), hour,city)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_browser (
     partner_id int,
@@ -1273,7 +1374,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_browser (
     PRIMARY KEY ((partner_id,browser,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country (
     partner_id int,
@@ -1285,7 +1387,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_country (
     PRIMARY KEY ((partner_id,country,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app (
     partner_id int,
@@ -1297,7 +1400,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app (
     PRIMARY KEY ((partner_id,application,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg (
     partner_id int,
@@ -1308,7 +1412,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg (
     PRIMARY KEY ((partner_id,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1_clst_cv2 (
     partner_id int,
@@ -1322,7 +1427,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1_clst_cv2 (
     PRIMARY KEY ((partner_id,entry_id,custom_var1,metric,day), minute,custom_var2)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_app (
     partner_id int,
@@ -1335,7 +1441,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_app (
     PRIMARY KEY ((partner_id,entry_id,metric,day), tensecs,application)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_country_city (
     partner_id int,
@@ -1349,7 +1456,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_country_city (
     PRIMARY KEY ((partner_id,entry_id,country,city,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_country_city (
     partner_id int,
@@ -1363,7 +1471,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_country_cit
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,country,city)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_domain_clst_referrer (
     partner_id int,
@@ -1377,7 +1486,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_domain_clst_referr
     PRIMARY KEY ((partner_id,entry_id,domain,metric,year), hour,referrer)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_domain (
     partner_id int,
@@ -1390,7 +1500,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_domain (
     PRIMARY KEY ((partner_id,entry_id,domain,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_os (
     partner_id int,
@@ -1403,7 +1514,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_os (
     PRIMARY KEY ((partner_id,entry_id,operating_system,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_app_clst_playbackcontext (
     partner_id int,
@@ -1417,7 +1529,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_app_clst_playbac
     PRIMARY KEY ((partner_id,entry_id,application,metric,day), minute,playback_context)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_app_clst_playbackcontext (
     partner_id int,
@@ -1431,7 +1544,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_app_clst_playbackc
     PRIMARY KEY ((partner_id,entry_id,application,metric,year), hour,playback_context)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_country_clst_os_browser (
     partner_id int,
@@ -1446,7 +1560,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_country_clst_os_b
     PRIMARY KEY ((partner_id,entry_id,country,metric,day), tensecs,operating_system,browser)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1_cv2 (
     partner_id int,
@@ -1460,7 +1575,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1_cv2 (
     PRIMARY KEY ((partner_id,entry_id,custom_var1,custom_var2,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_country (
     partner_id int,
@@ -1473,7 +1589,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_country (
     PRIMARY KEY ((partner_id,entry_id,country,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_app (
     partner_id int,
@@ -1486,7 +1603,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_app (
     PRIMARY KEY ((partner_id,entry_id,application,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_device_clst_os (
     partner_id int,
@@ -1500,7 +1618,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_device_clst_os (
     PRIMARY KEY ((partner_id,entry_id,device,metric,day), minute,operating_system)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_device_clst_os (
     partner_id int,
@@ -1514,7 +1633,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_device_clst_os (
     PRIMARY KEY ((partner_id,entry_id,device,metric,year), hour,operating_system)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_playbackcontext (
     partner_id int,
@@ -1527,7 +1647,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_playbackcontext 
     PRIMARY KEY ((partner_id,entry_id,playback_context,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country_clst_os (
     partner_id int,
@@ -1541,7 +1662,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country_clst_os 
     PRIMARY KEY ((partner_id,entry_id,country,metric,day), minute,operating_system)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1_clst_cv2 (
     partner_id int,
@@ -1555,7 +1677,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1_clst_cv2 (
     PRIMARY KEY ((partner_id,entry_id,custom_var1,year,metric), hour,custom_var2)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_country (
     partner_id int,
@@ -1568,7 +1691,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_country (
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,country)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1 (
     partner_id int,
@@ -1581,7 +1705,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1 (
     PRIMARY KEY ((partner_id,entry_id,custom_var1,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv3 (
     partner_id int,
@@ -1594,7 +1719,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv3 (
     PRIMARY KEY ((partner_id,entry_id,custom_var3,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv2 (
     partner_id int,
@@ -1607,7 +1733,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv2 (
     PRIMARY KEY ((partner_id,entry_id,custom_var2,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_cv1 (
     partner_id int,
@@ -1620,7 +1747,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_cv1 (
     PRIMARY KEY ((partner_id,entry_id,year,metric), hour,custom_var1)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_cv3 (
     partner_id int,
@@ -1633,7 +1761,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_cv3 (
     PRIMARY KEY ((partner_id,entry_id,year,metric), hour,custom_var3)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_cv2 (
     partner_id int,
@@ -1646,7 +1775,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_cv2 (
     PRIMARY KEY ((partner_id,entry_id,year,metric), hour,custom_var2)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country_clst_city (
     partner_id int,
@@ -1660,7 +1790,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country_clst_cit
     PRIMARY KEY ((partner_id,entry_id,country,metric,day), minute,city)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_referrer (
     partner_id int,
@@ -1673,7 +1804,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_referrer (
     PRIMARY KEY ((partner_id,entry_id,referrer,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_os (
     partner_id int,
@@ -1686,7 +1818,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_os (
     PRIMARY KEY ((partner_id,entry_id,operating_system,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_device (
     partner_id int,
@@ -1699,7 +1832,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_device (
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,device)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_referrer (
     partner_id int,
@@ -1712,7 +1846,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_referrer (
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,referrer)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_domain (
     partner_id int,
@@ -1725,7 +1860,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_domain (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,domain)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_os_clst_browser (
     partner_id int,
@@ -1739,7 +1875,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_os_clst_browser 
     PRIMARY KEY ((partner_id,entry_id,operating_system,metric,day), minute,browser)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_referrer (
     partner_id int,
@@ -1752,7 +1889,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_referrer (
     PRIMARY KEY ((partner_id,entry_id,referrer,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_playbackcontext (
     partner_id int,
@@ -1765,7 +1903,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_playbackcontext (
     PRIMARY KEY ((partner_id,entry_id,playback_context,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1_cv2_clst_cv3 (
     partner_id int,
@@ -1780,7 +1919,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1_cv2_clst_cv3
     PRIMARY KEY ((partner_id,entry_id,custom_var1,custom_var2,metric,day), minute,custom_var3)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_device_os (
     partner_id int,
@@ -1794,7 +1934,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_device_os (
     PRIMARY KEY ((partner_id,entry_id,device,operating_system,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1 (
     partner_id int,
@@ -1807,7 +1948,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1 (
     PRIMARY KEY ((partner_id,entry_id,custom_var1,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_device (
     partner_id int,
@@ -1820,7 +1962,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_device (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,device)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv3 (
     partner_id int,
@@ -1833,7 +1976,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv3 (
     PRIMARY KEY ((partner_id,entry_id,custom_var3,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv2 (
     partner_id int,
@@ -1846,7 +1990,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv2 (
     PRIMARY KEY ((partner_id,entry_id,custom_var2,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_os_browser (
     partner_id int,
@@ -1860,7 +2005,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_os_browser (
     PRIMARY KEY ((partner_id,entry_id,operating_system,browser,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_country_clst_os (
     partner_id int,
@@ -1874,7 +2020,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_country_clst_os (
     PRIMARY KEY ((partner_id,entry_id,country,year,metric), hour,operating_system)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_browser (
     partner_id int,
@@ -1887,7 +2034,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_browser (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,browser)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1_cv2_cv3 (
     partner_id int,
@@ -1902,7 +2050,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1_cv2_cv3 (
     PRIMARY KEY ((partner_id,entry_id,custom_var1,custom_var2,custom_var3,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_country (
     partner_id int,
@@ -1915,7 +2064,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_country (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,country)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_device_os (
     partner_id int,
@@ -1929,7 +2079,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_device_os (
     PRIMARY KEY ((partner_id,entry_id,device,operating_system,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1_cv2 (
     partner_id int,
@@ -1943,7 +2094,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_cv1_cv2 (
     PRIMARY KEY ((partner_id,entry_id,custom_var1,custom_var2,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_os (
     partner_id int,
@@ -1956,7 +2108,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_os (
     PRIMARY KEY ((partner_id,entry_id,metric,day), tensecs,operating_system)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_browser (
     partner_id int,
@@ -1969,7 +2122,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_browser (
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,browser)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_domain (
     partner_id int,
@@ -1982,7 +2136,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_domain (
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,domain)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_referrer (
     partner_id int,
@@ -1995,7 +2150,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_referrer (
     PRIMARY KEY ((partner_id,entry_id,metric,day), tensecs,referrer)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_app (
     partner_id int,
@@ -2008,7 +2164,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_app (
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,application)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country (
     partner_id int,
@@ -2021,7 +2178,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country (
     PRIMARY KEY ((partner_id,entry_id,country,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1_cv2_cv3 (
     partner_id int,
@@ -2036,7 +2194,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1_cv2_cv3 (
     PRIMARY KEY ((partner_id,custom_var1,entry_id,custom_var2,custom_var3,year,metric), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_os_clst_browser (
     partner_id int,
@@ -2050,7 +2209,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_os_clst_browser (
     PRIMARY KEY ((partner_id,entry_id,operating_system,metric,year), hour,browser)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_country_city (
     partner_id int,
@@ -2064,7 +2224,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_country_city (
     PRIMARY KEY ((partner_id,entry_id,country,city,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1_cv2_clst_cv3 (
     partner_id int,
@@ -2079,7 +2240,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_cv1_cv2_clst_cv3 (
     PRIMARY KEY ((partner_id,entry_id,custom_var1,custom_var2,year,metric), hour,custom_var3)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_device (
     partner_id int,
@@ -2092,7 +2254,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_device (
     PRIMARY KEY ((partner_id,entry_id,device,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_os (
     partner_id int,
@@ -2105,7 +2268,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_os (
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,operating_system)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country_clst_browser (
     partner_id int,
@@ -2119,7 +2283,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country_clst_bro
     PRIMARY KEY ((partner_id,entry_id,country,metric,day), minute,browser)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_country_clst_city (
     partner_id int,
@@ -2133,7 +2298,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_country_clst_city
     PRIMARY KEY ((partner_id,entry_id,country,metric,day), tensecs,city)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_app (
     partner_id int,
@@ -2146,7 +2312,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_app (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,application)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_country_city (
     partner_id int,
@@ -2160,7 +2327,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_country_city
     PRIMARY KEY ((partner_id,entry_id,metric,day), tensecs,country,city)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_app_playbackcontext (
     partner_id int,
@@ -2174,7 +2342,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_app_playbackcont
     PRIMARY KEY ((partner_id,entry_id,application,playback_context,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_os_browser (
     partner_id int,
@@ -2188,7 +2357,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_os_browser (
     PRIMARY KEY ((partner_id,entry_id,operating_system,browser,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_domain_clst_referrer (
     partner_id int,
@@ -2202,7 +2372,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_domain_clst_refer
     PRIMARY KEY ((partner_id,entry_id,domain,metric,day), tensecs,referrer)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_os (
     partner_id int,
@@ -2215,7 +2386,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_os (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,operating_system)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_domain_clst_referrer (
     partner_id int,
@@ -2229,7 +2401,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_domain_clst_refe
     PRIMARY KEY ((partner_id,entry_id,domain,metric,day), minute,referrer)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_referrer (
     partner_id int,
@@ -2242,7 +2415,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_referrer (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,referrer)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_playbackcontext (
     partner_id int,
@@ -2255,7 +2429,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_playbackconte
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,playback_context)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_domain (
     partner_id int,
@@ -2268,7 +2443,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_domain (
     PRIMARY KEY ((partner_id,entry_id,metric,day), tensecs,domain)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_app_playbackcontext (
     partner_id int,
@@ -2282,7 +2458,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_app_playbackcontex
     PRIMARY KEY ((partner_id,entry_id,application,playback_context,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_playbackcontext (
     partner_id int,
@@ -2295,7 +2472,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_playbackcon
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,playback_context)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_app (
     partner_id int,
@@ -2308,7 +2486,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_app (
     PRIMARY KEY ((partner_id,entry_id,application,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_device (
     partner_id int,
@@ -2321,7 +2500,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_device (
     PRIMARY KEY ((partner_id,entry_id,device,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_country (
     partner_id int,
@@ -2334,7 +2514,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_clst_country (
     PRIMARY KEY ((partner_id,entry_id,metric,day), tensecs,country)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_referrer (
     partner_id int,
@@ -2347,7 +2528,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_referrer (
     PRIMARY KEY ((partner_id,entry_id,referrer,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_domain (
     partner_id int,
@@ -2360,7 +2542,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_domain (
     PRIMARY KEY ((partner_id,entry_id,domain,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_browser (
     partner_id int,
@@ -2373,7 +2556,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_browser (
     PRIMARY KEY ((partner_id,entry_id,browser,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_cv1 (
     partner_id int,
@@ -2386,7 +2570,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_cv1 (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,custom_var1)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_cv3 (
     partner_id int,
@@ -2399,7 +2584,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_cv3 (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,custom_var3)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_cv2 (
     partner_id int,
@@ -2412,7 +2598,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_clst_cv2 (
     PRIMARY KEY ((partner_id,entry_id,metric,day), minute,custom_var2)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country_city (
     partner_id int,
@@ -2426,7 +2613,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_entry_country_city (
     PRIMARY KEY ((partner_id,entry_id,country,city,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_os (
     partner_id int,
@@ -2439,7 +2627,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_os (
     PRIMARY KEY ((partner_id,entry_id,operating_system,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_country_city (
     partner_id int,
@@ -2453,7 +2642,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_clst_country_city 
     PRIMARY KEY ((partner_id,entry_id,metric,year), hour,country,city)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_domain (
     partner_id int,
@@ -2466,7 +2656,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_domain (
     PRIMARY KEY ((partner_id,entry_id,domain,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_country_clst_city (
     partner_id int,
@@ -2480,7 +2671,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_country_clst_city 
     PRIMARY KEY ((partner_id,entry_id,country,metric,year), hour,city)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_browser (
     partner_id int,
@@ -2493,7 +2685,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_browser (
     PRIMARY KEY ((partner_id,entry_id,browser,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_country (
     partner_id int,
@@ -2506,7 +2699,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_entry_country (
     PRIMARY KEY ((partner_id,entry_id,country,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_app (
     partner_id int,
@@ -2519,7 +2713,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_entry_app (
     PRIMARY KEY ((partner_id,entry_id,application,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_category (
     partner_id int,
@@ -2531,7 +2726,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_category (
     PRIMARY KEY ((partner_id,category,metric,year), hour)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_category (
     partner_id int,
@@ -2543,7 +2739,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_clst_category (
     PRIMARY KEY ((partner_id,metric,year), hour,category)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_category (
     partner_id int,
@@ -2555,7 +2752,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_category (
     PRIMARY KEY ((partner_id,category,metric,day), minute)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_category (
     partner_id int,
@@ -2567,7 +2765,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_clst_category (
     PRIMARY KEY ((partner_id,metric,day), minute,category)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_category (
     partner_id int,
@@ -2579,7 +2778,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_prtn_category (
     PRIMARY KEY ((partner_id,category,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_category (
     partner_id int,
@@ -2591,7 +2791,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg_clst_category (
     PRIMARY KEY ((partner_id,metric,day), tensecs,category)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_category_clst_entry (
     partner_id int,
@@ -2604,7 +2805,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_category_clst_entry (
     PRIMARY KEY ((partner_id,category,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_category_clst_entry (
     partner_id int,
@@ -2617,7 +2819,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_category_clst_entry (
     PRIMARY KEY ((partner_id,category,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app_clst_entry (
     partner_id int,
@@ -2630,7 +2833,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app_clst_entry (
     PRIMARY KEY ((partner_id,application,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app_clst_entry (
     partner_id int,
@@ -2643,7 +2847,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app_clst_entry (
     PRIMARY KEY ((partner_id,application,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app_playbackcontext_clst_entry (
     partner_id int,
@@ -2657,7 +2862,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_app_playbackcontext_clst
     PRIMARY KEY ((partner_id,application,playback_context,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app_playbackcontext_clst_entry (
     partner_id int,
@@ -2671,7 +2877,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_app_playbackcontext_cl
     PRIMARY KEY ((partner_id,application,playback_context,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_browser_clst_entry (
     partner_id int,
@@ -2684,7 +2891,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_browser_clst_entry (
     PRIMARY KEY ((partner_id,browser,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_browser_clst_entry (
     partner_id int,
@@ -2697,7 +2905,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_browser_clst_entry (
     PRIMARY KEY ((partner_id,browser,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_entry (
     partner_id int,
@@ -2710,7 +2919,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_clst_entry (
     PRIMARY KEY ((partner_id,country,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_entry (
     partner_id int,
@@ -2723,7 +2933,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_clst_entry (
     PRIMARY KEY ((partner_id,country,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_city_clst_entry (
     partner_id int,
@@ -2737,7 +2948,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_country_city_clst_entry 
     PRIMARY KEY ((partner_id,country,city,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_city_clst_entry (
     partner_id int,
@@ -2751,7 +2963,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_country_city_clst_entr
     PRIMARY KEY ((partner_id,country,city,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_clst_entry (
     partner_id int,
@@ -2764,7 +2977,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_clst_entry (
     PRIMARY KEY ((partner_id,custom_var1,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_clst_entry (
     partner_id int,
@@ -2777,7 +2991,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_clst_entry (
     PRIMARY KEY ((partner_id,custom_var1,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv2_clst_entry (
     partner_id int,
@@ -2790,7 +3005,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv2_clst_entry (
     PRIMARY KEY ((partner_id,custom_var2,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv2_clst_entry (
     partner_id int,
@@ -2803,7 +3019,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv2_clst_entry (
     PRIMARY KEY ((partner_id,custom_var2,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv3_clst_entry (
     partner_id int,
@@ -2816,7 +3033,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv3_clst_entry (
     PRIMARY KEY ((partner_id,custom_var3,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv3_clst_entry (
     partner_id int,
@@ -2829,7 +3047,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv3_clst_entry (
     PRIMARY KEY ((partner_id,custom_var3,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2_clst_entry (
     partner_id int,
@@ -2843,7 +3062,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2_clst_entry (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2_clst_entry (
     partner_id int,
@@ -2857,7 +3077,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2_clst_entry (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2_cv3_clst_entry (
     partner_id int,
@@ -2872,7 +3093,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_cv1_cv2_cv3_clst_entry (
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,custom_var3,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2_cv3_clst_entry (
     partner_id int,
@@ -2887,7 +3109,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_cv1_cv2_cv3_clst_entry
     PRIMARY KEY ((partner_id,custom_var1,custom_var2,custom_var3,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device_clst_entry (
     partner_id int,
@@ -2900,7 +3123,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device_clst_entry (
     PRIMARY KEY ((partner_id,device,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device_clst_entry (
     partner_id int,
@@ -2913,7 +3137,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device_clst_entry (
     PRIMARY KEY ((partner_id,device,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device_os_clst_entry (
     partner_id int,
@@ -2927,7 +3152,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_device_os_clst_entry (
     PRIMARY KEY ((partner_id,device,operating_system,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device_os_clst_entry (
     partner_id int,
@@ -2941,7 +3167,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_device_os_clst_entry (
     PRIMARY KEY ((partner_id,device,operating_system,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_domain_clst_entry (
     partner_id int,
@@ -2954,7 +3181,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_domain_clst_entry (
     PRIMARY KEY ((partner_id,domain,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_domain_clst_entry (
     partner_id int,
@@ -2967,7 +3195,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_domain_clst_entry (
     PRIMARY KEY ((partner_id,domain,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_referrer_clst_entry (
     partner_id int,
@@ -2980,7 +3209,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_referrer_clst_entry (
     PRIMARY KEY ((partner_id,referrer,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_referrer_clst_entry (
     partner_id int,
@@ -2993,7 +3223,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_referrer_clst_entry (
     PRIMARY KEY ((partner_id,referrer,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os_clst_entry (
     partner_id int,
@@ -3006,7 +3237,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os_clst_entry (
     PRIMARY KEY ((partner_id,operating_system,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os_clst_entry (
     partner_id int,
@@ -3019,7 +3251,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os_clst_entry (
     PRIMARY KEY ((partner_id,operating_system,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os_browser_clst_entry (
     partner_id int,
@@ -3033,7 +3266,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_os_browser_clst_entry (
     PRIMARY KEY ((partner_id,operating_system,browser,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os_browser_clst_entry (
     partner_id int,
@@ -3047,7 +3281,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_os_browser_clst_entry 
     PRIMARY KEY ((partner_id,operating_system,browser,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_playbackcontext_clst_entry (
     partner_id int,
@@ -3060,7 +3295,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.hourly_agg_prtn_playbackcontext_clst_ent
     PRIMARY KEY ((partner_id,playback_context,month,metric), hour,entry_id)
 ) WITH CLUSTERING ORDER BY (hour DESC)
   AND default_time_to_live=0
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_playbackcontext_clst_entry (
     partner_id int,
@@ -3073,7 +3309,8 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.minutely_agg_prtn_playbackcontext_clst_e
     PRIMARY KEY ((partner_id,playback_context,day,metric), minute,entry_id)
 ) WITH CLUSTERING ORDER BY (minute DESC)
   AND default_time_to_live=15552000
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
 
 CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg (
     partner_id int,
@@ -3084,4 +3321,5 @@ CREATE TABLE IF NOT EXISTS kanalony_agg.tensecs_agg (
     PRIMARY KEY ((partner_id,metric,day), tensecs)
 ) WITH CLUSTERING ORDER BY (tensecs DESC)
   AND default_time_to_live=604800
-  AND gc_grace_seconds=43200 ;
+  AND gc_grace_seconds=43200 
+  AND compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy'};
