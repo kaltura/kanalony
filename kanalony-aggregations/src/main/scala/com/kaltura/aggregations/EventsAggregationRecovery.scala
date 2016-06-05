@@ -32,8 +32,8 @@ object EventsAggregationRecovery extends App with Logging {
     options.addOption("s", "fromhour", true, "from hour")
     options.addOption("e", "tohour", true, "end hour")
 
-    val parser = new GnuParser();
-    val cmd = parser.parse( options, args);
+    val parser = new GnuParser()
+    val cmd = parser.parse( options, args)
     val enabledAggregations = cmd.getOptionValue("a", "")
     val applicationSuffix = cmd.getOptionValue("n", "")
     val topic = cmd.getOptionValue("t", "enriched-player-events")

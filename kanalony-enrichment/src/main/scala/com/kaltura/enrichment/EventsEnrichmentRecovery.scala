@@ -20,8 +20,8 @@ object EventsEnrichmentRecovery extends App with Logging {
     options.addOption("s", "fromhour", true, "from hour")
     options.addOption("e", "tohour", true, "end hour")
 
-    val parser = new GnuParser();
-    val cmd = parser.parse( options, args);
+    val parser = new GnuParser()
+    val cmd = parser.parse( options, args)
     val fromHour = new DateTime(cmd.getOptionValue("s"))
     val toHour = new DateTime(cmd.getOptionValue("e"))
     val applicationName = ConfigurationManager.get("kanalony.events_enrichment_recovery.application_name")
