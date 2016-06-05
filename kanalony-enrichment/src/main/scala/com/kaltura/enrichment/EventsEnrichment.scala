@@ -1,7 +1,5 @@
 package com.kaltura.enrichment
 
-import com.datastax.driver.core.querybuilder.QueryBuilder
-import com.kaltura.core.cassandra.ClusterManager
 import com.kaltura.core.ip2location.LocationResolver
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.urls.UrlParser
@@ -12,10 +10,9 @@ import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser, RawPlay
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
+import org.apache.spark.streaming.kafka.OffsetRange
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{Logging, SparkConf, SparkContext, TaskContext}
-import com.kaltura.core.utils.ReadableTimeUnits._
+import org.apache.spark.{Logging, SparkConf, SparkContext}
 
 object EventsEnrichment extends App with Logging {
 
@@ -50,38 +47,16 @@ object EventsEnrichment extends App with Logging {
 
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enrichment.kafka_brokers","127.0.0.1:9092")
     val topics = Set("player-events")
+
     val keySpace = "kanalony_mng"
     val tableName = "hourly_partitions"
 
     var offsetRanges = Array[OffsetRange]()
 
     val stream = StreamManager.createStream(ssc, kafkaBrokers, topics)
-    stream.transform { rdd =>
-      offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
-      rdd
-    }
-      .flatMap(event => PlayerEventParser.parsePlayerEvent(event._2))
+    stream.flatMap(event => PlayerEventParser.parsePlayerEvent(event._2))
       .foreachRDD { rdd =>
         enrichEvents(rdd, "enriched-player-events", "erroneous-player-events")
-
-        rdd.foreachPartition(part => {
-          val cassandraSession = ClusterManager.getSession
-          if(part.hasNext) {
-            val partitionId = TaskContext.getPartitionId()
-            val firstEventHour = part.next().eventTime.hourOfDay().roundFloorCopy()
-            val o = offsetRanges(partitionId)
-            cassandraSession.execute(QueryBuilder
-              .insertInto(keySpace, tableName)
-              .value("hour", firstEventHour.getMillis)
-              .value("topic", o.topic)
-              .value("partition", o.partition)
-              .value("offset", o.fromOffset)
-              .using(QueryBuilder.ttl(2 day))
-            )
-            println(s"$firstEventHour --> ${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
-          }
-        })
-
       }
 
     ssc

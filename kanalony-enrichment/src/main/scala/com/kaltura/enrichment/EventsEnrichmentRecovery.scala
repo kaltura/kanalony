@@ -3,8 +3,8 @@ package com.kaltura.enrichment
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.PlayerEventParser
+import org.apache.commons.cli.{GnuParser, Options}
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
 import org.joda.time.DateTime
@@ -15,8 +15,15 @@ object EventsEnrichmentRecovery extends App with Logging {
   override def main(args: Array[String]) {
 
     setStreamingLogLevels
-    val fromHour = new DateTime(args(0))
-    val toHour = new DateTime(args(1))
+
+    val options = new Options()
+    options.addOption("s", "fromhour", true, "from hour")
+    options.addOption("e", "tohour", true, "end hour")
+
+    val parser = new GnuParser();
+    val cmd = parser.parse( options, args);
+    val fromHour = new DateTime(cmd.getOptionValue("s"))
+    val toHour = new DateTime(cmd.getOptionValue("e"))
     val applicationName = ConfigurationManager.get("kanalony.events_enrichment_recovery.application_name")
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
     val checkpointDirectory = s"$checkpointRootPath/$applicationName"
@@ -47,27 +54,17 @@ object EventsEnrichmentRecovery extends App with Logging {
     val kafkaParams = Map(
       "metadata.broker.list" -> kafkaBrokers
     )
-    val topics = Set("player-events")
-
-    var offsetRanges = Array[OffsetRange]()
 
     val startingOffsets = StreamManager.getPartitionsOffsets("player-events", fromHour.minusHours(1))
     val stream = StreamManager.createStream(ssc, kafkaParams, startingOffsets)
 
-    stream.transform { rdd =>
-      offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
-      rdd
-    }
-      .flatMap(event => PlayerEventParser.parsePlayerEvent(event._2))
+    stream.flatMap(event => PlayerEventParser.parsePlayerEvent(event._2))
       .filter(event => (event.eventTime.hourOfDay().roundFloorCopy().isAfter(fromHour) && event.eventTime.hourOfDay().roundFloorCopy().isBefore(toHour))
           || event.eventTime.hourOfDay().roundFloorCopy().isEqual(fromHour))
 
       .foreachRDD { rdd =>
         EventsEnrichment.enrichEvents(rdd, "recovery-enriched-player-events", "erroneous-player-events")
 
-        for (o <- offsetRanges) {
-          println(s"${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
-        }
       }
 
     ssc

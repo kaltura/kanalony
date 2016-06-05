@@ -28,9 +28,10 @@ object StreamManager {
       ssc, kafkaParams, topics)
   }
 
-  def createStream(ssc: StreamingContext, kafkaParams: Map[String, String], fromOffsets: Map[TopicAndPartition, Long], messageHandler: Function[MessageAndMetadata[String, String],  (String, String, Long, Option[String])]) : InputDStream[(String, String, Long, Option[String])] = {
-    KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder, (String, String, Long, Option[String])](
-      ssc, kafkaParams, fromOffsets, messageHandler)
+  def createStreamWithMetadata(ssc: StreamingContext, topics: Set[String], kafkaParams: Map[String, String]) : InputDStream[(MessageAndMetadata[String, String])] = {
+    val messageHandler = (mmd: MessageAndMetadata[String, String]) => mmd
+    KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder, MessageAndMetadata[String, String]](
+      ssc, kafkaParams, getFromOffsets(kafkaParams, topics), messageHandler)
   }
 
   def createStream(ssc: StreamingContext, kafkaParams: Map[String, String], fromOffsets: Map[TopicAndPartition, Long]) : InputDStream[(String, String)] = {
@@ -51,7 +52,25 @@ object StreamManager {
     val rows = cassandraSession.execute(s).all().toList
     rows.map(row => (TopicAndPartition(row.getString("topic"), row.getInt("partition")), row.getLong("offset"))).groupBy(_._1).map { case (k,v) => (k,v.head._2)}
 
+  }
 
+  private def getFromOffsets(kafkaParams: Map[String, String],
+                             topics: Set[String]): Map[TopicAndPartition, Long] = {
+    val kc = new KafkaCluster(kafkaParams)
+    val reset = kafkaParams.get("auto.offset.reset").map(_.toLowerCase)
+    val result = for {
+      topicPartitions <- kc.getPartitions(topics).right
+      leaderOffsets <- (if (reset == Some("smallest")) {
+        kc.getEarliestLeaderOffsets(topicPartitions)
+      } else {
+        kc.getLatestLeaderOffsets(topicPartitions)
+      }).right
+    } yield {
+        leaderOffsets.map { case (tp, lo) =>
+          (tp, lo.offset)
+        }
+      }
+    KafkaCluster.checkErrors(result)
   }
 
   def createProducer(kafkaBrokers:String): Producer[String, String] = {

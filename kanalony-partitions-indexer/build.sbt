@@ -2,9 +2,9 @@ lazy val sparkVersion = "1.6.1"
 lazy val json4sVersion = "3.2.10"
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-core` = RootProject(file("../kanalony-core"))
-lazy val `kanalony-enrichment` = (project in file(".")).
+lazy val `kanalony-partitions-indexer` = (project in file(".")).
   settings(
-    name := "kanalony-enrichment",
+    name := "kanalony-partitions-indexer",
     version := "1.0",
     scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
@@ -19,17 +19,12 @@ lazy val `kanalony-enrichment` = (project in file(".")).
       "com.google.guava"      % "guava"                       % "18.0",
       "org.apache.hadoop"     % "hadoop-aws"                  % "2.7.1",
       "com.amazonaws"         % "aws-java-sdk"                % "1.7.4",
-      "commons-cli"           % "commons-cli"                 % "1.2",
 
       // Test
       "org.scalatest"         %% "scalatest"                  % "2.2.4"    % "test"
     )
   ).dependsOn(`kanalony-model`, `kanalony-core`)
 
-assemblyMergeStrategy in assembly := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case x => MergeStrategy.first
-}
-assemblyJarName := "kanalony-enrichment.jar"
-assemblyOutputPath := file("../out/" + assemblyJarName)
-
+//assemblyJarName := "kanalony-partitions-indexer.jar"
+//assemblyOutputPath := file("../out/" + assemblyJarName)
+    
