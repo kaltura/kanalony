@@ -3,7 +3,6 @@ package com.kaltura.aggregations
 import java.io.File
 
 import com.esotericsoftware.kryo.Kryo
-import com.kaltura.aggregations.keys._
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
@@ -49,6 +48,7 @@ object EventsAggregation extends App with Logging {
   def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String)] = List()): StreamingContext = {
 
     val sparkConf = new SparkConf()
+      .setAppName("EventsAggregation")
       .setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]"))
       .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
       .set("spark.cassandra.connection.keep_alive_ms","30000")
@@ -68,9 +68,47 @@ object EventsAggregation extends App with Logging {
 
     val parsedEnrichedEvents = stream.
       flatMap(ev => PlayerEventParser.parseEnhancedPlayerEvent(ev._2))
-    parsedEnrichedEvents.cache()
+    aggregate(parsedEnrichedEvents)
 
-    // 2600 events/sec
+    ssc
+  }
+
+  def setStreamingLogLevels {
+    val log4jInitialized = Logger.getRootLogger.getAllAppenders.hasMoreElements
+    if (!log4jInitialized) {
+      // We first log something to initialize Spark's default logging, then we override the
+      // logging level.
+      logInfo("Setting log level to [WARN] for streaming example." +
+        " To override add a custom log4j.properties to the classpath.")
+    }
+    Logger.getRootLogger.setLevel(Level.WARN)
+  }
+
+  def getAggregators() : List[(String)] = {
+    val path = Seq("../").map(new File(_));
+    val finder = ClassFinder()
+    val classes = finder.getClasses
+
+    val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
+
+    aggregators.map(cls => cls.name).toList
+
+
+  }
+
+  def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
+    val mirror = runtimeMirror(getClass.getClassLoader)
+    val module = mirror.staticModule(className)
+
+    val cls = mirror.reflectModule(module).instance.asInstanceOf[IAggregate]
+    val im =mirror.reflect(cls)
+    val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
+    im.reflectMethod(method)(events)
+  }
+
+  def aggregate(parsedEnrichedEvents: DStream[EnrichedPlayerEvent] ) : Unit = {
+
+    parsedEnrichedEvents.cache()
     /**
      * 0. HourlyAggregationByApplication,HourlyAggregationByApplicationPlaybackContext,HourlyAggregationByBrowser,HourlyAggregationByCountry,HourlyAggregationByCountryBrowser,HourlyAggregationByCountryCity,HourlyAggregationByCountryOperatingSystem,HourlyAggregationByCountryOperatingSystemBrowser,HourlyAggregationByDevice,HourlyAggregationByDeviceOperatingSystem
      */
@@ -222,40 +260,6 @@ object EventsAggregation extends App with Logging {
     HourlyAggregationByEntryCategory.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCategory.aggregate(parsedEnrichedEvents)
 
-    ssc
-  }
-
-  def setStreamingLogLevels {
-    val log4jInitialized = Logger.getRootLogger.getAllAppenders.hasMoreElements
-    if (!log4jInitialized) {
-      // We first log something to initialize Spark's default logging, then we override the
-      // logging level.
-      logInfo("Setting log level to [WARN] for streaming example." +
-        " To override add a custom log4j.properties to the classpath.")
-    }
-    Logger.getRootLogger.setLevel(Level.WARN)
-  }
-
-  def getAggregators() : List[(String)] = {
-    val path = Seq("../").map(new File(_));
-    val finder = ClassFinder()
-    val classes = finder.getClasses
-
-    val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
-
-    aggregators.map(cls => cls.name).toList
-
-
-  }
-
-  def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
-    val mirror = runtimeMirror(getClass.getClassLoader)
-    val module = mirror.staticModule(className)
-
-    val cls = mirror.reflectModule(module).instance.asInstanceOf[IAggregate]
-    val im =mirror.reflect(cls)
-    val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
-    im.reflectMethod(method)(events)
   }
 
 }

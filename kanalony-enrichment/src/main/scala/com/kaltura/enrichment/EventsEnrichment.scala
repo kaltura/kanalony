@@ -10,10 +10,9 @@ import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser, RawPlay
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.kafka.{HasOffsetRanges, OffsetRange}
+import org.apache.spark.streaming.kafka.OffsetRange
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
-
 
 object EventsEnrichment extends App with Logging {
 
@@ -49,24 +48,21 @@ object EventsEnrichment extends App with Logging {
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enrichment.kafka_brokers","127.0.0.1:9092")
     val topics = Set("player-events")
 
+    val keySpace = "kanalony_mng"
+    val tableName = "hourly_partitions"
+
     var offsetRanges = Array[OffsetRange]()
+
     val stream = StreamManager.createStream(ssc, kafkaBrokers, topics)
-    stream.transform { rdd =>
-      offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
-      rdd
-    }
-      .flatMap(event => PlayerEventParser.parsePlayerEvent(event._2))
+    stream.flatMap(event => PlayerEventParser.parsePlayerEvent(event._2))
       .foreachRDD { rdd =>
-        enrichEvents(rdd)
-        for (o <- offsetRanges) {
-          println(s"${o.topic} ${o.partition} ${o.fromOffset} ${o.untilOffset}")
-        }
+        enrichEvents(rdd, "enriched-player-events", "erroneous-player-events")
       }
 
     ssc
   }
 
-  def enrichEvents(playerEvents:RDD[RawPlayerEvent]):Unit = {
+  def enrichEvents(playerEvents:RDD[RawPlayerEvent], enrichedEventsTopic: String, erroneousEventsTopic: String):Unit = {
     playerEvents
       .foreachPartition( eventsPart => {
         val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_enrichment.kafka_brokers","127.0.0.1:9092")
@@ -97,10 +93,10 @@ object EventsEnrichment extends App with Logging {
               validPlayerEvent.params.getOrElse("customVar2",""),
               validPlayerEvent.params.getOrElse("customVar3","")
             )
-            producer.send(new ProducerRecord[String,String]("enriched-player-events", playerEvent.entryId, PlayerEventParser.asJson(playerEvent)))
+            producer.send(new ProducerRecord[String,String](enrichedEventsTopic, playerEvent.entryId, PlayerEventParser.asJson(playerEvent)))
           }
           else { // Handle a case where partnerId or eventType are missing
-            producer.send(new ProducerRecord[String,String]("erroneous-player-events", rawPlayerEvent.eventTime.toString, PlayerEventParser.asJson(rawPlayerEvent)))
+            producer.send(new ProducerRecord[String,String](erroneousEventsTopic, rawPlayerEvent.eventTime.toString, PlayerEventParser.asJson(rawPlayerEvent)))
           }
         })
         producer.close()
