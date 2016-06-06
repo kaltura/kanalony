@@ -28,6 +28,7 @@ object EventsAggregation extends App with Logging {
 
     setStreamingLogLevels
     val (enabledAggregations, applicationSuffix) = if (args.isEmpty) ("","") else (args(0),args(1))
+    //val (enabledAggregations, applicationSuffix) = if (args.isEmpty) ("MinutelyAggregationByEntryOperatingSystemBrowser,HourlyAggregationByCountryOperatingSystem","0") else (args(0),args(1))
     val applicationName = ConfigurationManager.get("kanalony.events_aggregations.application_name") + applicationSuffix
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
     val checkpointDirectory = s"$checkpointRootPath/$applicationName"
@@ -49,6 +50,7 @@ object EventsAggregation extends App with Logging {
   def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String)] = List()): StreamingContext = {
 
     val sparkConf = new SparkConf()
+//      .setAppName(ConfigurationManager.get("kanalony.events_aggregations.application_name"))
       .setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]"))
       .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
       .set("spark.cassandra.connection.keep_alive_ms","30000")
@@ -75,7 +77,7 @@ object EventsAggregation extends App with Logging {
      * 0. HourlyAggregationByApplication,HourlyAggregationByApplicationPlaybackContext,HourlyAggregationByBrowser,HourlyAggregationByCountry,HourlyAggregationByCountryBrowser,HourlyAggregationByCountryCity,HourlyAggregationByCountryOperatingSystem,HourlyAggregationByCountryOperatingSystemBrowser,HourlyAggregationByDevice,HourlyAggregationByDeviceOperatingSystem
      */
     HourlyAggregationByApplication.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
+
     HourlyAggregationByBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountry.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryBrowser.aggregate(parsedEnrichedEvents)
@@ -92,13 +94,13 @@ object EventsAggregation extends App with Logging {
     HourlyAggregationByOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyAggregationByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByPartner.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByPlaybackContext.aggregate(parsedEnrichedEvents)
+
     HourlyAggregationPeakAudience.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDomain.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntry.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryApplication.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
+
 
     /**
      * 2. HourlyAggregationByEntryBrowser,HourlyAggregationByEntryCountry,HourlyAggregationByEntryCountryCity,HourlyAggregationByEntryDevice,HourlyAggregationByEntryDeviceOperatingSystem,HourlyAggregationByEntryDomain,HourlyAggregationByEntryDomainReferrer,HourlyAggregationByEntryOperatingSystem,HourlyAggregationByEntryOperatingSystemBrowser,HourlyAggregationByEntryPlaybackContext
@@ -113,7 +115,6 @@ object EventsAggregation extends App with Logging {
     HourlyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEvents)
 
     // 1600 events/s, 20 Cores, 8 Concurrent
     /**
@@ -197,7 +198,6 @@ object EventsAggregation extends App with Logging {
 
 
     // MinutelyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
-    // MinutelyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
     // TenSecsAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
     // MinutelyAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
     // TenSecsAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
@@ -216,8 +216,12 @@ object EventsAggregation extends App with Logging {
     MinutelyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
     MinutelyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
     MinutelyAggregationByPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    HourlyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    HourlyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    HourlyAggregationByPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    HourlyAggregationByApplicationPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
 
-    val parsedEnrichedEventsWithCategory = parsedEnrichedEvents.filter(event => event.playbackContext.nonEmpty)
+    val parsedEnrichedEventsWithCategory = parsedEnrichedEvents.filter(event => event.categories.nonEmpty)
     MinutelyAggregationByCategory.aggregate(parsedEnrichedEventsWithCategory)
     HourlyAggregationByEntryCategory.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCategory.aggregate(parsedEnrichedEvents)

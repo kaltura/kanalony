@@ -16,7 +16,7 @@ abstract class AggregationByCountryOperatingSystem extends BaseAggregation[Aggre
     (getAggrTimeUnit,"time"),
     ("value","value"))
 
-   override def aggKey(e: EnrichedPlayerEvent): AggregationCountryOperatingSystemKey = AggregationCountryOperatingSystemKey(e.partnerId, e.eventType, getAggrTime(e.eventTime), e.location.country, e.userAgent.browser.id)
+   override def aggKey(e: EnrichedPlayerEvent): AggregationCountryOperatingSystemKey = AggregationCountryOperatingSystemKey(e.partnerId, e.eventType, getAggrTime(e.eventTime), e.location.country, e.userAgent.operatingSystem.id)
    override def toRow(pair: (AggregationCountryOperatingSystemKey, Long)): PartnerCountryOperatingSystemRes = PartnerCountryOperatingSystemRes(partnerId= pair._1.partnerId, country = pair._1.country, metric = pair._1.metric, year = pair._1.time.getYear, day = pair._1.time.getYearMonthDay, time = pair._1.time, operatingSystem = pair._1.operatingSystem, value = pair._2)
 }
 
