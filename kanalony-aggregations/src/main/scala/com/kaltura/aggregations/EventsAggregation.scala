@@ -3,6 +3,7 @@ package com.kaltura.aggregations
 import java.io.File
 
 import com.esotericsoftware.kryo.Kryo
+import com.kaltura.aggregations.keys._
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
@@ -27,6 +28,7 @@ object EventsAggregation extends App with Logging {
 
     setStreamingLogLevels
     val (enabledAggregations, applicationSuffix) = if (args.isEmpty) ("","") else (args(0),args(1))
+    //val (enabledAggregations, applicationSuffix) = if (args.isEmpty) ("MinutelyAggregationByEntryOperatingSystemBrowser,HourlyAggregationByCountryOperatingSystem","0") else (args(0),args(1))
     val applicationName = ConfigurationManager.get("kanalony.events_aggregations.application_name") + applicationSuffix
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
     val checkpointDirectory = s"$checkpointRootPath/$applicationName"
@@ -48,7 +50,7 @@ object EventsAggregation extends App with Logging {
   def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String)] = List()): StreamingContext = {
 
     val sparkConf = new SparkConf()
-      .setAppName("EventsAggregation")
+//      .setAppName(ConfigurationManager.get("kanalony.events_aggregations.application_name"))
       .setMaster(ConfigurationManager.getOrElse("kanalony.events_aggregations.master", "local[8]"))
       .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.events_aggregations.cassandra_host", "localhost"))
       .set("spark.cassandra.connection.keep_alive_ms","30000")
@@ -68,52 +70,14 @@ object EventsAggregation extends App with Logging {
 
     val parsedEnrichedEvents = stream.
       flatMap(ev => PlayerEventParser.parseEnhancedPlayerEvent(ev._2))
-    aggregate(parsedEnrichedEvents)
-
-    ssc
-  }
-
-  def setStreamingLogLevels {
-    val log4jInitialized = Logger.getRootLogger.getAllAppenders.hasMoreElements
-    if (!log4jInitialized) {
-      // We first log something to initialize Spark's default logging, then we override the
-      // logging level.
-      logInfo("Setting log level to [WARN] for streaming example." +
-        " To override add a custom log4j.properties to the classpath.")
-    }
-    Logger.getRootLogger.setLevel(Level.WARN)
-  }
-
-  def getAggregators() : List[(String)] = {
-    val path = Seq("../").map(new File(_));
-    val finder = ClassFinder()
-    val classes = finder.getClasses
-
-    val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
-
-    aggregators.map(cls => cls.name).toList
-
-
-  }
-
-  def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
-    val mirror = runtimeMirror(getClass.getClassLoader)
-    val module = mirror.staticModule(className)
-
-    val cls = mirror.reflectModule(module).instance.asInstanceOf[IAggregate]
-    val im =mirror.reflect(cls)
-    val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
-    im.reflectMethod(method)(events)
-  }
-
-  def aggregate(parsedEnrichedEvents: DStream[EnrichedPlayerEvent] ) : Unit = {
-
     parsedEnrichedEvents.cache()
+
+    // 2600 events/sec
     /**
      * 0. HourlyAggregationByApplication,HourlyAggregationByApplicationPlaybackContext,HourlyAggregationByBrowser,HourlyAggregationByCountry,HourlyAggregationByCountryBrowser,HourlyAggregationByCountryCity,HourlyAggregationByCountryOperatingSystem,HourlyAggregationByCountryOperatingSystemBrowser,HourlyAggregationByDevice,HourlyAggregationByDeviceOperatingSystem
      */
     HourlyAggregationByApplication.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
+
     HourlyAggregationByBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountry.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryBrowser.aggregate(parsedEnrichedEvents)
@@ -130,13 +94,13 @@ object EventsAggregation extends App with Logging {
     HourlyAggregationByOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyAggregationByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByPartner.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByPlaybackContext.aggregate(parsedEnrichedEvents)
+
     HourlyAggregationPeakAudience.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDomain.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntry.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryApplication.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEvents)
+
 
     /**
      * 2. HourlyAggregationByEntryBrowser,HourlyAggregationByEntryCountry,HourlyAggregationByEntryCountryCity,HourlyAggregationByEntryDevice,HourlyAggregationByEntryDeviceOperatingSystem,HourlyAggregationByEntryDomain,HourlyAggregationByEntryDomainReferrer,HourlyAggregationByEntryOperatingSystem,HourlyAggregationByEntryOperatingSystemBrowser,HourlyAggregationByEntryPlaybackContext
@@ -151,7 +115,6 @@ object EventsAggregation extends App with Logging {
     HourlyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEvents)
 
     // 1600 events/s, 20 Cores, 8 Concurrent
     /**
@@ -235,7 +198,6 @@ object EventsAggregation extends App with Logging {
 
 
     // MinutelyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
-    // MinutelyAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
     // TenSecsAggregationByEntryDomainReferrer.aggregate(parsedEnrichedEvents)
     // MinutelyAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
     // TenSecsAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
@@ -254,12 +216,50 @@ object EventsAggregation extends App with Logging {
     MinutelyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
     MinutelyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
     MinutelyAggregationByPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    HourlyAggregationByEntryPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    HourlyAggregationByEntryApplicationPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    HourlyAggregationByPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
+    HourlyAggregationByApplicationPlaybackContext.aggregate(parsedEnrichedEventsWithPlaybackContext)
 
-    val parsedEnrichedEventsWithCategory = parsedEnrichedEvents.filter(event => event.playbackContext.nonEmpty)
+    val parsedEnrichedEventsWithCategory = parsedEnrichedEvents.filter(event => event.categories.nonEmpty)
     MinutelyAggregationByCategory.aggregate(parsedEnrichedEventsWithCategory)
     HourlyAggregationByEntryCategory.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCategory.aggregate(parsedEnrichedEvents)
 
+    ssc
+  }
+
+  def setStreamingLogLevels {
+    val log4jInitialized = Logger.getRootLogger.getAllAppenders.hasMoreElements
+    if (!log4jInitialized) {
+      // We first log something to initialize Spark's default logging, then we override the
+      // logging level.
+      logInfo("Setting log level to [WARN] for streaming example." +
+        " To override add a custom log4j.properties to the classpath.")
+    }
+    Logger.getRootLogger.setLevel(Level.WARN)
+  }
+
+  def getAggregators() : List[(String)] = {
+    val path = Seq("../").map(new File(_));
+    val finder = ClassFinder()
+    val classes = finder.getClasses
+
+    val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
+
+    aggregators.map(cls => cls.name).toList
+
+
+  }
+
+  def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
+    val mirror = runtimeMirror(getClass.getClassLoader)
+    val module = mirror.staticModule(className)
+
+    val cls = mirror.reflectModule(module).instance.asInstanceOf[IAggregate]
+    val im =mirror.reflect(cls)
+    val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
+    im.reflectMethod(method)(events)
   }
 
 }
