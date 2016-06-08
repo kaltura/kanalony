@@ -15,7 +15,7 @@ lazy val `kanalony-aggregations` = (project in file(".")).
       "org.apache.spark"        %% "spark-streaming-kafka"      % sparkVersion,
       "org.apache.spark"        %% "spark-sql"                  % sparkVersion,
       "com.datastax.cassandra"  %   "cassandra-driver-core"     % "3.0.0",
-      "com.datastax.spark"      %% "spark-cassandra-connector"  % "1.5.0",
+      "com.datastax.spark"      %% "spark-cassandra-connector"  % "1.6.0-M2",
       "joda-time"               % "joda-time"                   % "2.8.2",
       "org.apache.hadoop"       % "hadoop-aws"                  % "2.7.1",
       "com.amazonaws"           % "aws-java-sdk"                % "1.7.4",

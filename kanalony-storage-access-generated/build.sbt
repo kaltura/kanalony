@@ -8,7 +8,7 @@ lazy val `kanalony-storage-access-generated` = (project in file(".")).
     version := "1.0",
     scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
-      "com.datastax.cassandra"  %  "cassandra-driver-core"      % "3.0.0",
+      "com.datastax.cassandra"  %  "cassandra-driver-core"      % "3.0.2",
       "com.websudos"            %% "phantom-dsl"                % "1.22.0",
       "com.websudos"            %% "phantom-testkit"            % "1.12.2",
       "com.typesafe"            % "config"                      % "1.3.0"
