@@ -37,10 +37,9 @@ abstract class BaseAggregation[AggKey:ClassTag, AggRes:TypeTag :ClassTag] extend
 
   def toRow(pair:(AggKey,Long)): AggRes
 
-  val stateSpec = StateSpec.function(trackStateFunc _).timeout(Seconds(ttl))
+  def stateSpec = StateSpec.function(trackStateFunc _).timeout(Seconds(ttl))
 
   def save(aggregatedEvents: DStream[AggRes]) : Unit = {
-    aggregatedEvents.cache()
     tableMetadata.foreach {
       case (tableName, columns) => aggregatedEvents.saveToCassandra(keyspace, tableName, columns)
     }
