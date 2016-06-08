@@ -77,12 +77,10 @@ object EventsAggregation extends App with Logging {
      * 0. HourlyAggregationByApplication,HourlyAggregationByApplicationPlaybackContext,HourlyAggregationByBrowser,HourlyAggregationByCountry,HourlyAggregationByCountryBrowser,HourlyAggregationByCountryCity,HourlyAggregationByCountryOperatingSystem,HourlyAggregationByCountryOperatingSystemBrowser,HourlyAggregationByDevice,HourlyAggregationByDeviceOperatingSystem
      */
     HourlyAggregationByApplication.aggregate(parsedEnrichedEvents)
-
     HourlyAggregationByBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountry.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryCity.aggregate(parsedEnrichedEvents)
-    HourlyAggregationByCountryOperatingSystem.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCountryOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDevice.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDeviceOperatingSystem.aggregate(parsedEnrichedEvents)
@@ -225,6 +223,9 @@ object EventsAggregation extends App with Logging {
     MinutelyAggregationByCategory.aggregate(parsedEnrichedEventsWithCategory)
     HourlyAggregationByEntryCategory.aggregate(parsedEnrichedEvents)
     HourlyAggregationByCategory.aggregate(parsedEnrichedEvents)
+
+    /** Keep this agg last, or else your app will be stuck after a few batches **/
+    HourlyAggregationByCountryOperatingSystem.aggregate(parsedEnrichedEvents)
 
     ssc
   }
