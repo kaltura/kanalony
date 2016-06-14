@@ -11,6 +11,7 @@ import play.api.mvc._
 import argonaut._, Argonaut._
 import scala.concurrent._
 import model.Implicits._
+import play.Logger
 
 class Application extends Controller {
 
@@ -18,6 +19,9 @@ class Application extends Controller {
 
   def doQuery(request : Request[AnyContent]) : Future[Result] = {
     try {
+      val mb = 1024*1024
+      val runtime = Runtime.getRuntime
+      Logger.debug("** Start Request - Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
 
       val analyticsRequestOption = request.body.asJson map { input => Parse.decodeEither[AnalyticsRequest](input.toString) }
 
@@ -38,6 +42,8 @@ class Application extends Controller {
         data => {
           val responseFormatter = ResponseFormatterFactory.get(request)
           val formattedResponse = responseFormatter.format(data)
+          val runtime = Runtime.getRuntime
+          Logger.debug("** End Request - Used Memory:  " + (runtime.totalMemory - runtime.freeMemory) / mb)
           Ok(formattedResponse.data).as(formattedResponse.mime)
         }
       } recover {
