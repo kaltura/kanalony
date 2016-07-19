@@ -1,3 +1,6 @@
+import sbtassembly.AssemblyPlugin.autoImport._
+import sbtassembly.PathList
+
 lazy val sparkVersion = "1.6.1"
 lazy val json4sVersion = "3.2.10"
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
@@ -25,6 +28,10 @@ lazy val `kanalony-partitions-indexer` = (project in file(".")).
     )
   ).dependsOn(`kanalony-model`, `kanalony-core`)
 
-//assemblyJarName := "kanalony-partitions-indexer.jar"
-//assemblyOutputPath := file("../out/" + assemblyJarName)
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
+assemblyJarName := "kanalony-partitions-indexer.jar"
+assemblyOutputPath := file("../out/" + assemblyJarName)
     

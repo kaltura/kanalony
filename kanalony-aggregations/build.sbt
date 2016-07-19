@@ -9,7 +9,6 @@ lazy val `kanalony-aggregations` = (project in file(".")).
     scalaVersion := "2.11.7",
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      "org.clapper"             %% "classutil"                  % "1.0.6",
       "org.apache.spark"        %% "spark-core"                 % sparkVersion,
       "org.apache.spark"        %% "spark-streaming"            % sparkVersion,
       "org.apache.spark"        %% "spark-streaming-kafka"      % sparkVersion,

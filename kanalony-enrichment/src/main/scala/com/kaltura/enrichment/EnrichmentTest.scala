@@ -34,7 +34,7 @@ object EnrichmentTest extends App with Logging {
       .set("spark.cassandra.connection.keep_alive_ms","30000")
       .set("spark.streaming.backpressure.enabled", ConfigurationManager.getOrElse("kanalony.events_enrichment.backpressure","false"))
 
-    val eventsFileName = ConfigurationManager.getOrElse("kanalony.events_enrichment.events_file","/tmp/events.log")
+    val eventsFileName = ConfigurationManager.getOrElse("kanalony.events_enrichment.events_file",s"kanalony-enrichment/src/test/resources/events.txt")
     val events = Source.fromFile(eventsFileName).getLines.toList
 
     val ssc = new StreamingContext(sparkConf, Seconds(ConfigurationManager.getOrElse("kanalony.events_enrichment.batch_duration","5").toInt))

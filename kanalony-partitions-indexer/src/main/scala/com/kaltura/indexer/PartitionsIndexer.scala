@@ -37,8 +37,6 @@ object PartitionsIndexer extends App with Logging {
     val sparkConf = new SparkConf()
       .setAppName(ConfigurationManager.get("kanalony.partitions_indexer.application_name"))
       .setMaster(ConfigurationManager.getOrElse("kanalony.partitions_indexer.master","local[8]"))
-      .set("spark.cassandra.connection.host", ConfigurationManager.getOrElse("kanalony.partitions_indexer.cassandra_host","127.0.0.1"))
-      .set("spark.cassandra.connection.keep_alive_ms","30000")
       .set("spark.streaming.backpressure.enabled", ConfigurationManager.getOrElse("kanalony.partitions_indexer.backpressure","false"))
     val sparkContext = new SparkContext(sparkConf)
     val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.partitions_indexer.batch_duration","5").toInt))

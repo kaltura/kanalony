@@ -79,6 +79,7 @@ object EventsEnrichment extends App with Logging {
               validPlayerEvent.eventTime,
               validPlayerEvent.partnerId.get,
               validPlayerEvent.entryId.get,
+
               validPlayerEvent.params.getOrElse("flavourId",""),
               validPlayerEvent.params.getOrElse("userId","Unknown"),
               locationResolver.parseWithProxy(validPlayerEvent.remoteAddr, validPlayerEvent.proxyRemoteAddr),

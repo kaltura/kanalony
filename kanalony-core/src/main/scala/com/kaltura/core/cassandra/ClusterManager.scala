@@ -1,8 +1,6 @@
 package com.kaltura.core.cassandra
 
-import java.net.InetAddress
-
-import com.datastax.driver.core.{Cluster, Session}
+import com.datastax.driver.core.Cluster
 import com.kaltura.core.utils.ConfigurationManager
 
 /**
@@ -10,7 +8,7 @@ import com.kaltura.core.utils.ConfigurationManager
  */
 object ClusterManager {
   private val clusterBuilder = Cluster.builder()
-  ConfigurationManager.getOrElse("kanalony.events_enrichment.cassandra_host","127.0.0.1")
+  ConfigurationManager.getOrElse("kanalony.cassandra_host","127.0.0.1")
     .split(",").foreach(x => clusterBuilder.addContactPoints(x))
   private val cluster = clusterBuilder.build()
 

@@ -2,14 +2,12 @@ package com.kaltura.model.events
 
 import java.text.SimpleDateFormat
 
-import com.kaltura.core.urls.UrlParser
-import com.kaltura.core.userAgent.enums.{Device, OperatingSystem, Browser}
+import com.kaltura.core.userAgent.enums.{Browser, Device, OperatingSystem}
 import org.apache.spark.Logging
 import org.json4s.DefaultFormats
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
-import scala.collection.mutable
 
 object PlayerEventParser extends Logging {
   implicit val formats = new DefaultFormats {
@@ -55,6 +53,10 @@ object PlayerEventParser extends Logging {
 
   def asJson(enrichedPlayerEvent: EnrichedPlayerEvent) : String = {
     write(enrichedPlayerEvent)
+  }
+
+  def asJson(accessLogRow: AccessLogRow) :String = {
+    write(accessLogRow)
   }
 
 }
