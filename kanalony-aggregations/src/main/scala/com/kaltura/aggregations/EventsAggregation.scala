@@ -1,22 +1,15 @@
 package com.kaltura.aggregations
 
-import java.io.File
-
 import com.esotericsoftware.kryo.Kryo
-import com.kaltura.aggregations.keys._
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
-import com.kaltura.model.events.{EnrichedPlayerEvent, PlayerEventParser}
+import com.kaltura.model.events.PlayerEventParser
 import de.javakaffee.kryoserializers.jodatime.JodaDateTimeSerializer
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.serializer.KryoRegistrator
-import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
-import org.clapper.classutil.ClassFinder
 import org.joda.time.DateTime
-
-import scala.reflect.runtime.universe._
 
 object EventsAggregation extends App with Logging {
 
@@ -240,29 +233,6 @@ object EventsAggregation extends App with Logging {
     }
     Logger.getRootLogger.setLevel(Level.WARN)
   }
-
-  def getAggregators() : List[(String)] = {
-    val path = Seq("../").map(new File(_));
-    val finder = ClassFinder()
-    val classes = finder.getClasses
-
-    val aggregators = ClassFinder.concreteSubclasses("com.kaltura.aggregations.IAggregate", classes.iterator)
-
-    aggregators.map(cls => cls.name).toList
-
-
-  }
-
-  def aggregate(className: String, events: DStream[EnrichedPlayerEvent]) : Unit = {
-    val mirror = runtimeMirror(getClass.getClassLoader)
-    val module = mirror.staticModule(className)
-
-    val cls = mirror.reflectModule(module).instance.asInstanceOf[IAggregate]
-    val im =mirror.reflect(cls)
-    val method = im.symbol.typeSignature.member(TermName("aggregate")).asMethod
-    im.reflectMethod(method)(events)
-  }
-
 }
 
 class CustomKryoRegistrator extends KryoRegistrator {

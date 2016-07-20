@@ -1,4 +1,4 @@
-lazy val sparkVersion = "1.6.1"
+lazy val sparkVersion = "1.6.2"
 lazy val `kanalony-core` = (project in file(".")).
   settings(
     name := "kanalony-core",
@@ -13,7 +13,7 @@ lazy val `kanalony-core` = (project in file(".")).
       "org.apache.spark"        %%  "spark-streaming-kafka"       % sparkVersion,
       "eu.bitwalker"            %   "UserAgentUtils"              % "1.18",
       "com.datastax.cassandra"  %   "cassandra-driver-core"       % "3.0.2",
-      "com.datastax.spark"      %%  "spark-cassandra-connector"   % "1.6.0-M2",
+      "com.datastax.spark"      %%  "spark-cassandra-connector"   % "1.6.0",
       "commons-validator"       % "commons-validator"             % "1.5.0",
       "com.kaltura"             % "kalturaClient"                 % "3.2.1",
       "com.google.guava"        % "guava"                         % "18.0"
