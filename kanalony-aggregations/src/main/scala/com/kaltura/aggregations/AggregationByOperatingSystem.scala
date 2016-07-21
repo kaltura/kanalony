@@ -1,10 +1,10 @@
 package com.kaltura.aggregations
 
-import com.datastax.spark.connector.{SomeColumns, _}
+import com.datastax.spark.connector.SomeColumns
 import com.kaltura.aggregations.keys.AggregationOperatingSystemKey
+import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.joda.time.DateTime
-import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
 
 
 abstract class AggregationByOperatingSystem extends BaseAggregation[AggregationOperatingSystemKey, PartnerOperatingSystemRes] with IAggregate with Serializable {
@@ -16,7 +16,7 @@ abstract class AggregationByOperatingSystem extends BaseAggregation[AggregationO
     (getAggrTimeUnit,"time"),
     ("value","value"))
 
-  override def aggKey(e: EnrichedPlayerEvent): AggregationOperatingSystemKey = AggregationOperatingSystemKey(e.partnerId, e.eventType, getAggrTime(e.eventTime), e.userAgent.device.id)
+  override def aggKey(e: EnrichedPlayerEvent): AggregationOperatingSystemKey = AggregationOperatingSystemKey(e.partnerId, e.eventType, getAggrTime(e.eventTime), e.userAgent.operatingSystem.id)
   override def toRow(pair: (AggregationOperatingSystemKey, Long)): PartnerOperatingSystemRes = PartnerOperatingSystemRes(partnerId = pair._1.partnerId, operatingSystem = pair._1.operatingSystem, metric = pair._1.metric, year = pair._1.time.getYear, day = pair._1.time.getYearMonthDay, time = pair._1.time, value = pair._2)
 
 }
