@@ -1,11 +1,12 @@
 package kanalony.storage.logic.generated
 
-    import kanalony.storage.generated._
-    import kanalony.storage.logic._
-    import kanalony.storage.logic.queries.model._
-    import kanalony.storage.DbClientFactory._
-    import org.joda.time.{DateTimeZone, DateTime}
-    import scala.concurrent.Future
+import com.kaltura.core.userAgent.enums.Browser
+import kanalony.storage.generated._
+import kanalony.storage.logic._
+import kanalony.storage.logic.queries.model._
+import org.joda.time.{DateTime, DateTimeZone}
+
+import scala.concurrent.Future
 
     class MinutelyAggPrtnEntryCountryClstBrowserQuery(accessor : IMinutelyAggPrtnEntryCountryClstBrowserTableAccessor) extends QueryBase[MinutelyAggPrtnEntryCountryClstBrowserQueryParams, MinutelyAggPrtnEntryCountryClstBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnEntryCountryClstBrowserQueryParams = {
@@ -24,7 +25,7 @@ package kanalony.storage.logic.generated
       }
 
       override protected def getResultRow(row: MinutelyAggPrtnEntryCountryClstBrowserRow): List[String] = {
-        List(row.partnerId.toString,row.entryId.toString,row.country.toString,row.metric.toString,row.minute.toString,row.browser.toString,row.value.toString)
+        List(row.partnerId.toString,row.entryId.toString,row.country.toString,row.metric.toString,row.minute.toString,Browser(row.browser).toString,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {
