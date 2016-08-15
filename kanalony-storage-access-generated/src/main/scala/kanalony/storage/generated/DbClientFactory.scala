@@ -1,6 +1,5 @@
 package kanalony.storage
 
-import kanalony.storage._
 import com.websudos.phantom.connectors.KeySpace
 import kanalony.storage.generated._
 
@@ -121,8 +120,6 @@ private object MinutelyAggPrtnDeviceOsTableAccessorObj extends MinutelyAggPrtnDe
 lazy val MinutelyAggPrtnDeviceOsTableAccessor : IMinutelyAggPrtnDeviceOsTableAccessor = MinutelyAggPrtnDeviceOsTableAccessorObj
 private object MinutelyAggPrtnCv1Cv2TableAccessorObj extends MinutelyAggPrtnCv1Cv2TableAccessor with connector.Connector with IMinutelyAggPrtnCv1Cv2TableAccessor
 lazy val MinutelyAggPrtnCv1Cv2TableAccessor : IMinutelyAggPrtnCv1Cv2TableAccessor = MinutelyAggPrtnCv1Cv2TableAccessorObj
-private object TensecsAggClstOsTableAccessorObj extends TensecsAggClstOsTableAccessor with connector.Connector with ITensecsAggClstOsTableAccessor
-lazy val TensecsAggClstOsTableAccessor : ITensecsAggClstOsTableAccessor = TensecsAggClstOsTableAccessorObj
 private object HourlyAggClstBrowserTableAccessorObj extends HourlyAggClstBrowserTableAccessor with connector.Connector with IHourlyAggClstBrowserTableAccessor
 lazy val HourlyAggClstBrowserTableAccessor : IHourlyAggClstBrowserTableAccessor = HourlyAggClstBrowserTableAccessorObj
 private object HourlyAggClstDomainTableAccessorObj extends HourlyAggClstDomainTableAccessor with connector.Connector with IHourlyAggClstDomainTableAccessor

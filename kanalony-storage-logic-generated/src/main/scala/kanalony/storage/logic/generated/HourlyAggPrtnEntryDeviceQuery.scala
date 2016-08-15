@@ -1,6 +1,7 @@
 package kanalony.storage.logic.generated
 
-    import kanalony.storage.generated._
+import com.kaltura.core.userAgent.enums.Device
+import kanalony.storage.generated._
     import kanalony.storage.logic._
     import kanalony.storage.logic.queries.model._
     import kanalony.storage.DbClientFactory._
@@ -24,7 +25,7 @@ package kanalony.storage.logic.generated
       }
 
       override protected def getResultRow(row: HourlyAggPrtnEntryDeviceRow): List[String] = {
-        List(row.partnerId.toString,row.entryId.toString,row.device.toString,row.metric.toString,row.hour.toString,row.value.toString)
+        List(row.partnerId.toString,row.entryId.toString,Device(row.device).toStringg,row.metric.toString,row.hour.toString,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {

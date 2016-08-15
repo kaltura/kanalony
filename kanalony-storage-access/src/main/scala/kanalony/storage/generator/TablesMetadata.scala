@@ -61,7 +61,6 @@ object TablesMetadata {
     createTableMetadata("minutely_agg_clst_country","((partner_id,metric,day),minute,country),value"),
     createTableMetadata("minutely_agg_prtn_device_os","((partner_id,device,operating_system,metric,day),minute),value"),
     createTableMetadata("minutely_agg_prtn_cv1_cv2","((partner_id,custom_var1,custom_var2,metric,day),minute),value"),
-    createTableMetadata("tensecs_agg_clst_os","((partner_id,metric,day),tensecs,operating_system),value"),
     createTableMetadata("hourly_agg_clst_browser","((partner_id,metric,year),hour,browser),value"),
     createTableMetadata("hourly_agg_clst_domain","((partner_id,metric,year),hour,domain),value"),
     createTableMetadata("tensecs_agg_clst_referrer","((partner_id,metric,day),tensecs,referrer),value"),
