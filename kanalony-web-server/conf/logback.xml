@@ -15,6 +15,18 @@
   <logger name="play" level="INFO" />
   <logger name="application" level="DEBUG" />
 
+  <appender name="ACCESS_LOG_FILE" class="ch.qos.logback.core.FileAppender">
+    <file>logs/access.log</file>
+    <encoder>
+      <pattern>%date{yyyy-MM-dd HH:mm:ss ZZZZ} %message%n</pattern>
+    </encoder>
+  </appender>
+
+
+  <!-- additivity=false ensures access log data only goes to the access log -->
+  <logger name="accesslog" level="INFO" additivity="false">
+    <appender-ref ref="ACCESS_LOG_FILE" />
+  </logger>
   <root level="ERROR">
     <appender-ref ref="STDOUT" />
   </root>

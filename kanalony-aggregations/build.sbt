@@ -1,4 +1,4 @@
-lazy val sparkVersion = "1.6.2"
+lazy val sparkVersion = "2.0.0"
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-core` = RootProject(file("../kanalony-core"))
 lazy val `kanalony-storage-access` = RootProject(file("../kanalony-storage-access"))
@@ -12,10 +12,10 @@ lazy val `kanalony-aggregations` = (project in file(".")).
       "org.clapper"             %% "classutil"                  % "1.0.6",
       "org.apache.spark"        %% "spark-core"                 % sparkVersion,
       "org.apache.spark"        %% "spark-streaming"            % sparkVersion,
-      "org.apache.spark"        %% "spark-streaming-kafka"      % sparkVersion,
+      "org.apache.spark"        %% "spark-streaming-kafka-0-8"      % sparkVersion,
       "org.apache.spark"        %% "spark-sql"                  % sparkVersion,
       "com.datastax.cassandra"  %   "cassandra-driver-core"     % "3.0.2",
-      "com.datastax.spark"      %% "spark-cassandra-connector"  % "1.6.0",
+      "com.datastax.spark"      %% "spark-cassandra-connector"  % "2.0.0-M1",
       "joda-time"               % "joda-time"                   % "2.8.2",
       "org.apache.hadoop"       % "hadoop-aws"                  % "2.7.1",
       "com.amazonaws"           % "aws-java-sdk"                % "1.7.4",

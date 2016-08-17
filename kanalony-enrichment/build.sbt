@@ -1,4 +1,4 @@
-lazy val sparkVersion = "1.6.2"
+lazy val sparkVersion = "2.0.0"
 lazy val json4sVersion = "3.2.10"
 lazy val `kanalony-model` = RootProject(file("../kanalony-model"))
 lazy val `kanalony-core` = RootProject(file("../kanalony-core"))
@@ -10,7 +10,7 @@ lazy val `kanalony-enrichment` = (project in file(".")).
     libraryDependencies ++= Seq(
       "org.apache.spark"      %% "spark-core"                 % sparkVersion,
       "org.apache.spark"      %% "spark-streaming"            % sparkVersion,
-      "org.apache.spark"      %% "spark-streaming-kafka"      % sparkVersion,
+      "org.apache.spark"      %% "spark-streaming-kafka-0-8"      % sparkVersion,
       "org.json4s"            %% "json4s-jackson"             % json4sVersion,
       "org.json4s"            %% "json4s-native"              % json4sVersion,
       "org.json4s"            %% "json4s-ext"                 % json4sVersion,
