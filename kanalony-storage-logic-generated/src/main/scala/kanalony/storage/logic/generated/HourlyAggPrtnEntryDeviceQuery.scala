@@ -25,7 +25,7 @@ import kanalony.storage.generated._
       }
 
       override protected def getResultRow(row: HourlyAggPrtnEntryDeviceRow): List[String] = {
-        List(row.partnerId.toString,row.entryId.toString,Device(row.device).toStringg,row.metric.toString,row.hour.toString,row.value.toString)
+        List(row.partnerId.toString,row.entryId.toString,Device(row.device).toString,row.metric.toString,row.hour.toString,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {
