@@ -2,11 +2,11 @@ package kanalony.storage.logic.generated
 
 import com.kaltura.core.userAgent.enums.Device
 import kanalony.storage.generated._
-    import kanalony.storage.logic._
-    import kanalony.storage.logic.queries.model._
-    import kanalony.storage.DbClientFactory._
-    import org.joda.time.{DateTimeZone, DateTime}
-    import scala.concurrent.Future
+import kanalony.storage.logic._
+import kanalony.storage.logic.queries.model._
+import org.joda.time.{DateTime, DateTimeZone}
+
+import scala.concurrent.Future
 
     class HourlyAggPrtnEntryDeviceQuery(accessor : IHourlyAggPrtnEntryDeviceTableAccessor) extends QueryBase[HourlyAggPrtnEntryDeviceQueryParams, HourlyAggPrtnEntryDeviceRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnEntryDeviceQueryParams = {
@@ -25,7 +25,7 @@ import kanalony.storage.generated._
       }
 
       override protected def getResultRow(row: HourlyAggPrtnEntryDeviceRow): List[String] = {
-        List(row.partnerId.toString,row.entryId.toString,Device(row.device).toStringg,row.metric.toString,row.hour.toString,row.value.toString)
+        List(row.partnerId.toString,row.entryId.toString,Device(row.device).toString,row.metric.toString,row.hour.toString,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {

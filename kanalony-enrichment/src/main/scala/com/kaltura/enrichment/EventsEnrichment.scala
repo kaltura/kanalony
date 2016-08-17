@@ -1,6 +1,7 @@
 package com.kaltura.enrichment
 
 import com.kaltura.core.ip2location.LocationResolver
+import com.kaltura.core.logging.{MetaLog, BaseLog}
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.urls.UrlParser
 import com.kaltura.core.userAgent.UserAgentResolver
@@ -11,10 +12,10 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{Logging, SparkConf, SparkContext}
+import org.apache.spark.{SparkConf, SparkContext}
 
 
-object EventsEnrichment extends App with Logging {
+object EventsEnrichment extends App with MetaLog[BaseLog] {
 
   override def main(args: Array[String]) {
 
@@ -105,7 +106,7 @@ object EventsEnrichment extends App with Logging {
     if (!log4jInitialized) {
       // We first log something to initialize Spark's default logging, then we override the
       // logging level.
-      logInfo("Setting log level to [WARN] for streaming example." +
+      logger.info("Setting log level to [WARN] for streaming example." +
         " To override add a custom log4j.properties to the classpath.")
       Logger.getRootLogger.setLevel(Level.WARN)
     }

@@ -1,12 +1,13 @@
 package com.kaltura.enrichment
 
+import com.kaltura.core.logging.{BaseLog, MetaLog}
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.enrichment.EventsEnrichment._
 import com.kaltura.model.events.PlayerEventParser
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{Logging, SparkConf}
+import org.apache.spark.SparkConf
 
 import scala.collection.mutable
 import scala.io.Source
@@ -18,7 +19,7 @@ import scala.language.postfixOps
 /**
  * Created by orlylampert on 4/4/16.
  */
-object EnrichmentTest extends App with Logging {
+object EnrichmentTest extends App with MetaLog[BaseLog]  {
   override def main(args: Array[String]) {
 
   setStreamingLogLevels
@@ -71,7 +72,7 @@ object EnrichmentTest extends App with Logging {
     if (!log4jInitialized) {
       // We first log something to initialize Spark's default logging, then we override the
       // logging level.
-      logInfo("Setting log level to [WARN] for streaming example." +
+      logger.info("Setting log level to [WARN] for streaming example." +
         " To override add a custom log4j.properties to the classpath.")
       Logger.getRootLogger.setLevel(Level.WARN)
     }

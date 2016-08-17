@@ -1,6 +1,7 @@
 package com.kaltura.aggregations
 
 import com.esotericsoftware.kryo.Kryo
+import com.kaltura.core.logging.{BaseLog, MetaLog}
 import com.kaltura.core.streaming.StreamManager
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.PlayerEventParser
@@ -8,10 +9,10 @@ import de.javakaffee.kryoserializers.jodatime.JodaDateTimeSerializer
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.serializer.KryoRegistrator
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{Logging, SparkConf, SparkContext}
+import org.apache.spark.{SparkConf, SparkContext}
 import org.joda.time.DateTime
 
-object EventsAggregation extends App with Logging {
+object EventsAggregation extends App with MetaLog[BaseLog] {
 
   case class EntryAggrKey(entryId: String, eventType: Int, minute: DateTime)
 
@@ -228,7 +229,7 @@ object EventsAggregation extends App with Logging {
     if (!log4jInitialized) {
       // We first log something to initialize Spark's default logging, then we override the
       // logging level.
-      logInfo("Setting log level to [WARN] for streaming example." +
+      logger.info("Setting log level to [WARN] for streaming example." +
         " To override add a custom log4j.properties to the classpath.")
     }
     Logger.getRootLogger.setLevel(Level.WARN)

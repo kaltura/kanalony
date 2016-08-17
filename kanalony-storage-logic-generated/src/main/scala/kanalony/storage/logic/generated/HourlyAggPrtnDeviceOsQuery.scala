@@ -1,6 +1,6 @@
 package kanalony.storage.logic.generated
 
-import com.kaltura.core.userAgent.enums.Device
+import com.kaltura.core.userAgent.enums.{OperatingSystem, Device}
 import kanalony.storage.generated._
 import kanalony.storage.logic._
 import kanalony.storage.logic.queries.model._
