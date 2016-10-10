@@ -10,7 +10,9 @@ trait IMonthlyPartitionedQueryParams {
   val startTime : DateTime
   val endTime : DateTime
   val months = {
-    val monthCount = Months.monthsBetween(startTime.withZone(DateTimeZone.UTC), endTime.withZone(DateTimeZone.UTC)).getMonths
+    val startTimeFirstDayOfMonth = startTime.withZone(DateTimeZone.UTC).withDayOfMonth(1)
+    val endTimeFirstDayOfNextMonth = endTime.withZone(DateTimeZone.UTC).plusMonths(1).withDayOfMonth(1)
+    val monthCount = Months.monthsBetween(startTimeFirstDayOfMonth, endTimeFirstDayOfNextMonth).getMonths - 1
     (0 to monthCount).map(numOfMonthsToAdd => {
       val monthDateTime = startTime.withZone(DateTimeZone.UTC).plusMonths(numOfMonthsToAdd)
       monthDateTime.getYearMonth
