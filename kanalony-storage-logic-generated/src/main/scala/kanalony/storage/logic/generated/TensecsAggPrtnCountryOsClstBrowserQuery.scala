@@ -7,8 +7,9 @@ import kanalony.storage.logic.queries.model._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
-    class TensecsAggPrtnCountryOsClstBrowserQuery(accessor : ITensecsAggPrtnCountryOsClstBrowserTableAccessor) extends QueryBase[TensecsAggPrtnCountryOsClstBrowserQueryParams, TensecsAggPrtnCountryOsClstBrowserRow] with IUserActivityQuery {
+class TensecsAggPrtnCountryOsClstBrowserQuery(accessor : ITensecsAggPrtnCountryOsClstBrowserTableAccessor) extends QueryBase[TensecsAggPrtnCountryOsClstBrowserQueryParams, TensecsAggPrtnCountryOsClstBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggPrtnCountryOsClstBrowserQueryParams = {
         val (partner_id,country,operating_system) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,Int]((Dimensions.partner,Dimensions.country,Dimensions.operatingSystem), params)
         TensecsAggPrtnCountryOsClstBrowserQueryParams(params.startUtc, params.endUtc, partner_id,country,operating_system, params.metrics.map(_.name))
@@ -25,7 +26,21 @@ import scala.concurrent.Future
       }
 
       override protected def getResultRow(row: TensecsAggPrtnCountryOsClstBrowserRow): List[String] = {
-        List(row.partnerId.toString,row.country.toString,OperatingSystem(row.operatingSystem).toString,row.metric.toString,row.tensecs.toString,Browser(row.browser).toString,row.value.toString)
+        val browser : String =
+          Try({
+            Browser(row.browser).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(Browser.UNKNOWN.toString)
+        val os : String =
+          Try({
+            OperatingSystem(row.operatingSystem).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(OperatingSystem.UNKNOWN.toString)
+        List(row.partnerId.toString,row.country.toString,os,row.metric.toString,row.tensecs.toString,browser,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {

@@ -7,8 +7,9 @@ import kanalony.storage.logic.queries.model._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
-    class MinutelyAggPrtnEntryDeviceOsQuery(accessor : IMinutelyAggPrtnEntryDeviceOsTableAccessor) extends QueryBase[MinutelyAggPrtnEntryDeviceOsQueryParams, MinutelyAggPrtnEntryDeviceOsRow] with IUserActivityQuery {
+class MinutelyAggPrtnEntryDeviceOsQuery(accessor : IMinutelyAggPrtnEntryDeviceOsTableAccessor) extends QueryBase[MinutelyAggPrtnEntryDeviceOsQueryParams, MinutelyAggPrtnEntryDeviceOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnEntryDeviceOsQueryParams = {
         val (partner_id,entry_id,device,operating_system) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,Int,Int]((Dimensions.partner,Dimensions.entry,Dimensions.device,Dimensions.operatingSystem), params)
         MinutelyAggPrtnEntryDeviceOsQueryParams(params.startUtc, params.endUtc, partner_id,entry_id,device,operating_system, params.metrics.map(_.name))
@@ -25,7 +26,21 @@ import scala.concurrent.Future
       }
 
       override protected def getResultRow(row: MinutelyAggPrtnEntryDeviceOsRow): List[String] = {
-        List(row.partnerId.toString,row.entryId.toString,Device(row.device).toString,OperatingSystem(row.operatingSystem).toString,row.metric.toString,row.minute.toString,row.value.toString)
+        val device : String =
+          Try({
+            Device(row.device).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(Device.UNKNOWN.toString);
+        val os : String =
+          Try({
+            OperatingSystem(row.operatingSystem).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(OperatingSystem.UNKNOWN.toString);
+        List(row.partnerId.toString,row.entryId.toString,device,os,row.metric.toString,row.minute.toString,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {

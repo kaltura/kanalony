@@ -23,9 +23,10 @@ object UserAgentResolver extends Serializable {
   def resolve(ua:String): UserAgent = {
     val userAgent = cache.get(ua)
     val operatingSystem = userAgent.getOperatingSystem
-    UserAgent(Browser.withName(userAgent.getBrowser.getName),
-              OperatingSystem.withName(operatingSystem.getName),
-              Device.withName(operatingSystem.getDeviceType.getName))
+
+    UserAgent(Browser.values.find(_.toString == userAgent.getBrowser.getName).getOrElse(Browser.UNKNOWN),
+              OperatingSystem.values.find(_.toString == operatingSystem.getName).getOrElse(OperatingSystem.UNKNOWN),
+              Device.values.find(_.toString == operatingSystem.getDeviceType.getName).getOrElse(Device.UNKNOWN))
   }
 
   private def buildCache = {

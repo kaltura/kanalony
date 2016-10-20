@@ -7,8 +7,9 @@ import kanalony.storage.logic.queries.model._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
-    class HourlyAggClstDeviceQuery(accessor : IHourlyAggClstDeviceTableAccessor) extends QueryBase[HourlyAggClstDeviceQueryParams, HourlyAggClstDeviceRow] with IUserActivityQuery {
+class HourlyAggClstDeviceQuery(accessor : IHourlyAggClstDeviceTableAccessor) extends QueryBase[HourlyAggClstDeviceQueryParams, HourlyAggClstDeviceRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggClstDeviceQueryParams = {
         val (partner_id) = QueryParamsValidator.extractEqualityConstraintParams[Int]((Dimensions.partner), params)
         HourlyAggClstDeviceQueryParams(params.startUtc, params.endUtc, partner_id, params.metrics.map(_.name))
@@ -25,7 +26,14 @@ import scala.concurrent.Future
       }
 
       override protected def getResultRow(row: HourlyAggClstDeviceRow): List[String] = {
-        List(row.partnerId.toString,row.metric.toString,row.hour.toString,Device(row.device).toString,row.value.toString)
+        val device : String =
+          Try({
+            Device(row.device).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(Device.UNKNOWN.toString)
+        List(row.partnerId.toString,row.metric.toString,row.hour.toString,device,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {

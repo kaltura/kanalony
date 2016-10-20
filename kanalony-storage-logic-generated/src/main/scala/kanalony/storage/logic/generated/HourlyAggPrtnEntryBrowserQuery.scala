@@ -7,8 +7,9 @@ import kanalony.storage.logic.queries.model._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
-    class HourlyAggPrtnEntryBrowserQuery(accessor : IHourlyAggPrtnEntryBrowserTableAccessor) extends QueryBase[HourlyAggPrtnEntryBrowserQueryParams, HourlyAggPrtnEntryBrowserRow] with IUserActivityQuery {
+class HourlyAggPrtnEntryBrowserQuery(accessor : IHourlyAggPrtnEntryBrowserTableAccessor) extends QueryBase[HourlyAggPrtnEntryBrowserQueryParams, HourlyAggPrtnEntryBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnEntryBrowserQueryParams = {
         val (partner_id,entry_id,browser) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,Int]((Dimensions.partner,Dimensions.entry,Dimensions.browser), params)
         HourlyAggPrtnEntryBrowserQueryParams(params.startUtc, params.endUtc, partner_id,entry_id,browser, params.metrics.map(_.name))
@@ -25,7 +26,15 @@ import scala.concurrent.Future
       }
 
       override protected def getResultRow(row: HourlyAggPrtnEntryBrowserRow): List[String] = {
-        List(row.partnerId.toString,row.entryId.toString,Browser(row.browser).toString,row.metric.toString,row.hour.toString,row.value.toString)
+        val browser : String =
+          Try({
+            Browser(row.browser).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(Browser.UNKNOWN.toString)
+
+        List(row.partnerId.toString,row.entryId.toString,browser,row.metric.toString,row.hour.toString,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {

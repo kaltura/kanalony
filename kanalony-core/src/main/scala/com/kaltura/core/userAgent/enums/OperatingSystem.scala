@@ -86,6 +86,6 @@ object OperatingSystem extends Enumeration {
   val PROXY = Value(266, "Proxy")
   val UNKNOWN_MOBILE = Value(259, "Unknown mobile")
   val UNKNOWN_TABLET = Value(260, "Unknown tablet")
-  val UNKNOWN = Value(257, "Unknown")
+  val UNKNOWN = Value(257, "Unknown Operating System")
   
 }

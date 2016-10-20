@@ -7,8 +7,9 @@ import kanalony.storage.logic.queries.model._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
-    class HourlyAggPrtnCountryOsBrowserQuery(accessor : IHourlyAggPrtnCountryOsBrowserTableAccessor) extends QueryBase[HourlyAggPrtnCountryOsBrowserQueryParams, HourlyAggPrtnCountryOsBrowserRow] with IUserActivityQuery {
+class HourlyAggPrtnCountryOsBrowserQuery(accessor : IHourlyAggPrtnCountryOsBrowserTableAccessor) extends QueryBase[HourlyAggPrtnCountryOsBrowserQueryParams, HourlyAggPrtnCountryOsBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnCountryOsBrowserQueryParams = {
         val (partner_id,country,operating_system,browser) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,Int,Int]((Dimensions.partner,Dimensions.country,Dimensions.operatingSystem,Dimensions.browser), params)
         HourlyAggPrtnCountryOsBrowserQueryParams(params.startUtc, params.endUtc, partner_id,country,operating_system,browser, params.metrics.map(_.name))
@@ -25,7 +26,21 @@ import scala.concurrent.Future
       }
 
       override protected def getResultRow(row: HourlyAggPrtnCountryOsBrowserRow): List[String] = {
-        List(row.partnerId.toString,row.country.toString,OperatingSystem(row.operatingSystem).toString,Browser(row.browser).toString,row.metric.toString,row.hour.toString,row.value.toString)
+        val browser : String =
+          Try({
+            Browser(row.browser).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(Browser.UNKNOWN.toString)
+        val os : String =
+          Try({
+            OperatingSystem(row.operatingSystem).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(OperatingSystem.UNKNOWN.toString)
+        List(row.partnerId.toString,row.country.toString,os,browser,row.metric.toString,row.hour.toString,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {

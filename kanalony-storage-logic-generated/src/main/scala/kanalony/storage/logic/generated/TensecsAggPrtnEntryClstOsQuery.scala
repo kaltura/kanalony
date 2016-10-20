@@ -7,8 +7,9 @@ import kanalony.storage.logic.queries.model._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
-    class TensecsAggPrtnEntryClstOsQuery(accessor : ITensecsAggPrtnEntryClstOsTableAccessor) extends QueryBase[TensecsAggPrtnEntryClstOsQueryParams, TensecsAggPrtnEntryClstOsRow] with IUserActivityQuery {
+class TensecsAggPrtnEntryClstOsQuery(accessor : ITensecsAggPrtnEntryClstOsTableAccessor) extends QueryBase[TensecsAggPrtnEntryClstOsQueryParams, TensecsAggPrtnEntryClstOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): TensecsAggPrtnEntryClstOsQueryParams = {
         val (partner_id,entry_id) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.entry), params)
         TensecsAggPrtnEntryClstOsQueryParams(params.startUtc, params.endUtc, partner_id,entry_id, params.metrics.map(_.name))
@@ -25,7 +26,15 @@ import scala.concurrent.Future
       }
 
       override protected def getResultRow(row: TensecsAggPrtnEntryClstOsRow): List[String] = {
-        List(row.partnerId.toString,row.entryId.toString,row.metric.toString,row.tensecs.toString,OperatingSystem(row.operatingSystem).toString,row.value.toString)
+
+        val os : String =
+          Try({
+            OperatingSystem(row.operatingSystem).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(OperatingSystem.UNKNOWN.toString)
+        List(row.partnerId.toString,row.entryId.toString,row.metric.toString,row.tensecs.toString,os,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {
