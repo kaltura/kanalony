@@ -7,8 +7,9 @@ import kanalony.storage.logic.queries.model._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
-    class MinutelyAggPrtnCountryClstBrowserQuery(accessor : IMinutelyAggPrtnCountryClstBrowserTableAccessor) extends QueryBase[MinutelyAggPrtnCountryClstBrowserQueryParams, MinutelyAggPrtnCountryClstBrowserRow] with IUserActivityQuery {
+class MinutelyAggPrtnCountryClstBrowserQuery(accessor : IMinutelyAggPrtnCountryClstBrowserTableAccessor) extends QueryBase[MinutelyAggPrtnCountryClstBrowserQueryParams, MinutelyAggPrtnCountryClstBrowserRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): MinutelyAggPrtnCountryClstBrowserQueryParams = {
         val (partner_id,country) = QueryParamsValidator.extractEqualityConstraintParams[Int,String]((Dimensions.partner,Dimensions.country), params)
         MinutelyAggPrtnCountryClstBrowserQueryParams(params.startUtc, params.endUtc, partner_id,country, params.metrics.map(_.name))
@@ -25,7 +26,15 @@ import scala.concurrent.Future
       }
 
       override protected def getResultRow(row: MinutelyAggPrtnCountryClstBrowserRow): List[String] = {
-        List(row.partnerId.toString,row.country.toString,row.metric.toString,row.minute.toString,Browser(row.browser).toString,row.value.toString)
+        val browser : String =
+          Try({
+            Browser(row.browser).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(Browser.UNKNOWN.toString)
+
+        List(row.partnerId.toString,row.country.toString,row.metric.toString,row.minute.toString,browser,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {

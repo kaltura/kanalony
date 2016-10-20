@@ -7,8 +7,9 @@ import kanalony.storage.logic.queries.model._
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
-    class HourlyAggPrtnEntryCountryClstOsQuery(accessor : IHourlyAggPrtnEntryCountryClstOsTableAccessor) extends QueryBase[HourlyAggPrtnEntryCountryClstOsQueryParams, HourlyAggPrtnEntryCountryClstOsRow] with IUserActivityQuery {
+class HourlyAggPrtnEntryCountryClstOsQuery(accessor : IHourlyAggPrtnEntryCountryClstOsTableAccessor) extends QueryBase[HourlyAggPrtnEntryCountryClstOsQueryParams, HourlyAggPrtnEntryCountryClstOsRow] with IUserActivityQuery {
       private[logic] override def extractParams(params: QueryParams): HourlyAggPrtnEntryCountryClstOsQueryParams = {
         val (partner_id,entry_id,country) = QueryParamsValidator.extractEqualityConstraintParams[Int,String,String]((Dimensions.partner,Dimensions.entry,Dimensions.country), params)
         HourlyAggPrtnEntryCountryClstOsQueryParams(params.startUtc, params.endUtc, partner_id,entry_id,country, params.metrics.map(_.name))
@@ -25,7 +26,15 @@ import scala.concurrent.Future
       }
 
       override protected def getResultRow(row: HourlyAggPrtnEntryCountryClstOsRow): List[String] = {
-        List(row.partnerId.toString,row.entryId.toString,row.country.toString,row.metric.toString,row.hour.toString,OperatingSystem(row.operatingSystem).toString,row.value.toString)
+
+        val os : String =
+          Try({
+            OperatingSystem(row.operatingSystem).toString
+          }).recoverWith({
+            // Just log the exception and keep it as a failure.
+            case (ex: NoSuchElementException) => Failure(ex)
+          }).getOrElse(OperatingSystem.UNKNOWN.toString)
+        List(row.partnerId.toString,row.entryId.toString,row.country.toString,row.metric.toString,row.hour.toString,os,row.value.toString)
       }
 
       override val dimensionInformation: List[DimensionDefinition] = {
