@@ -10,7 +10,7 @@ object PartnerDAO extends DAOBase[Partner, Int] with MetaLog[BaseLog] {
   def getById(id: Int): Option[Partner] = {
     withPartnerImpersonation(id,"get partner data", Some(Partner(id))) { kalturaAPI =>
       val partner = kalturaAPI.getPartnerService.get(id)
-      Some(Partner(id, Option(partner.adminSecret), Option(partner.crmId)))
+      Some(Partner(id, Option(partner.adminSecret), Option(partner.crmId), Option(partner.partnerPackage)))
     }
   }
 }
