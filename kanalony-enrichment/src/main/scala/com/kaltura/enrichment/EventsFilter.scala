@@ -4,6 +4,8 @@ import java.nio.file.{Files, Paths}
 
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.RawPlayerEvent
+import com.kaltura.model.cache.PartnerCache
+import com.kaltura.model.entities.Partner
 
 /**
  * Created by ofirk on 29/05/2016.
@@ -19,7 +21,7 @@ class EventsFilter {
   }
   val enabledPackages = ConfigurationManager.getOrElse("kanalony.events_enrichment.enabled_partners_package_ids", "*").split(",")
 
-  def include(event: RawPlayerEvent): Boolean = includeAll || (event.params.get("partnerPackage").isDefined && enabledPackages.contains(event.params.get("partnerPackage"))) || (event.partnerId.isDefined && enabledPartners.contains(event.partnerId.get))
+  def include(event: RawPlayerEvent): Boolean = includeAll || (event.partnerId.isDefined && enabledPackages.contains(PartnerCache.findById(event.partnerId.get).getOrElse(Partner(-1)).packageId.getOrElse(-1))) || (event.partnerId.isDefined && enabledPartners.contains(event.partnerId.get))
 
 }
 
