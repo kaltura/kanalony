@@ -13,7 +13,7 @@ sealed class PartnerCache extends CacheBase[Partner, Int]{
 
   override val tableName = "dim_partners"
   override val idFieldName = "id"
-  override def fromRow(row: Row) = if (row != null) Some(Partner(row.getInt("id"), Option(row.getString("secret")), Option(row.getString("crm_id")))) else None
+  override def fromRow(row: Row) = if (row != null) Some(Partner(row.getInt("id"), Option(row.getString("secret")), Option(row.getString("crm_id")), Option(row.getInt("packageId")))) else None
   val ttl = 1 day
 
   def getById(id: Int) : Partner = {
@@ -25,6 +25,7 @@ sealed class PartnerCache extends CacheBase[Partner, Int]{
         .value("id", partner.id)
         .value("secret", partner.secret.orNull)
         .value("crm_id", partner.crmId.orNull)
+        .value("package_id", partner.packageId.orNull)
         .using(QueryBuilder.ttl(ttl))
       )
       partner
