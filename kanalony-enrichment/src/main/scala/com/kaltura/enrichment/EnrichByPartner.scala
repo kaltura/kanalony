@@ -20,7 +20,6 @@ class EnrichByPartner extends IEnrich[Integer,Partner] with KSParserBase {
         val ksData = parse(ks).getOrElse(KSData(partnerId))
         val userId = if (ksData.userId == "0") "Unknown" else ksData.userId
         playerEvent.copy(params = playerEvent.params + ("userId" -> userId))
-        playerEvent.copy(params = playerEvent.params + ("partnerPackage" -> localCache.get(partnerId).packageId.getOrElse(-1).toString))
       }
       else playerEvent
     }
