@@ -21,7 +21,7 @@ class EventsFilter {
   }
   val enabledPackages = ConfigurationManager.getOrElse("kanalony.events_enrichment.enabled_partners_package_ids", "*").split(",")
 
-  def include(event: RawPlayerEvent): Boolean = includeAll || (event.partnerId.isDefined && enabledPackages.contains(PartnerCache.getById(event.partnerId.get).packageId.getOrElse(-1))) || (event.partnerId.isDefined && enabledPartners.contains(event.partnerId.get))
+  def include(event: RawPlayerEvent): Boolean = includeAll || (event.partnerId.isDefined && enabledPackages.contains(PartnerCache.getById(event.partnerId.get).packageId.getOrElse(-1).toString)) || (event.partnerId.isDefined && enabledPartners.contains(event.partnerId.get))
 
 }
 
