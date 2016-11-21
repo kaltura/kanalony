@@ -1,6 +1,8 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.{Metric, Metrics}
+import com.kaltura.model.entities.{Metrics, Metric}
+import kanalony.storage.logic.queries.model.OrderDirection
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -14,7 +16,7 @@ object QueryExecutor {
   def query(qp : QueryParams) : Future[IQueryResult] = {
     val queries = QueryLocator.locate(qp, ComputedDimensions, ComputedMetrics)
     val queryResults = queries.map(q => {
-      val queryParamsPerQuery = QueryParams(qp.dimensionDefinitions, q._2, qp.start, qp.end, qp.timezoneOffset)
+      val queryParamsPerQuery = QueryParams(qp.dimensionDefinitions, q._2, qp.start, qp.end, qp.timezoneOffset, qp.orderBy, qp.pager)
       q._1.query(queryParamsPerQuery)
     })
     Future.sequence(queryResults)
@@ -46,7 +48,44 @@ object QueryExecutor {
         .values
         .toList
       val headers = queryParams.dimensionDefinitions.filter(_.includeInResult).map(_.dimension.toString) ::: queryParams.metrics.map(_.name)
-      QueryResult(headers, resultantRows)
+      sortQueryResult(queryParams, QueryResult(headers, resultantRows))
     }
   }
+
+  def sortResults(params: QueryParams): (List[QueryResult]) => List[QueryResult] =  {
+    QueryResults => {
+      QueryResults.map(queryResult => sortQueryResult(params, queryResult) )
+    }
+  }
+
+  def sortQueryResult(params: QueryParams, queryResult: QueryResult): QueryResult = {
+    val index = queryResult.headers.indexOf(params.orderBy.header)
+
+    val sorted = {
+      if (index >= 0) {
+        queryResult.rows.sortWith { (row1, row2) =>
+          if (params.metrics.contains(Metrics.get(params.orderBy.header)))
+            (row1(index).toDouble < row2(index).toDouble)
+          else
+            (row1(index).compareTo(row2(index)) < 0)
+        }
+      }
+      else
+        queryResult.rows
+    }
+
+    val (start, end) =
+      if (params.pager.index > 0) {
+        ((params.pager.index - 1) * params.pager.size, (params.pager.size * params.pager.index))
+      } else {
+        (0,sorted.size)
+      }
+
+    params.orderBy.order match {
+      case OrderDirection.DESC => new QueryResult(queryResult.headers, sorted.reverse.slice(start, end))
+      case _ => new QueryResult(queryResult.headers, sorted.slice(start, end))
+    }
+
+  }
+
 }
