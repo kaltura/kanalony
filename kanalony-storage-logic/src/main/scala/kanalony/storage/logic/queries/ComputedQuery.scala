@@ -1,8 +1,9 @@
 package kanalony.storage.logic.queries
 
-import com.kaltura.model.entities.{Metric, Metrics}
-import kanalony.storage.logic.queries.model.IDimensionDefinition
+import com.kaltura.model.entities.Metric
 import kanalony.storage.logic._
+import kanalony.storage.logic.queries.model.IDimensionDefinition
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -54,7 +55,7 @@ abstract class ComputedQuery(val metric : Metric, queryParams: QueryParams, quer
   }
 
   private def convertQueryParams(queryParams: QueryParams, metrics : List[Metric]) : QueryParams = {
-    QueryParams(queryParams.dimensionDefinitions, metrics , queryParams.start, queryParams.end, queryParams.timezoneOffset)
+    QueryParams(queryParams.dimensionDefinitions, metrics , queryParams.start, queryParams.end, queryParams.timezoneOffset, queryParams.orderBy, queryParams.pager)
   }
 
   override def query(params: QueryParams): Future[List[IQueryResult]] = {

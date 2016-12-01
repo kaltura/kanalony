@@ -1,6 +1,6 @@
 package kanalony.storage.logic
 
-import com.kaltura.model.entities.{Metric, Metrics}
+import com.kaltura.model.entities.Metric
 import kanalony.storage.logic.generated.Queries
 import kanalony.storage.logic.queries.model.QueryConstraint
 
@@ -43,7 +43,7 @@ class QueryLocator(availableQueries : List[IQuery]) extends IQueryLocator {
     val computedMetricQueries = requestedComputedMetrics.toList.flatMap(computedMetrics.getQueryCreator(_)(queryParams))
 
     val nonComputedMetrics = queryParams.metrics.toSet -- requestedComputedMetrics
-    val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end, queryParams.timezoneOffset)
+    val updatedQueryParams = QueryParams(queryParams.dimensionDefinitions, nonComputedMetrics.toList, queryParams.start, queryParams.end, queryParams.timezoneOffset, queryParams.orderBy, queryParams.pager)
 
     if (nonComputedMetrics.isEmpty)
     {

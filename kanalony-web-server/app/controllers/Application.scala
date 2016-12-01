@@ -1,17 +1,19 @@
 package controllers
 
+import argonaut.Argonaut._
+import argonaut._
 import com.kaltura.model.entities.{Metric, Metrics}
-import kanalony.storage.logic.queries.model._
 import kanalony.storage.logic._
+import kanalony.storage.logic.queries.model._
 import model._
+import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
-import org.joda.time.{LocalDateTime, DateTime}
-import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.mvc._
-import argonaut._, Argonaut._
-import scala.concurrent._
-import model.Implicits._
 import play.Logger
+import play.api.mvc._
+import model.Implicits._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
 
 class Application extends Controller {
 
@@ -35,6 +37,7 @@ class Application extends Controller {
       }
 
       val queryParams = requestToQueryParams(analyticsRequest.right.get)
+
       val queryExecutionResult = execute(queryParams)
       val queryResponseData =  queryExecutionResult map { data => AnalyticsResponse(data.headers, data.rows) }
 
@@ -57,6 +60,11 @@ class Application extends Controller {
       case e: QueryNotSupportedException => {
         return wrapWithPromise(NotFound(createErrorJsonResponse("unsupportedQuery", e.getMessage)))
       }
+
+      case e: InvalidOrderByException => {
+        return wrapWithPromise(BadRequest(createErrorJsonResponse("unsupportedOrderBy", e.getMessage)))
+      }
+
       case e: IllegalArgumentException => {
         return wrapWithPromise(BadRequest(createErrorJsonResponse("invalidInput", e.getMessage)))
       }
@@ -110,6 +118,19 @@ class Application extends Controller {
     formatter.parseLocalDateTime(time)
   }
 
+  def extractOrder(orderBy: String) : OrderDefinition = {
+    val direction = orderBy.charAt(0).toString
+    direction match {
+      case "+" => OrderDefinition(orderBy.substring(1).trim, OrderDirection.ASC)
+      case "-" => OrderDefinition(orderBy.substring(1).trim, OrderDirection.DESC)
+      case _ =>  OrderDefinition(orderBy, OrderDirection.DESC)
+    }
+  }
+
+  def extractPager(pager: Pager) : PagerDefinition = {
+    PagerDefinition(pager.size, pager.index)
+  }
+
   def createConstraint(dimension: Dimensions.Value, values: List[String]) : IDimensionConstraint = {
     try {
       dimension match {
@@ -128,10 +149,19 @@ class Application extends Controller {
 
     val dimensionsInResult = extractDimensions(req.dimensions)
     val metricsInResult = extractMetrics(req.metrics)
+    val orderBy = extractOrder(req.orderBy)
+    val pager = extractPager(req.pager)
+
 
     if (metricsInResult.isEmpty){
       throw new MetricNotSuppliedException
     }
+
+
+    if (!orderBy.header.isEmpty && !(req.dimensions.contains(orderBy.header)) && !(req.metrics.contains(orderBy.header))) {
+      throw new InvalidOrderByException
+    }
+
 
     val constrainedDimensionDefinitions = req.filters.map {
       f => {
@@ -146,6 +176,6 @@ class Application extends Controller {
       dimension => QueryDimensionDefinition(dimension , new DimensionUnconstrained, true)
     }
 
-    QueryParams(constrainedDimensionDefinitions ::: unconstrainedDimensionDefinitions, metricsInResult, extractTime(req.from), extractTime(req.to), req.utcOffset)
+    QueryParams(constrainedDimensionDefinitions ::: unconstrainedDimensionDefinitions, metricsInResult, extractTime(req.from), extractTime(req.to), req.utcOffset, orderBy, pager)
   }
 }

@@ -1,9 +1,10 @@
 package kanalony.storage.logic.queries
 
-import com.kaltura.model.entities.{Metric, Metrics}
+import com.kaltura.model.entities.Metric
 import kanalony.storage.logic._
 import kanalony.storage.logic.queries.model.{IDimensionDefinition, QueryDimensionDefinition}
 import org.joda.time.DateTime
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -81,7 +82,7 @@ abstract class DailyQueryBase(queryParams: QueryParams, queryLocator: IQueryLoca
       else { dimDef }
     })
 
-    val internalQueryParams = QueryParams(internalQueryDimensionDefinitions, params.metrics, params.start, params.end, params.timezoneOffset)
+    val internalQueryParams = QueryParams(internalQueryDimensionDefinitions, params.metrics, params.start, params.end, params.timezoneOffset, params.orderBy, params.pager)
     query.query(internalQueryParams)
          .map(qrList => qrList.map(aggregateByDay))
 
@@ -94,7 +95,7 @@ abstract class DailyQueryBase(queryParams: QueryParams, queryLocator: IQueryLoca
       case QueryDimensionDefinition(Dimensions.day, constraint, includeInResult) => QueryDimensionDefinition(Dimensions.hour, constraint, includeInResult)
       case dimensionDefinition: QueryDimensionDefinition => dimensionDefinition
     }
-    QueryParams(dimDefs, queryParams.metrics, queryParams.start, queryParams.end, queryParams.timezoneOffset)
+    QueryParams(dimDefs, queryParams.metrics, queryParams.start, queryParams.end, queryParams.timezoneOffset, queryParams.orderBy, queryParams.pager)
   }
 
   override val supportedWellKnownMetrics: Set[Metric] = query.supportedWellKnownMetrics
