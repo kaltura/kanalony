@@ -23,7 +23,7 @@ class QueryLocator(availableQueries : List[IQuery]) extends IQueryLocator {
     queryDimnesions subsetOf tableDimensions
   }
 
-  private def calcTableCompatibilityDistance(query : IQuery, queryParams : QueryParams) : Int = {
+  private def calcTableCompatibilityDistance(query : IQuery, queryParams : QueryParams) : Double = {
     val constraintDiffSize = tableAndQueryEqualityConstraintsSymmetricDifferenceSize(query, queryParams)
 
     if (queryParams.metrics.toSet.filter(query.isMetricSupported(_)).isEmpty ||
@@ -32,7 +32,18 @@ class QueryLocator(availableQueries : List[IQuery]) extends IQueryLocator {
       queryIncompatibleScoreThreshold + constraintDiffSize
     }
     else {
-      query.dimensionInformation.length - queryParams.dimensionDefinitions.size
+      val distance = query.dimensionInformation.length - queryParams.dimensionDefinitions.size
+      val queryDimnesions = queryParams.dimensionDefinitions.map(_.dimension).toSet
+      val tableDimensions = query.dimensionInformation.map(_.dimension).toSet
+
+      if (!queryDimnesions.contains(Dimensions.hour) &&
+          !queryDimnesions.contains(Dimensions.tenSeconds) &&
+          !queryDimnesions.contains(Dimensions.minute) &&
+          !queryDimnesions.contains(Dimensions.day) &&
+          tableDimensions.contains(Dimensions.hour))
+        distance-0.5
+      else
+        distance
     }
   }
 
