@@ -119,7 +119,11 @@ class Application extends Controller {
   }
 
   def extractOrder(orderBy: String) : OrderDefinition = {
-    val direction = orderBy.charAt(0).toString
+     val direction = if (orderBy.isEmpty)
+			orderBy
+		     else
+			orderBy.charAt(0).toString
+    
     direction match {
       case "+" => OrderDefinition(orderBy.substring(1).trim, OrderDirection.ASC)
       case "-" => OrderDefinition(orderBy.substring(1).trim, OrderDirection.DESC)
