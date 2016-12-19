@@ -87,5 +87,5 @@ object OperatingSystem extends Enumeration {
   val UNKNOWN_MOBILE = Value(259, "Unknown mobile")
   val UNKNOWN_TABLET = Value(260, "Unknown tablet")
   val UNKNOWN = Value(257, "Unknown Operating System")
-  
+  val INVALID = Value(-1, "Invalid Operating System")
 }

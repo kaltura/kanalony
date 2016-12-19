@@ -11,4 +11,6 @@ object Device extends Enumeration {
   val DMR = Value(5, "Digital media receiver")
   val WEARABLE = Value(6, "Wearable computer")
   val UNKNOWN = Value(7, "Unknown Device")
+  val INVALID = Value(-1, "Invalid Device")
+
 }
