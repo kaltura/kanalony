@@ -2,6 +2,7 @@ package controllers
 
 import argonaut.Argonaut._
 import argonaut._
+import com.kaltura.core.userAgent.enums.{OperatingSystem, Device, Browser}
 import com.kaltura.model.entities.{Metric, Metrics}
 import kanalony.storage.logic._
 import kanalony.storage.logic.queries.model._
@@ -119,11 +120,11 @@ class Application extends Controller {
   }
 
   def extractOrder(orderBy: String) : OrderDefinition = {
-     val direction = if (orderBy.isEmpty)
-			orderBy
-		     else
-			orderBy.charAt(0).toString
-    
+    val direction = if (orderBy.isEmpty)
+      orderBy
+    else
+      orderBy.charAt(0).toString
+
     direction match {
       case "+" => OrderDefinition(orderBy.substring(1).trim, OrderDirection.ASC)
       case "-" => OrderDefinition(orderBy.substring(1).trim, OrderDirection.DESC)
@@ -138,8 +139,17 @@ class Application extends Controller {
   def createConstraint(dimension: Dimensions.Value, values: List[String]) : IDimensionConstraint = {
     try {
       dimension match {
-        case Dimensions.partner | Dimensions.operatingSystem | Dimensions.browser | Dimensions.device  => {
+        case Dimensions.partner  => {
           new DimensionEqualityConstraint[Int](values.toSet.map { (v: String) => v.toInt })
+        }
+        case Dimensions.operatingSystem => {
+          new DimensionEqualityConstraint[Int](values.toSet.map { (v: String) => OperatingSystem.values.find(_.toString == v).getOrElse(OperatingSystem.INVALID).id})
+        }
+        case Dimensions.browser => {
+          new DimensionEqualityConstraint[Int](values.toSet.map { (v: String) => Browser.values.find(_.toString == v).getOrElse(Browser.INVALID).id})
+        }
+        case Dimensions.device  => {
+          new DimensionEqualityConstraint[Int](values.toSet.map { (v: String) => Device.values.find(_.toString == v).getOrElse(Device.INVALID).id})
         }
         case _ => new DimensionEqualityConstraint(values.toSet)
       }
@@ -148,7 +158,6 @@ class Application extends Controller {
       case e : NumberFormatException => { throw new IllegalArgumentException(s"Dimension $dimension supplied invalid values")}
     }
   }
-
   def requestToQueryParams(req : AnalyticsRequest) : QueryParams = {
 
     val dimensionsInResult = extractDimensions(req.dimensions)

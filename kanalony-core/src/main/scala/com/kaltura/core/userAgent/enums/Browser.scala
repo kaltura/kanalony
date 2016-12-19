@@ -186,4 +186,6 @@ object Browser extends Enumeration{
   val DOWNLOAD = Value(272, "Downloading Tool")
   val UNKNOWN = Value(270, "Unknown Browser")
   val APPLE_MAIL = Value(819, "Apple Mail")
+  val INVALID = Value(-1, "Invalid Browser")
+
 }
