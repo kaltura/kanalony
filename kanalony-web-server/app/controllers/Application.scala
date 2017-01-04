@@ -116,7 +116,13 @@ class Application extends Controller {
 
   def extractTime(time : String) : LocalDateTime = {
     val formatter = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm")
-    formatter.parseLocalDateTime(time)
+    val result = formatter.parseLocalDateTime(time)
+    val year = result.getYear
+    if (year < 1000)
+    {
+      throw new IllegalArgumentException(s"Cannot parse $time: Value $year for year must be in the format yyyy")
+    }
+    result
   }
 
   def extractOrder(orderBy: String) : OrderDefinition = {
