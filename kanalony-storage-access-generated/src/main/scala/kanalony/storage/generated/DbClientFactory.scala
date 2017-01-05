@@ -6,10 +6,13 @@ import kanalony.storage.generated._
 object DbClientFactory {
 
   val connector = ConnectorFactory.connector
+  val dimConnector = ConnectorFactory.dimConnector
 
   val session = connector.session
   val keyspace = KeySpace(connector.name)
 
+ private object EntryTableAccessorObj extends EntryTableAccessor with dimConnector.Connector
+  lazy val EntryTableAccessor : EntryTableAccessor = EntryTableAccessorObj
   private object MinutelyAggPrtnCv1ClstCv2TableAccessorObj extends MinutelyAggPrtnCv1ClstCv2TableAccessor with connector.Connector with IMinutelyAggPrtnCv1ClstCv2TableAccessor
 lazy val MinutelyAggPrtnCv1ClstCv2TableAccessor : IMinutelyAggPrtnCv1ClstCv2TableAccessor = MinutelyAggPrtnCv1ClstCv2TableAccessorObj
 private object TensecsAggClstAppTableAccessorObj extends TensecsAggClstAppTableAccessor with connector.Connector with ITensecsAggClstAppTableAccessor

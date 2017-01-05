@@ -14,4 +14,5 @@ object ConnectorFactory extends IConnectorFactory {
   val cassandraPort = config.getInt("config.cassandra.port")
   val keyspace = config.getString("config.cassandra.keyspace")
   override val connector : KeySpaceDef = ContactPoints(cassandraHosts, cassandraPort).keySpace(keyspace)
+  override val dimConnector : KeySpaceDef = ContactPoints(cassandraHosts, cassandraPort).keySpace("enrichment_cache")
 }

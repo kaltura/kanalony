@@ -1,7 +1,7 @@
 package com.kaltura.enrichment
 
 
-import com.kaltura.model.cache.EntryCache
+import com.kaltura.model.cache.{EntryMetadataCache, EntryCache}
 import com.kaltura.model.entities.Entry
 import com.kaltura.model.events.RawPlayerEvent
 
@@ -10,7 +10,10 @@ import com.kaltura.model.events.RawPlayerEvent
  */
 class EnrichByEntry extends IEnrich[(Int,String),Entry] {
 
-  override def loadEntity(entryPartnerId: (Int, String)) : Entry = EntryCache.getById(entryPartnerId._1, entryPartnerId._2)
+  override def loadEntity(entryPartnerId: (Int, String)) : Entry = {
+    EntryMetadataCache.getById(entryPartnerId._1, entryPartnerId._2)
+    EntryCache.getById(entryPartnerId._1, entryPartnerId._2)
+  }
 
   override def enrich(playerEvent: RawPlayerEvent): RawPlayerEvent = {
     if (playerEvent.isValid) {

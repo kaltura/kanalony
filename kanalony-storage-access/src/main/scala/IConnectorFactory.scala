@@ -7,4 +7,5 @@ import com.websudos.phantom.connectors.KeySpaceDef
  */
 trait IConnectorFactory {
   val connector : KeySpaceDef
+  val dimConnector: KeySpaceDef
 }
