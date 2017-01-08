@@ -25,14 +25,14 @@ object QueryExecutor {
                         .map(_.flatten)
                         .map(x => combineResults(qp)(x))
 
-    if (qp.dimensionDefinitions.map(_.dimension).toSet.contains(Dimensions.entry)) {
+    if (qp.dimensionDefinitions.filter(_.includeInResult).map(_.dimension).contains(Dimensions.entry)) {
       val resultWithEntries = result.flatMap(getEntries()).zip(result)
       resultWithEntries.map(x => {
         val queryResult = x._2
         val entries = x._1
         val names = entries.map(entry => (entry.entryId, entry.entryName)).toMap
         val index = queryResult.headers.indexOf(Dimensions.entry.toString)
-        val enrichedRows = queryResult.rows.map(row => names(row(index)) :: row)
+        val enrichedRows = queryResult.rows.map(row => names.get(row(index)).getOrElse("Missing Entry Name") :: row)
 
         QueryResult("entryName" :: queryResult.headers, enrichedRows)
       })
