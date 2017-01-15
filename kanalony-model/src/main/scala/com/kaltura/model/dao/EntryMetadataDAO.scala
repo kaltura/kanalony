@@ -8,7 +8,7 @@ import com.kaltura.model.entities.EntryMetadata
  */
 object EntryMetadataDAO extends DAOBase[EntryMetadata, String] {
   def getById(partnerId: Int, entryId:String): Option[EntryMetadata] = {
-    withPartnerImpersonation(partnerId, s"fetch entry data for entry $entryId", Some(EntryMetadata(entryId, "Missing Entry Name"))) { kalturaAPI =>
+    withPartnerImpersonation(partnerId, s"fetch entry data for entry $entryId", Some(EntryMetadata("-1", "Missing Entry Name"))) { kalturaAPI =>
       val entryName = getEntryName(kalturaAPI, entryId)
       Some(EntryMetadata(entryId, entryName))
     }

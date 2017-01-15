@@ -15,7 +15,7 @@ sealed class EntryMetadataCache extends CacheBase[EntryMetadata,String]{
 
   def getById(partnerId: Int, entryId: String) : EntryMetadata = {
     findById(entryId).getOrElse {
-      val entry = EntryMetadataDAO.getById(partnerId, entryId).getOrElse(EntryMetadata(entryId, "Missing Entry Name"))
+      val entry = EntryMetadataDAO.getById(partnerId, entryId).getOrElse(EntryMetadata("-1", "Missing Entry Name"))
       cassandraSession.execute(QueryBuilder
         .insertInto(keySpace, tableName)
         .value("id", entry.id)
