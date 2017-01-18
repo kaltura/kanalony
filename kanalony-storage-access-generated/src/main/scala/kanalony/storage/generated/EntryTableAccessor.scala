@@ -12,9 +12,6 @@ abstract class EntryTableAccessor extends CassandraTable[EntryTableAccessor, Ent
 
   object id extends StringColumn(this)with PartitionKey[String]
   object name extends StringColumn(this)
-  object categories extends OptionalStringColumn(this)
-
-
 
   override def tableName = "dim_entries_metadata"
 

@@ -13,6 +13,8 @@ object DbClientFactory {
 
  private object EntryTableAccessorObj extends EntryTableAccessor with dimConnector.Connector
   lazy val EntryTableAccessor : EntryTableAccessor = EntryTableAccessorObj
+  private object CategoryTableAccessorObj extends CategoryTableAccessor with dimConnector.Connector
+  lazy val CategoryTableAccessor : CategoryTableAccessor = CategoryTableAccessorObj
   private object MinutelyAggPrtnCv1ClstCv2TableAccessorObj extends MinutelyAggPrtnCv1ClstCv2TableAccessor with connector.Connector with IMinutelyAggPrtnCv1ClstCv2TableAccessor
 lazy val MinutelyAggPrtnCv1ClstCv2TableAccessor : IMinutelyAggPrtnCv1ClstCv2TableAccessor = MinutelyAggPrtnCv1ClstCv2TableAccessorObj
 private object TensecsAggClstAppTableAccessorObj extends TensecsAggClstAppTableAccessor with connector.Connector with ITensecsAggClstAppTableAccessor

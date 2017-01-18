@@ -2,7 +2,7 @@ package kanalony.storage.logic
 
 import com.kaltura.model.entities.{Metrics, Metric}
 import kanalony.storage.DbClientFactory
-import kanalony.storage.generated.EntryRow
+import kanalony.storage.generated.{CategoryRow, EntryRow}
 import kanalony.storage.logic.queries.model.OrderDirection
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,9 +25,16 @@ object QueryExecutor {
                         .map(_.flatten)
                         .map(x => combineResults(qp)(x))
 
+    enrichResult(result, qp)
+
+  }
+
+  def enrichResult(queryRes: Future[QueryResult], qp: QueryParams) : Future[QueryResult] = {
+
+    var result = queryRes
     if (qp.dimensionDefinitions.filter(_.includeInResult).map(_.dimension).contains(Dimensions.entry)) {
       val resultWithEntries = result.flatMap(getEntries()).zip(result)
-      resultWithEntries.map(x => {
+      result = resultWithEntries.map(x => {
         val queryResult = x._2
         val entries = x._1
         val names = entries.map(entry => (entry.entryId, entry.entryName)).toMap
@@ -36,10 +43,20 @@ object QueryExecutor {
 
         QueryResult("entryName" :: queryResult.headers, enrichedRows)
       })
-    } else {
-      result
     }
+    if (qp.dimensionDefinitions.filter(_.includeInResult).map(_.dimension).contains(Dimensions.category)) {
+      val resultWithEntries = result.flatMap(getCategories()).zip(result)
+      result = resultWithEntries.map(x => {
+        val queryResult = x._2
+        val categories = x._1
+        val names = categories.map(category => (category.categoryId, category.categoryName)).toMap
+        val index = queryResult.headers.indexOf(Dimensions.category.toString)
+        val enrichedRows = queryResult.rows.map(row => names.get(row(index)).getOrElse("Missing Category Name") :: row)
 
+        QueryResult("categoryName" :: queryResult.headers, enrichedRows)
+      })
+    }
+    result
   }
 
   def getEntries() : (QueryResult => Future[List[EntryRow]]) = {
@@ -47,6 +64,15 @@ object QueryExecutor {
       val index = queryResult.headers.indexOf(Dimensions.entry.toString)
       val entryIds = queryResult.rows.map(row => row(index)).toSet
       DbClientFactory.EntryTableAccessor.query(entryIds.toList)
+
+    }
+  }
+
+  def getCategories() : (QueryResult => Future[List[CategoryRow]]) = {
+    queryResult => {
+      val index = queryResult.headers.indexOf(Dimensions.category.toString)
+      val categoriesIds = queryResult.rows.map(row => row(index)).toSet
+      DbClientFactory.CategoryTableAccessor.query(categoriesIds.toList)
 
     }
   }
