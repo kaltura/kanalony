@@ -1,22 +1,21 @@
 package com.kaltura.aggregations
 
 import com.datastax.spark.connector._
+import com.datastax.spark.connector.streaming._
 import com.kaltura.core.utils.ConfigurationManager
 import com.kaltura.model.events.EnrichedPlayerEvent
-import org.apache.spark.HashPartitioner
 import org.apache.spark.streaming._
-import org.apache.spark.streaming.dstream.{DStream, MapWithStateDStream}
+import org.apache.spark.streaming.dstream.DStream
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
-import com.datastax.spark.connector.streaming._
 
 
 
 abstract class BaseAggregation[AggKey:ClassTag, AggRes:TypeTag :ClassTag] extends Serializable with IAggregate {
 
   val tableMetadata: Map[String, SomeColumns]
-  val keyspace = "kanalony_agg"
+  val keyspace = "kanalony_agg_test"
 
   def aggregateBatchEvents(enrichedEvents: DStream[EnrichedPlayerEvent]) : DStream[(AggKey,Long)] =
     enrichedEvents.map(e => (aggKey(e), 1L)).reduceByKey(_ + _) //.reduceByKey((x: Long, y: Long) => x + y, 2 * enrichedEvents.context.sparkContext.defaultParallelism)
@@ -31,9 +30,12 @@ abstract class BaseAggregation[AggKey:ClassTag, AggRes:TypeTag :ClassTag] extend
     Some(output)
   }
 
-  def prepareForSave(aggregatedEvents: MapWithStateDStream[AggKey, Long, Long, (AggKey, Long)]) : DStream[AggRes] =
-    aggregatedEvents.map(agg => toRow(agg))
+  //def prepareForSave(aggregatedEvents: MapWithStateDStream[AggKey, Long, Long, (AggKey, Long)]) : DStream[AggRes] =
+  //  aggregatedEvents.map(agg => toRow(agg))
 
+
+  def prepareForSave(aggregatedEvents: DStream[(AggKey, Long)]) : DStream[AggRes] =
+    aggregatedEvents.map(agg => toRow(agg))
 
   def toRow(pair:(AggKey,Long)): AggRes
 
@@ -49,8 +51,8 @@ abstract class BaseAggregation[AggKey:ClassTag, AggRes:TypeTag :ClassTag] extend
   def aggregate(enrichedEvents: DStream[EnrichedPlayerEvent]) : Unit = {
     if (ConfigurationManager.get("kanalony.events_aggregations.enabled_aggregations").split(",").contains(this.getClass.getSimpleName.stripSuffix("$"))) {
       val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
-      val aggregatedEvents = aggregatedBatchEvents.mapWithState[Long,(AggKey, Long)](stateSpec)
-      save(prepareForSave(aggregatedEvents))
+      //val aggregatedEvents = aggregatedBatchEvents.mapWithState[Long,(AggKey, Long)](stateSpec)
+      save(prepareForSave(aggregatedBatchEvents))
     }
   }
 

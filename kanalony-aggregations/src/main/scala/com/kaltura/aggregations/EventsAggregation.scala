@@ -25,15 +25,12 @@ object EventsAggregation extends App with MetaLog[BaseLog] {
     //val (enabledAggregations, applicationSuffix) = if (args.isEmpty) ("MinutelyAggregationByEntryOperatingSystemBrowser,HourlyAggregationByCountryOperatingSystem","0") else (args(0),args(1))
     val applicationName = ConfigurationManager.get("kanalony.events_aggregations.application_name") + applicationSuffix
     val checkpointRootPath = ConfigurationManager.getOrElse("kanalony.checkpoint_root_path","/tmp/checkpoint")
-    val checkpointDirectory = s"$checkpointRootPath/$applicationName"
+    //val checkpointDirectory = s"$checkpointRootPath/$applicationName"
 
     ConfigurationManager.set("kanalony.events_aggregations.enabled_aggregations",enabledAggregations)
     // Get StreamingContext from checkpoint data or create a new one
-    val ssc = StreamingContext.getOrCreate(checkpointDirectory,
-      () => {
-        createSparkStreamingContext(checkpointDirectory)
-
-      })
+    val ssc =
+        createSparkStreamingContext()
 
     // Start the computation
     ssc.start()
@@ -41,7 +38,7 @@ object EventsAggregation extends App with MetaLog[BaseLog] {
 
   }
 
-  def createSparkStreamingContext(checkpointDirectory: String, aggregators: List[(String)] = List()): StreamingContext = {
+  def createSparkStreamingContext(aggregators: List[(String)] = List()): StreamingContext = {
 
     val sparkConf = new SparkConf()
 //      .setAppName(ConfigurationManager.get("kanalony.events_aggregations.application_name"))
@@ -56,11 +53,11 @@ object EventsAggregation extends App with MetaLog[BaseLog] {
 
     val sparkContext = new SparkContext(sparkConf)
     val ssc = new StreamingContext(sparkContext, Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.batch_duration", "10").toInt))
-    ssc.checkpoint(checkpointDirectory)
 
     val kafkaBrokers = ConfigurationManager.getOrElse("kanalony.events_aggregations.kafka_brokers", "127.0.0.1:9092")
     val topics = Set("enriched-player-events")
-    val stream = StreamManager.createStream(ssc, kafkaBrokers, topics).checkpoint(Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.checkpoint_interval_sec", "30").toInt))
+    val stream = StreamManager.createStream(ssc, kafkaBrokers, topics)
+    //  .checkpoint(Seconds(ConfigurationManager.getOrElse("kanalony.events_aggregations.checkpoint_interval_sec", "30").toInt))
 
     val parsedEnrichedEvents = stream.
       flatMap(ev => PlayerEventParser.parseEnhancedPlayerEvent(ev._2))
@@ -87,7 +84,7 @@ object EventsAggregation extends App with MetaLog[BaseLog] {
     HourlyAggregationByOperatingSystemBrowser.aggregate(parsedEnrichedEvents)
     HourlyAggregationByPartner.aggregate(parsedEnrichedEvents)
 
-    HourlyAggregationPeakAudience.aggregate(parsedEnrichedEvents)
+    //HourlyAggregationPeakAudience.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDomain.aggregate(parsedEnrichedEvents)
     HourlyAggregationByDomainReferrer.aggregate(parsedEnrichedEvents)
     HourlyAggregationByEntry.aggregate(parsedEnrichedEvents)

@@ -1,15 +1,14 @@
 package com.kaltura.aggregations
 
 
-import com.datastax.spark.connector.{SomeColumns, _}
+import com.datastax.spark.connector.SomeColumns
 import com.kaltura.aggregations.keys.AggregationKey
 import com.kaltura.core.utils.ConfigurationManager
-import com.kaltura.model.entities.{PlayerEventTypes, Metrics}
+import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
+import com.kaltura.model.entities.{Metrics, PlayerEventTypes}
 import com.kaltura.model.events.EnrichedPlayerEvent
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, State, StateSpec, Time}
-import com.kaltura.core.utils.ReadableDateUnits.ReadableDateUnits
-import com.datastax.spark.connector.streaming._
 
 abstract class AggregationPeakAudience extends BaseAggregation[AggregationKey, PartnerRes] {
 
@@ -37,10 +36,10 @@ abstract class AggregationPeakAudience extends BaseAggregation[AggregationKey, P
   override def aggregate(enrichedEvents: DStream[EnrichedPlayerEvent]) : Unit = {
     if (ConfigurationManager.get("kanalony.events_aggregations.enabled_aggregations").split(",").contains(this.getClass.getSimpleName.stripSuffix("$"))) {
       val aggregatedBatchEvents = aggregateBatchEvents(enrichedEvents)
-      val aggregatedEvents = aggregatedBatchEvents.mapWithState(stateSpec)
+      //val aggregatedEvents = aggregatedBatchEvents.mapWithState(stateSpec)
 
-      val peakAudience = aggregatedEvents.map({ case (k, v) => (AggregationKey(k.partnerId, k.metric, getAggrTime(k.time)), v) }).mapWithState(maxStateSpec)
-      save(prepareForSave(peakAudience))
+      //val peakAudience = aggregatedEvents.map({ case (k, v) => (AggregationKey(k.partnerId, k.metric, getAggrTime(k.time)), v) }).mapWithState(maxStateSpec)
+      //save(prepareForSave(peakAudience))
     }
   }
 
